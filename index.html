@@ -218,12 +218,17 @@ table.cl td.pt{font-weight:700}
 #login{position:fixed;inset:0;z-index:60;background:var(--bg);display:none;overflow:auto}#login.on{display:block}
 #login .lg{max-width:420px;margin:0 auto;padding:calc(60px + var(--safe-t)) 22px 40px}
 .hint{font-size:14px;color:var(--muted);text-align:center;margin:8px 0 0;min-height:20px}
+
+/* spazio per il badge "Powered by Netlify" (piano gratuito) */
+body.nf nav.bar{bottom:58px;border-radius:22px;left:10px;right:10px;border:.5px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+body.nf .wrap{padding-bottom:calc(170px + var(--safe-b))}
+body.nf .toast{top:calc(10px + var(--safe-t))}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2">
-<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png?v=2">
-<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=2">
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-title" content="Oneglia B">
 <meta name="theme-color" content="#0b1d4d">
 </head>
@@ -1415,6 +1420,7 @@ function webSaver(){return{save:async({filename,data})=>{
 
 // expose for inline handlers
 Object.assign(window,{logout,accSheet,myProfile,regoleSheet,whoAmI,multaSheet,quotaSheet,movSheet,debSheet,movDetail,injSheet,resultImage,newsSheet,delNews,formationSheet,fabAct,editClassifica,editSponsor,openPlayer,editPlayer,openStaff,editStaff,openTraining,editTraining,weekSheet,openMatch,editMatch,convSheet,resultSheet,closeSheet,go,setRole,render,renderKeep,S});
+if(/netlify\.app$/.test(location.hostname))document.body.classList.add("nf");
 route();
 initDb();
 </script>
