@@ -402,9 +402,33 @@ html.v2 .dvb.on{animation:pop .32s var(--ease)}
 /* schermi piccoli (iPhone SE, Android compatti) */
 @media (max-width:360px){html.v2 .ltitle{font-size:25px}html.v2 .hero .big{font-size:28px}html.v2 .hero img{width:52px}html.v2 .sponsor{grid-template-columns:repeat(2,1fr)}html.v2 .vs .tm .tlogo{width:52px!important;height:52px!important}html.v2 nav.bar a{font-size:10px}}
 
+/* barra Salva/Chiudi fissa in fondo ai fogli: copre tutto ciò che scorre sotto */
+.sheet .actions[style*="sticky"]{background:var(--sheet)!important;bottom:calc(-24px - var(--safe-b))!important;margin-bottom:calc(-24px - var(--safe-b));padding:12px 0 calc(12px + 24px + var(--safe-b))!important;z-index:3;box-shadow:0 -1px 0 var(--line),0 -14px 18px -6px var(--sheet)}
+
+/* calendario stile Tuttocampo */
+.gchips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:12px -16px 0;padding:2px 16px 4px;scroll-snap-type:x proximity}.gchips::-webkit-scrollbar{display:none}
+.gchip{flex:none;border:0;min-width:44px;height:34px;padding:0 10px;border-radius:999px;background:var(--fill);color:var(--muted);font:inherit;font-size:14px;font-weight:700;cursor:pointer;font-variant-numeric:tabular-nums;transition:background .2s,color .2s,transform .15s}.gchip:active{transform:scale(.94)}
+.gchip.on{background:var(--tint);color:#fff}
+.gcar{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:12px -16px 0;padding:4px 16px 10px;scroll-padding:0 16px}.gcar::-webkit-scrollbar{display:none}
+.gcard{flex:0 0 100%;display:flex;flex-direction:column;scroll-snap-align:start;background:var(--card);border-radius:18px;padding:14px 16px 14px;box-shadow:var(--shadow);border:1px solid var(--line);cursor:pointer;transition:transform .15s}.gcard:active{transform:scale(.985)}
+.gh{display:flex;justify-content:space-between;align-items:baseline}.gh b{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tint)}.gh span{font-size:13px;color:var(--muted)}
+.gm{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:14px 0 12px}
+.gt{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0}.gt span{font-size:14px;font-weight:700;line-height:1.2}
+.gt .tlogo{width:56px!important;height:56px!important}
+.gc{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:84px}.gc span{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.gs{font-size:34px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1}.gs i{font-style:normal;color:var(--muted);margin:0 5px;font-weight:600}
+.gv{font-size:22px;font-weight:800;letter-spacing:.04em;color:var(--muted)}
+.gf{margin-top:auto;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px}.gf .lk{font-size:14px;font-weight:600;color:var(--tint)}
+.glist .grow{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;position:relative}
+.glist .grow+.grow{border-top:1px solid var(--line)}.glist .grow:active{background:var(--fill)}
+.glist .grow.cur{background:color-mix(in srgb,var(--tint) 8%,transparent);box-shadow:inset 3px 0 0 var(--tint)}
+.gn{font-weight:800;font-size:14px;color:var(--text);line-height:1.15}.gn small{display:block;font-weight:500;font-size:11.5px;color:var(--muted)}
+.tt{display:flex;flex-direction:column;gap:6px;min-width:0}.tl{display:flex;align-items:center;gap:8px;min-width:0;font-size:14.5px;color:var(--muted)}.tl em{font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tl.w{color:var(--text);font-weight:700}.tl .tlogo{flex:none}
+.ss{display:flex;flex-direction:column;gap:6px;align-items:flex-end;font-variant-numeric:tabular-nums;min-width:22px}.ss b{font-size:15px;font-weight:600;color:var(--muted);line-height:20px}.ss b.w{color:var(--text);font-weight:800}.ss.tm{font-size:14px;font-weight:700;color:var(--text)}
+
 /* area admin */
 .li.nochev::after{display:none!important}
-.more{border:0;background:var(--fill);color:var(--muted);width:38px;height:30px;border-radius:999px;font-size:13px;letter-spacing:1px;font-weight:800;cursor:pointer;flex:none;transition:transform .15s,background .2s}.more:active{transform:scale(.92);background:var(--fill2)}
+.dots{border:0;background:var(--fill);color:var(--muted);width:38px;height:30px;border-radius:999px;font-size:13px;letter-spacing:1px;font-weight:800;cursor:pointer;flex:none;transition:transform .15s,background .2s}.dots:active{transform:scale(.92);background:var(--fill2)}
 .astat{text-align:right;font-size:14px;font-weight:600;white-space:nowrap}.astat small{display:block;font-size:12px;color:var(--muted);font-weight:500}
 .sw{width:51px;height:31px;border-radius:999px;border:0;background:var(--fill2);position:relative;cursor:pointer;flex:none;transition:background .25s}.sw i{position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .25s cubic-bezier(.3,.7,.3,1)}.sw.on{background:#34c759}.sw.on i{transform:translateX(20px)}
 .cards{display:flex;gap:6px}.cards i{font-style:normal;width:22px;height:28px;border-radius:4px;display:grid;place-items:center;font-size:13px;font-weight:800;color:#3a2a00}.cards .cy{background:#ffd60a}.cards .cr{background:#ff3b30;color:#fff}
@@ -617,14 +641,32 @@ function vAllenamenti(){
   </div>`;
 }
 
+function initGiornate(){const car=$("#gcar"),ch=$("#gchips");if(!car||!ch)return;
+  const set=i=>{ch.querySelectorAll(".gchip").forEach(b=>b.classList.toggle("on",+b.dataset.gi===i));const b=ch.querySelector(`[data-gi="${i}"]`);if(b)ch.scrollTo({left:b.offsetLeft-ch.clientWidth/2+b.clientWidth/2,behavior:"smooth"})};
+  const go2=(i,smooth)=>{const c=car.children[i];if(c)car.scrollTo({left:c.offsetLeft-car.offsetLeft-16+16,behavior:smooth?"smooth":"auto"})};
+  const st=+car.dataset.start||0;go2(st,false);set(st);
+  let t;car.addEventListener("scroll",()=>{clearTimeout(t);t=setTimeout(()=>{const i=Math.round(car.scrollLeft/(car.children[0].offsetWidth+12));set(Math.max(0,Math.min(i,car.children.length-1)));const m=car.children[i];S.gSel=m?null:S.gSel},90)},{passive:true});
+  ch.querySelectorAll(".gchip").forEach(b=>b.onclick=()=>{const i=+b.dataset.gi;go2(i,true);set(i)});
+}
 function vPartite(){
   if(loading(["matches","info"]))return header("Partite")+`<div class="skel"></div><div class="skel"></div>`;
   const tab=S.matchTab;
   let body="";
   if(tab==="cal"){
-    const up=upcoming(S.matches).filter(m=>!isPlayed(m)), ps=[...S.matches.filter(m=>isPlayed(m)&&daysTo(m.data)>=0),...past(S.matches)];
-    const row=m=>{const played=m.golFatti!=null&&m.golFatti!=="";const res=played?(m.golFatti>m.golSubiti?"g":m.golFatti<m.golSubiti?"r":"a"):"";return `<div class="li" onclick="openMatch('${m.id}')">${badge(m.avversario,40)}<div class="nm"><b>${m.casa?"vs ":"@ "}${esc(m.avversario)}</b><span>${fmtD(m.data,1)}${m.ora?" · "+esc(m.ora):""}${m.giornata?" · "+esc(String(m.giornata).replace(/ª giornata.*/,"ª g.")):""}${m.mvp?" · ⭐":""}${m.formazione&&(m.formazione.slots||[]).some(Boolean)?` · <span style="color:var(--green)">Formazione ${esc(m.formazione.modulo)} ✓</span>`:""}</span></div>${played?`<span class="tag ${res}">${m.casa?m.golFatti+"-"+m.golSubiti:m.golSubiti+"-"+m.golFatti}</span>`:`<span class="tag b">${(m.convocati||[]).length} conv.</span>`}</div>`};
-    body=`<h3>Prossime</h3>${up.length?`<div class="list">${up.map(row).join("")}</div>`:`<div class="card muted small">Nessuna partita in programma.</div>`}<h3>Giocate</h3>${ps.length?`<div class="list">${ps.map(row).join("")}</div>`:`<div class="card muted small">Nessuna partita registrata.</div>`}`;
+    const all=S.matches.filter(m=>m.data).sort((x,y)=>(x.data+(x.ora||"")).localeCompare(y.data+(y.ora||"")));
+    const gN=m=>{const g=parseInt(String(m.giornata||"").match(/\d+/)||"",10);return isNaN(g)?null:g};
+    let idx=all.findIndex(m=>!isPlayed(m)&&daysTo(m.data)>=0);if(idx<0)idx=Math.max(0,all.length-1);
+    if(S.gSel!=null&&all.some(m=>m.id===S.gSel))idx=all.findIndex(m=>m.id===S.gSel);
+    const card=(m,i)=>{const pl=isPlayed(m);const home=m.casa?TEAM:m.avversario,away=m.casa?m.avversario:TEAM;const hs=m.casa?m.golFatti:m.golSubiti,as=m.casa?m.golSubiti:m.golFatti;const res=pl?(m.golFatti>m.golSubiti?"g":m.golFatti<m.golSubiti?"r":"a"):"";
+      return `<div class="gcard" data-i="${i}" onclick="openMatch('${m.id}')"><div class="gh"><b>${gN(m)?"Giornata "+gN(m):esc(m.giornata||"Partita")}</b><span>${esc(fmtD(m.data,1))}</span></div>
+        <div class="gm"><div class="gt">${badge(home,56)}<span>${esc(home)}</span></div><div class="gc">${pl?`<b class="gs">${hs}<i>–</i>${as}</b><span>Finale</span>`:`<b class="gv">VS</b><span>${esc(m.ora||"Orario da definire")}</span>`}</div><div class="gt">${badge(away,56)}<span>${esc(away)}</span></div></div>
+        <div class="gf">${pl?`<span class="tag ${res}">${res==="g"?"Vittoria":res==="r"?"Sconfitta":"Pareggio"}</span><span class="lk">Report partita ›</span>`:`<span class="tag">${m.casa?"In casa":"In trasferta"}</span><span class="lk">Dettagli ›</span>`}</div></div>`};
+    const row=m=>{const pl=isPlayed(m);const home=m.casa?TEAM:m.avversario,away=m.casa?m.avversario:TEAM;const hs=m.casa?m.golFatti:m.golSubiti,as=m.casa?m.golSubiti:m.golFatti;const win=(a,b)=>pl&&+a>+b?" w":"";
+      return `<div class="grow ${m.id===all[idx].id?"cur":""}" onclick="openMatch('${m.id}')"><span class="gn">G${gN(m)||"–"}<small>${esc(fmtD(m.data).replace(/\s\d{4}$/,""))}</small></span><span class="tt"><span class="tl${win(hs,as)}">${badge(home,20)}<em>${esc(home)}</em></span><span class="tl${win(as,hs)}">${badge(away,20)}<em>${esc(away)}</em></span></span>${pl?`<span class="ss"><b class="${win(hs,as)}">${hs}</b><b class="${win(as,hs)}">${as}</b></span>`:`<span class="ss tm">${esc(m.ora||"–")}</span>`}</div>`};
+    setTimeout(initGiornate,0);
+    body=all.length?`<div class="gchips" id="gchips">${all.map((m,i)=>`<button class="gchip ${i===idx?"on":""}" data-gi="${i}">${gN(m)?"G"+gN(m):i+1}</button>`).join("")}</div>
+    <div class="gcar" id="gcar" data-start="${idx}">${all.map(card).join("")}</div>
+    <h3>Tutte le giornate</h3><div class="list glist">${all.map(row).join("")}</div>`:`<div class="card muted small" style="margin-top:12px">Nessuna partita in calendario.</div>`;
   }else if(tab==="cla"){
     const cl=(S.info.classifica&&S.info.classifica.righe)||[];
     const zc={promo:"var(--green)",playoff:"var(--blue)",playout:"var(--amber)",retro:"var(--red)"};
@@ -1487,7 +1529,7 @@ function vAdmin(){
     return `<div class="view">${back}${header(S.players.length+" giocatori")}
     <input class="search" id="aq" placeholder="Cerca un giocatore" value="${esc(S.aq||"")}" oninput="S.aq=this.value;renderKeep('aq')">
     <button class="btn sm" style="margin-top:12px" onclick="editPlayer()">Aggiungi giocatore</button>
-    ${groups.map(g=>`<h3>${g.k&&ROLE[g.k]?ROLE[g.k].l:"Altri"} · ${g.ps.length}</h3><div class="list">${g.ps.map(p=>`<div class="li nochev" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${stTag(p)}</span></div><button class="more" onclick="event.stopPropagation();playerActions('${p.id}')" aria-label="Azioni per ${esc(fullName(p))}">•••</button></div>`).join("")}</div>`).join("")}
+    ${groups.map(g=>`<h3>${g.k&&ROLE[g.k]?ROLE[g.k].l:"Altri"} · ${g.ps.length}</h3><div class="list">${g.ps.map(p=>`<div class="li nochev" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${stTag(p)}</span></div><button class="dots" onclick="event.stopPropagation();playerActions('${p.id}')" aria-label="Azioni per ${esc(fullName(p))}">•••</button></div>`).join("")}</div>`).join("")}
     </div>`;
   }
   if(t==="disp"){
@@ -1495,7 +1537,7 @@ function vAdmin(){
     const inf=S.players.filter(p=>p.stato==="infortunato"),sq=S.players.filter(p=>p.stato==="squalificato"||(dd[p.id]||{}).squalificato),dif=S.players.filter(p=>!sq.includes(p)&&(dd[p.id]||{}).diffidato);
     const ok=S.players.filter(isAvailable);
     const cert=S.players.filter(p=>p.certScad&&daysTo(p.certScad)<=30);
-    const sect=(lab,arr,sub)=>arr.length?`<h3>${lab} · ${arr.length}</h3><div class="list">${arr.map(p=>`<div class="li nochev" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${sub(p)}</span></div><button class="more" onclick="event.stopPropagation();playerActions('${p.id}')" aria-label="Azioni">•••</button></div>`).join("")}</div>`:"";
+    const sect=(lab,arr,sub)=>arr.length?`<h3>${lab} · ${arr.length}</h3><div class="list">${arr.map(p=>`<div class="li nochev" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${sub(p)}</span></div><button class="dots" onclick="event.stopPropagation();playerActions('${p.id}')" aria-label="Azioni">•••</button></div>`).join("")}</div>`:"";
     const injOf=p=>{const i=S.infortuni.find(x=>x.pid===p.id&&!x.chiuso);return i?[i.tipo,i.zona,i.rientro?"rientro "+fmtD(i.rientro,1):""].filter(Boolean).join(" · "):"Infortunato"};
     return `<div class="view">${back}${header("Chi è a disposizione")}
     <div class="stat3"><div><b style="color:var(--green)">${ok.length}</b><span>disponibili</span></div><div><b style="color:var(--amber)">${inf.length}</b><span>infortunati</span></div><div><b style="color:var(--red)">${sq.length}</b><span>squalificati</span></div></div>
