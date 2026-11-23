@@ -426,6 +426,19 @@ html.v2 .dvb.on{animation:pop .32s var(--ease)}
 .tt{display:flex;flex-direction:column;gap:6px;min-width:0}.tl{display:flex;align-items:center;gap:8px;min-width:0;font-size:14.5px;color:var(--muted)}.tl em{font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tl.w{color:var(--text);font-weight:700}.tl .tlogo{flex:none}
 .ss{display:flex;flex-direction:column;gap:6px;align-items:flex-end;font-variant-numeric:tabular-nums;min-width:22px}.ss b{font-size:15px;font-weight:600;color:var(--muted);line-height:20px}.ss b.w{color:var(--text);font-weight:800}.ss.tm{font-size:14px;font-weight:700;color:var(--text)}
 
+/* formazione nella scheda partita */
+.fcard{background:var(--card);border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--line);overflow:hidden}
+.ftog{width:100%;display:flex;align-items:center;gap:12px;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:14px 16px;cursor:pointer}
+.ftog b,.frow2 b{display:block;font-size:16px;font-weight:700}.ftog span,.frow2 span{font-size:13px;color:var(--muted)}
+.fchev{font-size:24px;color:var(--muted);transition:transform .25s cubic-bezier(.22,.8,.24,1)}.ftog.open .fchev{transform:rotate(90deg)}
+.fbody{padding:0 14px 14px;animation:rise .3s cubic-bezier(.22,.8,.24,1)}
+.fbody .pitch.mini{max-width:none;aspect-ratio:68/80}
+.fbench{margin-top:12px;font-size:14px;line-height:1.4}.fbench b{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.frow2{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}.fcard>.frow2:first-child{border-top:0}
+.capm{position:absolute;left:calc(50% - 30px);top:-4px;width:18px;height:18px;border-radius:50%;background:#ffd60a;color:#3a2a00;font-size:11px;font-weight:900;display:grid;place-items:center;box-shadow:0 0 0 2px #fff;z-index:2}
+.mini .capm{left:calc(50% - 22px);width:15px;height:15px;font-size:9px}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
 /* area admin */
 .li.nochev::after{display:none!important}
 .dots{border:0;background:var(--fill);color:var(--muted);width:38px;height:30px;border-radius:999px;font-size:13px;letter-spacing:1px;font-weight:800;cursor:pointer;flex:none;transition:transform .15s,background .2s}.dots:active{transform:scale(.92);background:var(--fill2)}
@@ -873,6 +886,7 @@ function openTraining(id){
     bindDisp(()=>{const tt=S.trainings.find(x=>x.id===id);if(tt)Object.assign(t,tt);const y=$("#sheet").scrollTop;$("#sheet").innerHTML=`<div class="grab"></div>`+draw();bind();$("#sheet").scrollTop=y},$("#sheet"));
     document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{const p=b.dataset.p,k=b.dataset.k;draft[p]=draft[p]===k?undefined:k;if(!draft[p])delete draft[p];const y=$("#sheet").scrollTop;$("#sheet").innerHTML=`<div class="grab"></div>`+draw();bind();$("#sheet").scrollTop=y});
     const a=$("#allP");if(a)a.onclick=()=>{S.players.forEach(p=>{if(!draft[p.id])draft[p.id]="P"});const y=$("#sheet").scrollTop;$("#sheet").innerHTML=`<div class="grab"></div>`+draw();bind();$("#sheet").scrollTop=y};
+    document.querySelectorAll("#sheet [data-cap]").forEach(b=>b.onclick=()=>{f.cap=f.cap===b.dataset.cap?null:b.dataset.cap;re()});
     const sv=$("#sv");if(sv)sv.onclick=async()=>{sv.disabled=true;const cur=S.trainings.find(x=>x.id===id)||t;if(await save("trainings",id,{...clean(cur),presenze:{...draft}})){toast("Presenze salvate");closeSheet()}else sv.disabled=false};
   };
   openSheet(draw());bind();
@@ -918,6 +932,16 @@ function openMatch(id){
   const formOld=()=>`<h3>Formazione${m.formazione&&hasForm?" · "+esc(m.formazione.modulo):""}</h3>
   ${staff?`<div class="chips" style="margin-bottom:8px">${pub("formPubblica",m.formPubblica,"Formazione")}</div>`:""}
   ${showForm&&hasForm?`<div onclick="formationSheet('${id}')" style="cursor:pointer">${pitchHTML(m.formazione,{mini:true})}</div><div class="row wrap2" style="margin-top:10px"><button class="btn sm" id="mimg">Foto formazione</button>${staff?`<button class="btn sm" id="mprint">Stampa per spogliatoio</button>`:""}</div>`:staff?`<div class="card row" style="cursor:pointer" onclick="formationSheet('${id}')"><span class="sp muted">Prepara la formazione sul campo</span><span class="tag g">Crea</span></div>`:`<div class="card muted small">La formazione non è ancora stata pubblicata.</div>`}`;
+  const capP=hasForm&&m.formazione.cap&&P(m.formazione.cap);
+  const benchP=hasForm?sortedPlayers().filter(p=>(m.convocati||[]).includes(p.id)&&!m.formazione.slots.includes(p.id)):[];
+  const swRow=(k,on,lab)=>staff?`<div class="frow2"><div class="sp"><b>${lab}</b><span>${on?"Lo vedono tutti":"Lo vede solo lo staff"}</span></div><button class="sw ${on?"on":""}" data-pub="${k}" role="switch" aria-checked="${!!on}"><i></i></button></div>`:"";
+  const formBlock=()=>hasForm&&showForm?`<h3>Formazione</h3><div class="fcard">
+     <button class="ftog" id="ftog" aria-expanded="false"><div class="sp"><b>Vedi formazione</b><span>Modulo ${esc(m.formazione.modulo)}${capP?" · Capitano "+esc(capP.cognome):""}</span></div><span class="fchev">›</span></button>
+     <div class="fbody" id="fbody" hidden>${pitchHTML(m.formazione,{mini:true})}
+       ${benchP.length?`<div class="fbench"><b>Panchina</b><span>${benchP.map(p=>esc(p.cognome)).join(", ")}</span></div>`:""}
+       <div class="row wrap2" style="margin-top:12px"><button class="btn sm" id="mimg">Foto formazione</button>${staff?`<button class="btn sm" id="mprint">Stampa</button><button class="btn sm" onclick="formationSheet('${id}')">Modifica</button>`:""}</div></div>
+     ${played?"":swRow("formPubblica",m.formPubblica,"Formazione visibile ai giocatori")}</div>`
+    :(staff?`<h3>Formazione</h3><div class="list">${`<div class="li" onclick="formationSheet('${id}')"><div class="nm"><b>Prepara la formazione</b><span>Schiera i titolari sul campo</span></div></div>`}</div>`:"");
   const cron=(m.cronaca||[]).slice().sort((x,y)=>(+x.min||0)-(+y.min||0));
   openSheet(`<div class="row wrap2"><span class="tag b">${esc(m.competizione||"Campionato")}</span>${m.giornata?`<span class="tag">${esc(m.giornata)}</span>`:""}${played?`<span class="tag g">Report partita</span>`:""}</div>
   <div class="vs"><div class="tm">${badge(h,64)}<span>${esc(h)}</span></div><div class="mid">${sc}<small>${played?"Finale":esc(m.ora||fmtD(m.data))}</small></div><div class="tm">${badge(a,64)}<span>${esc(a)}</span></div></div>
@@ -935,18 +959,17 @@ function openMatch(id){
   ${played&&mins.length?`<h3>Minuti giocati</h3><div class="list">${mins.map(([p,n])=>evRow(p,n+"'","⏱")).join("")}</div>`:""}
   ${played&&cron.length?`<h3>Cronaca</h3><div class="card">${cron.map(c=>`<div class="row" style="align-items:flex-start;padding:6px 0"><span class="tag" style="min-width:48px;justify-content:center">${esc(c.min||"–")}'</span><span class="sp small">${esc(c.testo)}</span></div>`).join("")}</div>`:""}
   ${m.note&&played?`<h3>Note del mister</h3><div class="card small" style="white-space:pre-wrap">${esc(m.note)}</div>`:""}
-  ${played?formOld():""}
-  <h3>Convocati${showConv?" · "+conv.length:""}</h3>
-  ${staff?`<div class="chips" style="margin-bottom:8px">${pub("convPubblici",m.convPubblici,"Convocati")}</div>`:""}
-  ${showConv?(conv.length?`<div class="row wrap2">${conv.map(p=>`<span class="tag">${p.numero?esc(p.numero)+" · ":""}${esc(fullName(p))}</span>`).join("")}</div>`:`<p class="muted small">Nessun convocato ancora.</p>`):`<div class="card muted small">I convocati non sono ancora usciti.</div>`}
-  ${!played&&(staff||(m.formPubblica&&hasForm))?`<h3>Formazione</h3><div class="card"><div class="row"><span style="font-size:24px">🏟️</span><div class="sp"><b style="font-weight:600">${hasForm?"Formazione "+esc(m.formazione.modulo):"Formazione non ancora preparata"}</b><div class="muted small">${staff?(m.formPubblica?"Visibile a tutti":"Visibile solo allo staff"):"Pubblicata dal mister"}</div></div><button class="btn sm" onclick="formationSheet('${id}')">${hasForm?"Apri":"Prepara"}</button></div>
-   ${hasForm?`<div class="row wrap2" style="margin-top:12px"><button class="btn sm" id="mimg">Foto</button>${staff?`<button class="btn sm" id="mprint">Stampa</button>`:""}${staff?pub("formPubblica",m.formPubblica,"Formazione"):""}</div>`:""}</div>`:""}
+  ${formBlock()}
+  ${!staff&&played&&!conv.length?"":`<h3>Convocati${showConv?" · "+conv.length:""}</h3>
+  ${staff&&!played?`<div class="fcard" style="margin-bottom:10px">${swRow("convPubblici",m.convPubblici,"Convocati visibili ai giocatori")}</div>`:""}`}
+  ${!staff&&played&&!conv.length?"":showConv?(conv.length?`<div class="row wrap2">${conv.map(p=>`<span class="tag">${p.numero?esc(p.numero)+" · ":""}${esc(fullName(p))}</span>`).join("")}</div>`:`<p class="muted small">Nessun convocato ancora.</p>`):`<div class="card muted small">I convocati non sono ancora usciti.</div>`}
   <div class="row wrap2" style="margin-top:14px">
    ${staff?`<button class="btn sm" onclick="convSheet('${id}')">Convocati</button>`:""}
    ${showConv&&conv.length?`<button class="btn sm" id="cp">Copia convocati</button><a class="btn sm" style="text-decoration:none" href="https://wa.me/?text=${encodeURIComponent(convText(m))}">Convocati su WhatsApp</a>`:""}
   </div>
   <div class="actions"><button class="btn" onclick="closeSheet()">Chiudi</button>${staff?`<button class="btn p" onclick="editMatch('${id}')">Modifica</button>`:""}</div>`);
   const mi=$("#mimg");if(mi)mi.onclick=()=>formationImage(m,m.formazione);
+  const ft=$("#ftog");if(ft)ft.onclick=()=>{const fb=$("#fbody");const open=fb.hidden;fb.hidden=!open;ft.setAttribute("aria-expanded",open);ft.classList.toggle("open",open)};
   bindDisp(()=>openMatch(id),$("#sheet"));
   const mp=$("#mprint");if(mp)mp.onclick=()=>printSheet(m,m.formazione);
   document.querySelectorAll("[data-pub]").forEach(b=>b.onclick=async()=>{const k=b.dataset.pub;const cur=S.matches.find(x=>x.id===id);if(await save("matches",id,{...clean(cur),[k]:!cur[k]})){toast(!cur[k]?"Ora lo vedono tutti":"Visibile solo allo staff");openMatch(id)}});
@@ -1054,7 +1077,7 @@ const PITCH_SVG=`<svg class="lines" viewBox="0 0 68 96" preserveAspectRatio="non
 function pitchHTML(f,opts={}){
   const sl=slotsFor(f.modulo||"4-4-2");
   return `<div class="pitch ${opts.mini?"mini":""}" ${opts.id?`id="${opts.id}"`:""}>${PITCH_SVG}${sl.map((p,i)=>{const pid=(f.slots||[])[i];const pl=pid&&S.players.find(x=>x.id===pid);
-    return pl?`<div class="pl ${opts.sel===i?"sel":""}" data-i="${i}" style="left:${p.x}%;top:${p.y}%">${avatar(pl)}<span class="lb">${esc(pl.cognome||pl.nome)}</span></div>`
+    return pl?`<div class="pl ${opts.sel===i?"sel":""}" data-i="${i}" style="left:${p.x}%;top:${p.y}%">${avatar(pl)}${f.cap===pid?`<span class="capm">C</span>`:""}<span class="lb">${esc(pl.cognome||pl.nome)}</span></div>`
     :`<div class="pl empty ${opts.sel===i?"sel":""}" data-i="${i}" style="left:${p.x}%;top:${p.y}%"><div class="av">${opts.mini?"":"+"}</div>${opts.mini?"":`<span class="lb">${({POR:"Portiere",DIF:"Difesa",CEN:"Centro",ATT:"Attacco"})[p.r]}</span>`}</div>`}).join("")}</div>`;
 }
 function autoFill(f,pool){
@@ -1077,7 +1100,7 @@ function formationSheet(id){
   const base=S.info.formazioneBase&&(S.info.formazioneBase.slots||[]).some(Boolean)?S.info.formazioneBase:null;
   const hasOwn=m.formazione&&(m.formazione.slots||[]).some(Boolean);
   const fromBase=(src)=>{const out=[...(src.slots||[])].slice(0,11);let miss=0;for(let k=0;k<out.length;k++){const p=out[k]&&S.players.find(x=>x.id===out[k]);if(!p||!isAvailable(p)){if(out[k])miss++;out[k]=null}}return{slots:out,miss}};
-  let f={modulo:(m.formazione&&m.formazione.modulo)||"4-4-2",slots:[...((m.formazione&&m.formazione.slots)||[])]};let usedBase=false;
+  let f={modulo:(m.formazione&&m.formazione.modulo)||"4-4-2",slots:[...((m.formazione&&m.formazione.slots)||[])],cap:(m.formazione&&m.formazione.cap)||null};let usedBase=false;
   if(!hasOwn&&base){const r=fromBase(base);f={modulo:base.modulo||"4-4-2",slots:r.slots};usedBase=true;if(r.miss)setTimeout(()=>toast(r.miss===1?"1 titolare non disponibile":r.miss+" titolari non disponibili"),400)}
   while(f.slots.length<11)f.slots.push(null);
   let sel=null;
@@ -1092,6 +1115,7 @@ function formationSheet(id){
     <div class="mods">${MODULI.map(x=>`<button class="chip ${x===f.modulo?"on":""}" data-mod="${x}">${x}</button>`).join("")}</div>
     ${pitchHTML(f,{id:"pe",sel})}
     <p class="hint">${hint()}</p>
+    ${S.canWrite&&f.slots.some(Boolean)?`<h3>Capitano</h3><div class="chips">${f.slots.filter(Boolean).map(pid=>S.players.find(x=>x.id===pid)).filter(Boolean).map(p=>`<button class="chip ${f.cap===p.id?"on":""}" data-cap="${p.id}">${esc(p.cognome)}</button>`).join("")}</div>`:""}
     <h3 style="margin-top:14px">${(m.convocati||[]).length?"Panchina":"Rosa"} · ${bench.length}</h3>
     <div class="bench">${bench.map(p=>`<button class="bp" data-b="${p.id}">${avatar(p)}<span>${esc(p.cognome)}</span></button>`).join("")||`<span class="muted small" style="padding:10px">Tutti in campo</span>`}</div>
     ${S.canWrite?`<h3>Formazione base</h3><div class="card"><p class="small" style="margin:0 0 12px">La formazione di partenza per tutte le partite. Ogni nuova partita parte da qui, poi il mister cambia 1, 2 o 3 giocatori.</p><div class="row wrap2"><button class="btn sm p" id="bSave">⭐ Salva questa come base</button>${base?`<button class="btn sm" id="bLoad">↺ Carica la base</button>`:""}</div>${base?`<p class="muted small" style="margin:10px 0 0">Base attuale: ${esc(base.modulo)} · ${(base.slots||[]).filter(Boolean).length} giocatori</p>`:""}</div>`:""}
@@ -1137,7 +1161,7 @@ function formationSheet(id){
     $("#img").onclick=()=>formationImage(m,{modulo:f.modulo,slots:[...f.slots]});
     const pr=$("#prn");if(pr)pr.onclick=()=>printSheet({...m,convocati:[...new Set([...(m.convocati||[]),...f.slots.filter(Boolean)])]},{modulo:f.modulo,slots:[...f.slots]});
     const sv=$("#sv");if(sv)sv.onclick=async()=>{sv.disabled=true;const cur=S.matches.find(x=>x.id===id);const conv=new Set(cur.convocati||[]);f.slots.forEach(p=>p&&conv.add(p));
-      if(await save("matches",id,{...clean(cur),convocati:[...conv],formazione:{modulo:f.modulo,slots:f.slots}})){toast("Formazione salvata");openMatch(id)}else sv.disabled=false};
+      if(await save("matches",id,{...clean(cur),convocati:[...conv],formazione:{modulo:f.modulo,slots:f.slots,cap:f.cap&&f.slots.includes(f.cap)?f.cap:null}})){toast("Formazione salvata");openMatch(id)}else sv.disabled=false};
     // drag between slots
     const pe=$("#pe");if(!pe||!S.canWrite)return;
     let drag=null,justDragged=false;
