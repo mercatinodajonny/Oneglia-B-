@@ -506,7 +506,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-23-4";
+const BUILD="2026-11-23-5";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -1694,7 +1694,7 @@ function stTag(p){const d=discipline()[p.id]||{};if(p.stato==="infortunato")retu
 function vAdmin(){
   if(!S.canWrite){return vHome()}
   const t=S.adminTab||"home";
-  TITLES.admin={gioc:"Giocatori",disp:"Disponibilità",cart:"Cartellini"}[t]||"Admin";
+  TITLES.admin={gioc:"Giocatori",disp:"Disponibilità",cart:"Cartellini",pdg:"Da giocare",pgi:"Già giocate"}[t]||"Admin";
   const back=`<button class="back" onclick="S.adminTab='home';render()">‹ Admin</button>`;
   if(t==="gioc"){
     const q=(S.aq||"").toLowerCase();const RO={POR:3,DIF:2,CEN:1,ATT:0};
@@ -1729,13 +1729,19 @@ function vAdmin(){
     <button class="btn sm" style="margin-top:12px" onclick="regoleSheet()">Regole diffide e squalifiche</button>
     </div>`;
   }
+  if(t==="pdg"||t==="pgi"){
+    const L=t==="pdg"?upcoming(S.matches).filter(m=>!isPlayed(m)):S.matches.filter(isPlayed).sort((a,b)=>(b.data||"").localeCompare(a.data||""));
+    return `<div class="view">${back}${header(t==="pdg"?"Partite da giocare":"Partite già giocate")}
+    ${L.length?`<div class="list">${t==="pdg"?L.map(m=>`<div class="li" onclick="adminMatch('${m.id}')">${badge(m.avversario,36)}<div class="nm"><b>${m.casa?"vs ":"@ "}${esc(m.avversario)}</b><span>${fmtD(m.data,1)}${m.ora?" · "+esc(m.ora):""}</span></div><span class="astat">${(m.convocati||[]).length?(m.convocati.length+" conv."):"Da convocare"}<small>${m.convPubblici?"Pubblicati":"Non pubblicati"}</small></span></div>`).join(""):L.map(m=>{const mv=m.mvp&&S.players.find(p=>p.id===m.mvp);return `<div class="li" onclick="resultSheet('${m.id}')">${badge(m.avversario,36)}<div class="nm"><b>${m.casa?"vs ":"@ "}${esc(m.avversario)} · ${m.casa?m.golFatti+"–"+m.golSubiti:m.golSubiti+"–"+m.golFatti}</b><span>${fmtD(m.data,1)} · ${mv?"Migliore in campo: "+esc(fullName(mv)):"Manca il migliore in campo"}</span></div></div>`}).join("")}</div>`:`<div class="card muted small">${t==="pdg"?"Nessuna partita in programma.":"Nessuna partita giocata."}</div>`}
+    </div>`;
+  }
   // pagina principale admin
   const up=upcoming(S.matches).filter(m=>!isPlayed(m)).slice(0,4);
-  const pl=S.matches.filter(isPlayed).sort((a,b)=>(b.data||"").localeCompare(a.data||"")).slice(0,3);
+  const up0=upcoming(S.matches).filter(m=>!isPlayed(m)),pl0=S.matches.filter(isPlayed);
   const dd=discipline();const nInf=S.players.filter(p=>p.stato==="infortunato").length,nSq=S.players.filter(p=>p.stato==="squalificato"||(dd[p.id]||{}).squalificato).length,nDif=S.players.filter(p=>(dd[p.id]||{}).diffidato).length;
   const nt=upcoming(S.trainings)[0];
   const ntInfo=nt?(()=>{const m=dispMap("t",nt.id);const si=Object.values(m).filter(v=>v==="si").length,no=Object.values(m).filter(v=>v==="no").length;return `Prossimo ${fmtD(nt.data,1)} · ${si} ci sono · ${no} no`})():"Nessuno in programma";
-  const nx=up[0],more=up.slice(1);
+  const nx=up[0];
   const vsRow=(m,center)=>{const home=m.casa?TEAM:m.avversario,away=m.casa?m.avversario:TEAM;return `<div class="vs"><div class="tm">${badge(home,64)}<span>${esc(home)}</span></div><div class="ctr">${center}</div><div class="tm">${badge(away,64)}<span>${esc(away)}</span></div></div>`};
   const step=(t,sub,done,fn)=>`<div class="li" onclick="${fn}"><span class="stp ${done?"ok":""}" aria-label="${done?"Fatto":"Da fare"}">${done?"✓":""}</span><div class="nm"><b>${t}</b><span>${sub}</span></div></div>`;
   const nxCard=nx?(()=>{const nc=(nx.convocati||[]).length,f=nx.formazione&&(nx.formazione.slots||[]).some(Boolean);
@@ -1753,10 +1759,6 @@ function vAdmin(){
     </div>`})():"";
   return `<div class="view">${header("Gestione squadra")}
   ${nxCard}
-  <h3>${nx?"Altre partite":"Prossime partite"}</h3>
-  ${more.length?`<div class="list">${more.map(m=>`<div class="li" onclick="adminMatch('${m.id}')">${badge(m.avversario,36)}<div class="nm"><b>${m.casa?"vs ":"@ "}${esc(m.avversario)}</b><span>${fmtD(m.data,1)}${m.ora?" · "+esc(m.ora):""}</span></div><span class="astat">${(m.convocati||[]).length?(m.convocati.length+" conv."):"Da convocare"}<small>${m.convPubblici?"Pubblicati":"Non pubblicati"}</small></span></div>`).join("")}</div>`:`<div class="card muted small">${nx?"Nessun'altra partita in programma.":"Nessuna partita in programma."}</div>`}
-  <h3>Report partite giocate</h3>
-  ${pl.length?`<div class="list">${pl.map(m=>{const mv=m.mvp&&S.players.find(p=>p.id===m.mvp);return `<div class="li" onclick="resultSheet('${m.id}')">${badge(m.avversario,36)}<div class="nm"><b>${m.casa?"vs ":"@ "}${esc(m.avversario)} · ${m.casa?m.golFatti+"–"+m.golSubiti:m.golSubiti+"–"+m.golFatti}</b><span>${mv?"Migliore in campo: "+esc(fullName(mv)):"Manca il migliore in campo"}</span></div></div>`}).join("")}</div>`:`<div class="card muted small">Nessuna partita giocata.</div>`}
   <h3>Squadra</h3><div class="list">
    ${aRow("Giocatori",S.players.length+" in rosa · modifica, stato, multe","S.adminTab='gioc';render()")}
    ${aRow("Disponibilità",(nInf||nSq||nDif)?[nInf?nInf+(nInf>1?" infortunati":" infortunato"):"",nSq?nSq+(nSq>1?" squalificati":" squalificato"):"",nDif?nDif+(nDif>1?" diffidati":" diffidato"):""].filter(Boolean).join(" · "):"Tutti disponibili","S.adminTab='disp';render()")}
@@ -1772,6 +1774,8 @@ function vAdmin(){
    ${aRow("Staff tecnico","Mister, dirigenti, preparatori","S.staffTab='staff';go('staff')")}
    ${S.isManager?aRow("Account","Chi può entrare nell'app e con quale ruolo","S.staffTab='acc';go('staff')"):""}
   </div>
+  <h3>Partite</h3>
+  <div class="row wrap2"><button class="btn sm" onclick="S.adminTab='pdg';render()">Da giocare · ${up0.length}</button><button class="btn sm" onclick="S.adminTab='pgi';render()">Già giocate · ${pl0.length}</button></div>
   </div>`;
 }
 function adminMatch(id){
