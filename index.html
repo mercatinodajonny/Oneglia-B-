@@ -125,6 +125,7 @@ nav.bar a:active{opacity:.6}
 .dtab{width:100%;border-collapse:collapse;font-size:14px}.dtab th,.dtab td{padding:8px 10px;border-top:1px solid var(--line);text-align:left;vertical-align:middle}.dtab thead th{border-top:0;font-size:12px;color:var(--muted);font-weight:600}.dtab td:first-child,.dtab th:first-child{color:var(--muted);width:28px}.dtab .dsec td{background:var(--fill);font-size:12px;font-weight:700;text-transform:none;color:var(--muted)}.dnum{width:52px;font-size:16px;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--card,#fff);color:inherit;text-align:center}
 @media(max-width:420px){.dtab th:nth-child(4),.dtab td:nth-child(4){display:none}}
 .stp{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:15px;font-weight:800;color:#fff}.stp.ok{background:var(--green,#34c759);border-color:var(--green,#34c759)}
+.csrch{position:sticky;top:-1px;z-index:3;background:var(--bg2);margin:0 -4px;padding:4px 4px 2px}.csrch .search{margin:6px 0}
 .btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
 .btns>.btn{width:100%;margin:0!important;min-height:46px;padding:10px 14px;font-size:15px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none}
 .btns>.btn.full{grid-column:1/-1}
@@ -505,7 +506,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-23-3";
+const BUILD="2026-11-23-4";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -1011,12 +1012,21 @@ function openMatch(id){
   const cp=$("#cp");if(cp)cp.onclick=async()=>{try{await navigator.clipboard.writeText(convText(m));toast("Copiato: incollalo nel gruppo")}catch(e){toast("Copia non consentita qui")}};
 }
 function convSheet(id){
-  const m=S.matches.find(x=>x.id===id);const sel=new Set(m.convocati||[]);const dm=dispMap("m",id);
-  const draw=()=>`<h2>Convocati</h2><p class="muted small">${sel.size} selezionati · ${Object.values(dm).filter(v=>v==="si").length} ci sono · ${Object.values(dm).filter(v=>v==="no").length} no</p>
+  const m=S.matches.find(x=>x.id===id);const sel=new Set(m.convocati||[]);const dm=dispMap("m",id);let q="";
+  const draw=()=>`<h2>Convocati</h2><p class="muted small" id="cCnt">${sel.size} selezionati · ${Object.values(dm).filter(v=>v==="si").length} ci sono · ${Object.values(dm).filter(v=>v==="no").length} no</p>
+   <div class="csrch"><input class="search" id="cQ" type="search" placeholder="Cerca un giocatore" autocomplete="off" value="${esc(q)}" aria-label="Cerca un giocatore"></div>
    <button class="btn sm" id="cAll" style="margin-top:8px">Convoca tutti i ✅ disponibili</button>
-   ${ROLES.slice().reverse().map(r=>{const g=sortedPlayers().filter(p=>p.ruolo===r.k);return g.length?`<h3>${r.l}</h3><div class="list">${g.map(p=>{const st=playerStats(p.id);return `<div class="li" data-c="${p.id}">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${(()=>{const v=dm[p.id];return v==="si"?`<b style="color:var(--green)">✓</b> `:v==="no"?`<b style="color:var(--red)">✕</b> `:""})()}presenze ${st.pct===null?"—":st.pct+"%"}${p.stato&&p.stato!=="ok"?" · "+esc(p.stato):""}</span> ${discTag(p.id)}</div><div class="check ${sel.has(p.id)?"on":""}">${sel.has(p.id)?"✓":""}</div></div>`}).join("")}</div>`:""}).join("")}
+   <p class="muted small" id="cNone" style="text-align:center;margin:16px 0;display:none">Nessun giocatore trovato.</p>
+   ${ROLES.slice().reverse().map(r=>{const g=sortedPlayers().filter(p=>p.ruolo===r.k);return g.length?`<div class="cgrp"><h3>${r.l}</h3><div class="list">${g.map(p=>{const st=playerStats(p.id);return `<div class="li" data-c="${p.id}" data-n="${esc((fullName(p)+" "+(p.nome||"")+" "+(p.cognome||"")+" "+(p.numero||"")).toLowerCase())}">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${(()=>{const v=dm[p.id];return v==="si"?`<b style="color:var(--green)">✓</b> `:v==="no"?`<b style="color:var(--red)">✕</b> `:""})()}presenze ${st.pct===null?"—":st.pct+"%"}${p.stato&&p.stato!=="ok"?" · "+esc(p.stato):""}</span> ${discTag(p.id)}</div><div class="check ${sel.has(p.id)?"on":""}">${sel.has(p.id)?"✓":""}</div></div>`}).join("")}</div></div>`:""}).join("")}
    <div class="actions" style="position:sticky;bottom:0;background:var(--bg2);padding:10px 0"><button class="btn" onclick="openMatch('${id}')">Annulla</button><button class="btn p" id="sv">Salva (${sel.size})</button></div>`;
-  const bind=()=>{document.querySelectorAll("[data-c]").forEach(r=>r.onclick=()=>{const p=r.dataset.c;sel.has(p)?sel.delete(p):sel.add(p);const y=$("#sheet").scrollTop;$("#sheet").innerHTML=`<div class="grab"></div>`+draw();bind();$("#sheet").scrollTop=y});
+  const filt=()=>{const t=q.trim().toLowerCase().split(/\s+/).filter(Boolean);let any=0;
+    document.querySelectorAll("#sheet [data-c]").forEach(r=>{const ok=t.every(w=>r.dataset.n.includes(w));r.hidden=!ok;r.style.display=ok?"":"none";if(ok)any++});
+    document.querySelectorAll("#sheet .cgrp").forEach(g=>g.style.display=[...g.querySelectorAll("[data-c]")].some(r=>!r.hidden)?"":"none");
+    const n=$("#cNone");if(n)n.style.display=any?"none":"block";const ca=$("#cAll");if(ca)(ca.parentElement.classList.contains("btns")?ca.parentElement:ca).style.display=t.length?"none":""};
+  const bind=()=>{document.querySelectorAll("#sheet [data-c]").forEach(r=>r.onclick=()=>{const p=r.dataset.c;sel.has(p)?sel.delete(p):sel.add(p);
+      const c=r.querySelector(".check");c.classList.toggle("on",sel.has(p));c.textContent=sel.has(p)?"✓":"";
+      const cn=$("#cCnt");if(cn)cn.textContent=cn.textContent.replace(/^\d+ selezionati/,sel.size+" selezionati");$("#sv").textContent="Salva ("+sel.size+")"});
+    const qi=$("#cQ");qi.oninput=()=>{q=qi.value;filt()};filt();
     const ca=$("#cAll");if(ca)ca.onclick=()=>{S.players.forEach(p=>{if(dm[p.id]==="si"&&isAvailable(p))sel.add(p.id)});const y=$("#sheet").scrollTop;$("#sheet").innerHTML=`<div class="grab"></div>`+draw();bind();$("#sheet").scrollTop=y};
     $("#sv").onclick=async()=>{const cur=S.matches.find(x=>x.id===id);if(await save("matches",id,{...clean(cur),convocati:[...sel]})){toast("Convocati salvati");openMatch(id)}}};
   openSheet(draw());bind();
