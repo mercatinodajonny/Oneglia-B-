@@ -382,7 +382,7 @@ function vHome(){
      <div class="lab">Prossima partita${nm.giornata?" · "+esc(nm.giornata):""}</div>
      ${vsRow(nm,`<b class="when">${daysTo(nm.data)===0?"Oggi":daysTo(nm.data)===1?"Domani":esc(fmtD(nm.data,1))}</b><span class="hr">${esc(nm.ora||"")}</span>`)}
      <div class="meta">${nm.luogo?`<span>🏟️ ${esc(nm.luogo)}</span>`:""}${nm.ritrovo||nm.ritrovoOra?`<span>📍 Ritrovo ${esc([nm.ritrovoOra,nm.ritrovo].filter(Boolean).join(" · "))}</span>`:""}${nm.info?`<span>💬 ${esc(nm.info)}</span>`:""}</div>
-     <div class="foot"><span class="pill">${nm.convPubblici||S.canWrite?(nm.convocati||[]).length+" convocati":"Convocati in arrivo"}${nm.formPubblica?" · formazione pronta":""}</span>${isP?`<span class="ci">Ci sei?</span>${ask("m",nm)}`:""}</div>
+     <div class="foot"><span class="pill">${nm.convPubblici||S.canWrite?(nm.convocati||[]).length+" convocati":"Convocati in arrivo"}${nm.formPubblica?" · formazione pronta":""}</span></div>
    </div>`:"";
   const trCard=nt?`<div class="card trn" onclick="openTraining('${nt.id}')"><div class="sp"><span class="k">Prossimo allenamento</span><b>${daysTo(nt.data)===0?"Oggi":daysTo(nt.data)===1?"Domani":esc(fmtD(nt.data,1))}${nt.ora?" · "+esc(nt.ora):""}</b>${nt.luogo?`<span class="muted small">${esc(nt.luogo)}</span>`:""}</div>${ask("t",nt)}</div>`:"";
   // ultima partita (sfondo bianco)
@@ -716,7 +716,7 @@ function openMatch(id){
   <p class="muted small" style="text-align:center;margin:10px 0 0">${fmtD(m.data,1)} ${esc(m.ora||"")} ${m.luogo?"· "+esc(m.luogo):""}</p>
   ${!played&&(m.ritrovo||m.ritrovoOra||m.info)?`<div class="card" style="margin-top:12px;border-left:4px solid var(--tint)">${m.ritrovo||m.ritrovoOra?`<div class="row"><span style="font-size:22px">📍</span><div class="sp"><div class="muted small" style="font-weight:600">RITROVO</div><b>${m.ritrovoOra?esc(m.ritrovoOra)+" · ":""}${esc(m.ritrovo||"")}</b></div></div>`:""}${m.info?`<p style="margin:${m.ritrovo||m.ritrovoOra?"12px":"0"} 0 0;white-space:pre-wrap">💬 ${esc(m.info)}</p>`:""}</div>`:""}
   ${!played&&staff&&!(m.ritrovo||m.ritrovoOra||m.info)?`<button class="btn sm" style="margin-top:12px" onclick="editMatch('${id}')">📍 Aggiungi ritrovo e messaggio</button>`:""}
-  ${!played&&daysTo(m.data)>=0?dispBlock("m",id):""}
+
   ${!played&&daysTo(m.data)>=0?`<div class="row wrap2" style="margin-top:12px">${calBtn(gcal((m.casa?TEAM+" – "+m.avversario:m.avversario+" – "+TEAM),m.data,m.ora,120,m.luogo,m.ritrovo||m.ritrovoOra?"Ritrovo: "+[m.ritrovoOra,m.ritrovo].filter(Boolean).join(" · "):""))}</div>`:""}
   ${played?`<button class="btn" style="width:100%;margin-top:12px" onclick="resultImage(S.matches.find(x=>x.id==='${id}'))">📸 Grafica risultato per Instagram/WhatsApp</button>`:""}
   ${m.mvp&&P(m.mvp)?`<div class="mvp">${avatar({...P(m.mvp),numero:""})}<div class="sp"><div class="st">⭐ Migliore in campo</div><b>${esc(fullName(P(m.mvp)))}</b></div></div>`:""}
