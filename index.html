@@ -187,6 +187,10 @@ table.cl td.pt{font-weight:700}
 .mods{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:12px 0}
 .mods::-webkit-scrollbar{display:none}
 .rgh{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:14px 16px 6px}.rgrp:first-child .rgh{padding-top:8px}
+.greet{margin:2px 0 14px}.greet b{display:block;font-size:20px;font-weight:700;letter-spacing:-.01em}.greet span{display:block;color:var(--muted);font-size:16px;margin-top:2px}
+.pres{padding:10px 16px 12px;cursor:pointer;border-top:.5px solid var(--sep,rgba(60,60,67,.18))}.lbl+.pres{border-top:0}.pres:active{background:var(--fill)}
+.pnum{display:flex;gap:14px;margin-top:6px;font-size:14px;color:var(--muted)}.pnum b{font-size:17px;color:var(--text);margin-right:2px}.pnum .g b{color:var(--green)}.pnum .r b{color:var(--red)}
+.pnames{margin:6px 0 0;font-size:14px;line-height:1.4}.pdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin-right:7px;vertical-align:1px;opacity:.6}.pdot.g{background:var(--green);opacity:1}.pdot.r{background:var(--red);opacity:1}
 .dvg{display:flex;gap:8px;flex:none}
 .dvb{width:44px;height:44px;border-radius:50%;border:0;background:var(--fill);color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:transform .12s ease,background .2s ease,color .2s ease;-webkit-tap-highlight-color:transparent}
 .dvb:active,.dvp:active{transform:scale(.92)}
@@ -318,7 +322,7 @@ function header(sub){
   const f=FAB[S.view]&&S.canWrite;
   const mp=meP();const who=S.member?(mp?avatar({...mp,numero:""}):`<div class="av STF">${esc(((S.member.nome||S.member.email||"?")[0]||"?").toUpperCase())}</div>`):"";
   return `<div class="top">${S.member?`<button class="mebtn" onclick="myProfile()" aria-label="Il mio profilo">${who}</button>`:""}<div class="t"></div>${f?`<button class="addb" onclick="fabAct()" aria-label="Aggiungi ${esc(FAB[S.view][0])}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>`:""}</div>
-  <div class="row"><div class="ltitle sp">${TITLES[S.view]}</div>${S.view==="home"?"":`<img src="${CREST}" alt="Stemma Oneglia Calcio" style="width:34px;height:auto">`}</div><div class="lsub">${esc(sub)}</div>`
+  <div class="row"><div class="ltitle sp">${TITLES[S.view]}</div>${S.view==="home"?"":`<img src="${CREST}" alt="Stemma Oneglia Calcio" style="width:34px;height:auto">`}</div>${S.view==="home"&&S.member?greetHTML():`<div class="lsub">${esc(sub)}</div>`}`
    +(S.offline?`<div class="banner">Modalità prova: database non collegato. Le modifiche restano solo su questo schermo.</div>`:"")
    +(S.slow?`<div class="banner">Sto ancora caricando i dati… controlla la connessione.</div>`:"")
    +"";
@@ -347,6 +351,7 @@ function vHome(){
   return `<div class="view">${header("Gestione squadra")}
   ${news.map(n=>`<div class="news ${n.urgente?"urg":""}"><div class="t">${n.urgente?"Importante":"Comunicazione"} · ${esc(n.creato?fmtD(n.creato.slice(0,10),1):"")}${n.autore?" · "+esc(n.autore):""}</div><p>${esc(n.testo)}</p>${S.canWrite?`<button class="x" onclick="delNews('${n.id}')" aria-label="Elimina">✕</button>`:""}</div>`).join("")}
   ${S.canWrite?`<button class="btn sm" style="margin-bottom:12px" onclick="newsSheet()">📣 Nuova comunicazione</button>`:""}
+  ${S.canWrite&&(nt||nm)?`<div class="card" style="margin-bottom:10px;padding:6px 0"><div class="lbl" style="padding:10px 16px 2px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)">Presenze</div>${staffPresenze("t",nt,"Allenamento")}${staffPresenze("m",nm,nm?(nm.casa?"vs ":"@ ")+esc(nm.avversario):"")}</div>`:""}
   ${(()=>{const me=meP();if(!me||!nm||!nm.convPubblici)return"";const yes=(nm.convocati||[]).includes(me.id);const tit=nm.formPubblica&&nm.formazione&&(nm.formazione.slots||[]).includes(me.id);
     const when=daysTo(nm.data)===0?"Oggi":daysTo(nm.data)===1?"Domani":fmtD(nm.data,1);
     return yes?`<div class="conv" onclick="openMatch('${nm.id}')"><div class="t">🎉 Sei stato convocato${tit?" · titolare":""}!</div><b>${when}${nm.ora?" alle "+esc(nm.ora):""} · ${nm.casa?"vs ":"@ "}${esc(nm.avversario)}</b>${nm.ritrovo||nm.ritrovoOra?`<div>📍 Ritrovo ${esc([nm.ritrovoOra,nm.ritrovo].filter(Boolean).join(" · "))}</div>`:""}${nm.luogo?`<div>🏟️ ${esc(nm.luogo)}</div>`:""}${nm.info?`<div>💬 ${esc(nm.info)}</div>`:""}<div style="margin-top:6px;opacity:.85">Tocca per i dettagli ›</div></div>`
@@ -1250,6 +1255,26 @@ async function showImage(cv,o){
   $("#isave").onclick=async()=>{const blob=await new Promise(r=>cv.toBlob(r,"image/png"));try{await dl.save({filename:o.name,data:blob});toast("Fatto")}catch(e){if(e&&e.code==="declined")return;toast("Non riuscito: tieni premuto sull'immagine")}};
 }
 
+
+// ================= SALUTO DEL GIORNO =================
+const FRASI=["Come stai fisicamente oggi?","Che hai fatto di bello oggi?","Pronto per la prossima?","Gambe buone oggi?","Come va la settimana?","Ricordati di bere tanta acqua.","Una giornata alla volta.","Oggi si recupera o si spinge?","Dormito bene stanotte?","Testa alla prossima partita.","Com'è andata a lavoro?","Ogni allenamento conta.","Il gruppo prima di tutto.","Forza Oneglia!","Come ti senti dopo l'ultima?","Stretching fatto?","Oggi giornata da campioni.","Tutto a posto?","Un passo avanti ogni giorno.","Ci vediamo al campo."];
+function greetHTML(){
+  const mp=meP();const nome=((mp&&mp.nome)||(S.member&&S.member.nome)||"").trim().split(/\s+/)[0]||"";
+  const h=new Date().getHours();const sal=h>=5&&h<13?"Buongiorno":h>=13&&h<18?"Buon pomeriggio":"Buonasera";
+  const d=new Date();const doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);
+  return `<div class="greet"><b>${sal}${nome?", "+esc(nome):""}</b><span>${FRASI[doy%FRASI.length]}</span></div>`;
+}
+// ================= PRESENZE PER LO STAFF (HOME) =================
+function staffPresenze(kind,ev,lab){
+  if(!ev)return"";const map=dispMap(kind,ev.id);const ps=[...S.players].sort((a,b)=>String(a.cognome).localeCompare(String(b.cognome),"it"));
+  const si=ps.filter(p=>map[p.id]==="si"),no=ps.filter(p=>map[p.id]==="no"),nr=ps.filter(p=>map[p.id]!=="si"&&map[p.id]!=="no");
+  const names=a=>a.map(p=>esc(p.cognome)).join(", ");
+  return `<div class="pres" onclick="${kind==="t"?`openTraining('${ev.id}')`:`openMatch('${ev.id}')`}">
+    <div class="row"><b class="sp">${lab}</b><span class="muted small">${fmtD(ev.data,1)}${ev.ora?" · "+esc(ev.ora):""}</span></div>
+    <div class="pnum"><span class="g"><b>${si.length}</b> ci sono</span><span class="r"><b>${no.length}</b> no</span><span><b>${nr.length}</b> senza risposta</span></div>
+    ${si.length?`<p class="pnames"><i class="pdot g"></i>${names(si)}</p>`:""}${no.length?`<p class="pnames"><i class="pdot r"></i>${names(no)}</p>`:""}${nr.length?`<p class="pnames muted"><i class="pdot"></i>${names(nr)}</p>`:""}
+  </div>`;
+}
 // ================= GRAFICA RISULTATO =================
 async function renderResult(m){
   const W=1080,H=1350,cv=document.createElement("canvas");cv.width=W;cv.height=H;const c=cv.getContext("2d");
