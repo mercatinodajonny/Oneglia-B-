@@ -123,6 +123,7 @@ nav.bar a:active{opacity:.6}
 .actions .btn{flex:1}
 .dtab{width:100%;border-collapse:collapse;font-size:14px}.dtab th,.dtab td{padding:8px 10px;border-top:1px solid var(--line);text-align:left;vertical-align:middle}.dtab thead th{border-top:0;font-size:12px;color:var(--muted);font-weight:600}.dtab td:first-child,.dtab th:first-child{color:var(--muted);width:28px}.dtab .dsec td{background:var(--fill);font-size:12px;font-weight:700;text-transform:none;color:var(--muted)}.dnum{width:52px;font-size:16px;padding:6px 8px;border-radius:10px;border:1px solid var(--line);background:var(--card,#fff);color:inherit;text-align:center}
 @media(max-width:420px){.dtab th:nth-child(4),.dtab td:nth-child(4){display:none}}
+.stp{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:15px;font-weight:800;color:#fff}.stp.ok{background:var(--green,#34c759);border-color:var(--green,#34c759)}
 .btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
 .btns>.btn{width:100%;margin:0!important;min-height:46px;padding:10px 14px;font-size:15px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none}
 .btns>.btn.full{grid-column:1/-1}
@@ -1717,9 +1718,26 @@ function vAdmin(){
   const dd=discipline();const nInf=S.players.filter(p=>p.stato==="infortunato").length,nSq=S.players.filter(p=>p.stato==="squalificato"||(dd[p.id]||{}).squalificato).length,nDif=S.players.filter(p=>(dd[p.id]||{}).diffidato).length;
   const nt=upcoming(S.trainings)[0];
   const ntInfo=nt?(()=>{const m=dispMap("t",nt.id);const si=Object.values(m).filter(v=>v==="si").length,no=Object.values(m).filter(v=>v==="no").length;return `Prossimo ${fmtD(nt.data,1)} · ${si} ci sono · ${no} no`})():"Nessuno in programma";
+  const nx=up[0],more=up.slice(1);
+  const vsRow=(m,center)=>{const home=m.casa?TEAM:m.avversario,away=m.casa?m.avversario:TEAM;return `<div class="vs"><div class="tm">${badge(home,64)}<span>${esc(home)}</span></div><div class="ctr">${center}</div><div class="tm">${badge(away,64)}<span>${esc(away)}</span></div></div>`};
+  const step=(t,sub,done,fn)=>`<div class="li" onclick="${fn}"><span class="stp ${done?"ok":""}" aria-label="${done?"Fatto":"Da fare"}">${done?"✓":""}</span><div class="nm"><b>${t}</b><span>${sub}</span></div></div>`;
+  const nxCard=nx?(()=>{const nc=(nx.convocati||[]).length,f=nx.formazione&&(nx.formazione.slots||[]).some(Boolean);
+    return `<h3>Prossima partita</h3>
+    <div class="nextm" data-lc="${esc(nx.avversario)}" onclick="openMatch('${nx.id}')">
+     <div class="lab">${nx.competizione?esc(nx.competizione):"Prossima partita"}${nx.giornata?" · "+esc(nx.giornata):""}</div>
+     ${vsRow(nx,`<b class="when">${daysTo(nx.data)===0?"Oggi":daysTo(nx.data)===1?"Domani":esc(fmtD(nx.data,1))}</b><span class="hr">${esc(nx.ora||"")}</span>`)}
+     <div class="foot"><span class="pill">${nc?nc+" convocati":"Da convocare"}${f?" · formazione pronta":""}</span></div>
+    </div>
+    <h3>Prepara la partita</h3><div class="list">
+     ${step("Convocati",nc?nc+" convocati · "+(nx.convPubblici?"pubblicati":"non ancora pubblicati"):"Scegli chi viene",nc>0,`convSheet('${nx.id}')`)}
+     ${step("Formazione",f?"Modulo "+esc(nx.formazione.modulo||"")+(nx.formPubblica?" · pubblicata":" · non pubblicata"):"Schiera i titolari",!!f,`formationSheet('${nx.id}')`)}
+     ${step("Ritrovo e messaggio",nx.ritrovo||nx.ritrovoOra?esc([nx.ritrovoOra,nx.ritrovo].filter(Boolean).join(" · ")):"Ora e luogo del ritrovo",!!(nx.ritrovo||nx.ritrovoOra),`editMatch('${nx.id}')`)}
+     ${step("Distinta",nx.numMode?"Pronta da stampare"+(nx.divisa?" · maglia "+esc(nx.divisa):""):"Maglia, numeri e stampa",!!nx.numMode,`distintaSheet('${nx.id}')`)}
+    </div>`})():"";
   return `<div class="view">${header("Gestione squadra")}
-  <h3>Prossime partite</h3>
-  ${up.length?`<div class="list">${up.map(m=>`<div class="li" onclick="adminMatch('${m.id}')">${badge(m.avversario,36)}<div class="nm"><b>${m.casa?"vs ":"@ "}${esc(m.avversario)}</b><span>${fmtD(m.data,1)}${m.ora?" · "+esc(m.ora):""}</span></div><span class="astat">${(m.convocati||[]).length?(m.convocati.length+" conv."):"Da convocare"}<small>${m.convPubblici?"Pubblicati":"Non pubblicati"}</small></span></div>`).join("")}</div>`:`<div class="card muted small">Nessuna partita in programma.</div>`}
+  ${nxCard}
+  <h3>${nx?"Altre partite":"Prossime partite"}</h3>
+  ${more.length?`<div class="list">${more.map(m=>`<div class="li" onclick="adminMatch('${m.id}')">${badge(m.avversario,36)}<div class="nm"><b>${m.casa?"vs ":"@ "}${esc(m.avversario)}</b><span>${fmtD(m.data,1)}${m.ora?" · "+esc(m.ora):""}</span></div><span class="astat">${(m.convocati||[]).length?(m.convocati.length+" conv."):"Da convocare"}<small>${m.convPubblici?"Pubblicati":"Non pubblicati"}</small></span></div>`).join("")}</div>`:`<div class="card muted small">${nx?"Nessun'altra partita in programma.":"Nessuna partita in programma."}</div>`}
   <h3>Report partite giocate</h3>
   ${pl.length?`<div class="list">${pl.map(m=>{const mv=m.mvp&&S.players.find(p=>p.id===m.mvp);return `<div class="li" onclick="resultSheet('${m.id}')">${badge(m.avversario,36)}<div class="nm"><b>${m.casa?"vs ":"@ "}${esc(m.avversario)} · ${m.casa?m.golFatti+"–"+m.golSubiti:m.golSubiti+"–"+m.golFatti}</b><span>${mv?"Migliore in campo: "+esc(fullName(mv)):"Manca il migliore in campo"}</span></div></div>`}).join("")}</div>`:`<div class="card muted small">Nessuna partita giocata.</div>`}
   <h3>Squadra</h3><div class="list">
