@@ -121,6 +121,11 @@ nav.bar a:active{opacity:.6}
 .f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .actions{display:flex;gap:10px;margin-top:22px}
 .actions .btn{flex:1}
+.btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.btns>.btn{width:100%;margin:0!important;min-height:46px;padding:10px 14px;font-size:15px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;text-decoration:none}
+.btns>.btn.full{grid-column:1/-1}
+.btns>.btn.p{order:9;grid-column:1/-1;font-size:16px;min-height:50px}
+.btns>.btn.d{order:10;grid-column:1/-1}
 .seg{display:flex;background:var(--fill);border-radius:9px;padding:2px;gap:0;position:relative}
 .seg button{flex:1;min-width:0;border:0;background:transparent;border-radius:7px;padding:6px 6px;font-weight:500;cursor:pointer;font-size:14px;transition:background .2s}
 .seg button.on{background:var(--card);font-weight:600;box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04)}
@@ -713,6 +718,25 @@ function vStaff(){
 // ---------- render & routing
 const VIEWS={admin:vAdmin,home:vHome,rosa:vRosa,allenamenti:vAllenamenti,partite:vPartite,staff:vStaff};
 const FAB={rosa:["Giocatore",()=>editPlayer()],allenamenti:["Nuovo",()=>editTraining()],partite:["Partita",()=>editMatch()],staff:["Membro",()=>S.staffTab==="cassa"?multaSheet():S.staffTab==="inf"?injSheet():S.staffTab==="acc"?accSheet():editStaff()]};
+// ---------- pulsanti ordinati: due per riga, il verde sotto a tutta larghezza
+const BTN_SKIP=".actions,.seg,.chips,.li,.frow2,.vs,.mvp,#nav,#fab,.grab,.fbench";
+function tidyBtns(root){
+  if(!root)return;
+  root.querySelectorAll(".row.wrap2").forEach(r=>{const k=[...r.children];if(k.length&&k.every(c=>c.classList.contains("btn"))){r.className="btns";r.removeAttribute("style")}});
+  const isB=e=>e&&((e.classList.contains("btn")&&!e.classList.contains("d")&&!e.closest(BTN_SKIP)&&!e.closest(".btns")&&e.parentElement&&!e.parentElement.classList.contains("row"))||e.classList.contains("btns"));
+  [...root.querySelectorAll(".btn,.btns")].forEach(b=>{
+    if(!b.isConnected||!isB(b)||(b.classList.contains("btns")&&b.dataset.t))return;
+    if(b.previousElementSibling&&isB(b.previousElementSibling))return;
+    const run=[];let e=b;while(e&&isB(e)){run.push(e);e=e.nextElementSibling}
+    const g=document.createElement("div");g.className="btns";g.dataset.t="1";b.before(g);
+    run.forEach(x=>{if(x.classList.contains("btns")){[...x.children].forEach(c=>g.appendChild(c));x.remove()}else g.appendChild(x)});
+  });
+  root.querySelectorAll(".btns").forEach(g=>{const sec=[...g.children].filter(c=>!c.classList.contains("p")&&!c.classList.contains("d"));
+    [...g.children].forEach(c=>{c.classList.remove("full");c.style.width="";c.style.marginTop="";c.style.marginBottom=""});
+    if(sec.length%2)sec[sec.length-1].classList.add("full")});
+}
+let _tidyQ=false;
+new MutationObserver(()=>{if(_tidyQ)return;_tidyQ=true;requestAnimationFrame(()=>{_tidyQ=false;["#app","#sheet","#picker"].forEach(s=>tidyBtns(document.querySelector(s)))})}).observe(document.documentElement,{childList:true,subtree:true});
 function render(){
   _disc=null;
   $("#app").innerHTML=VIEWS[S.view]();
@@ -947,11 +971,11 @@ function openMatch(id){
   <div class="vs"><div class="tm">${badge(h,64)}<span>${esc(h)}</span></div><div class="mid">${sc}<small>${played?"Finale":esc(m.ora||fmtD(m.data))}</small></div><div class="tm">${badge(a,64)}<span>${esc(a)}</span></div></div>
   <p class="muted small" style="text-align:center;margin:10px 0 0">${fmtD(m.data,1)} ${esc(m.ora||"")} ${m.luogo?"· "+esc(m.luogo):""}</p>
   ${!played&&(m.ritrovo||m.ritrovoOra||m.info)?`<div class="card" style="margin-top:12px;border-left:4px solid var(--tint)">${m.ritrovo||m.ritrovoOra?`<div class="row"><span style="font-size:22px">📍</span><div class="sp"><div class="muted small" style="font-weight:600">RITROVO</div><b>${m.ritrovoOra?esc(m.ritrovoOra)+" · ":""}${esc(m.ritrovo||"")}</b></div></div>`:""}${m.info?`<p style="margin:${m.ritrovo||m.ritrovoOra?"12px":"0"} 0 0;white-space:pre-wrap">💬 ${esc(m.info)}</p>`:""}</div>`:""}
-  ${!played&&staff&&!(m.ritrovo||m.ritrovoOra||m.info)?`<button class="btn sm" style="margin-top:12px" onclick="editMatch('${id}')">Aggiungi ritrovo e messaggio</button>`:""}
+  ${m.mvp&&P(m.mvp)?`<div class="mvp">${avatar({...P(m.mvp),numero:""})}<div class="sp"><div class="st">⭐ Migliore in campo</div><b>${esc(fullName(P(m.mvp)))}</b></div></div>`:""}
+  ${!played&&staff&&!(m.ritrovo||m.ritrovoOra||m.info)?`<button class="btn sm" style="margin-top:12px" onclick="editMatch('${id}')">Ritrovo e messaggio</button>`:""}
 
   ${!played&&daysTo(m.data)>=0?`<div class="row wrap2" style="margin-top:12px">${calBtn(gcal((m.casa?TEAM+" – "+m.avversario:m.avversario+" – "+TEAM),m.data,m.ora,120,m.luogo,m.ritrovo||m.ritrovoOra?"Ritrovo: "+[m.ritrovoOra,m.ritrovo].filter(Boolean).join(" · "):""))}</div>`:""}
   ${played?`<button class="btn" style="width:100%;margin-top:12px" onclick="resultImage(S.matches.find(x=>x.id==='${id}'))">Grafica risultato per Instagram/WhatsApp</button>`:""}
-  ${m.mvp&&P(m.mvp)?`<div class="mvp">${avatar({...P(m.mvp),numero:""})}<div class="sp"><div class="st">⭐ Migliore in campo</div><b>${esc(fullName(P(m.mvp)))}</b></div></div>`:""}
   ${staff?`<button class="btn p" style="width:100%;margin-top:14px" onclick="resultSheet('${id}')">${played?"Modifica report partita":"Inserisci risultato e report"}</button>`:""}
   ${played&&(gol.length||ass.length)?`<h3>Gol e assist</h3><div class="list">${gol.map(([p,n])=>evRow(p,n>1?n+" gol":"gol","⚽")).join("")}${ass.map(([p,n])=>evRow(p,n>1?n+" assist":"assist","🅰️")).join("")}</div>`:""}
   ${played&&(gia.length||ros.length)?`<h3>Cartellini</h3><div class="list">${gia.map(([p,n])=>evRow(p,n>1?"2 gialli":"giallo","🟨")).join("")}${ros.map(([p])=>evRow(p,"rosso","🟥")).join("")}</div>`:""}
@@ -1120,8 +1144,7 @@ function formationSheet(id){
     <div class="bench">${bench.map(p=>`<button class="bp" data-b="${p.id}">${avatar(p)}<span>${esc(p.cognome)}</span></button>`).join("")||`<span class="muted small" style="padding:10px">Tutti in campo</span>`}</div>
     ${S.canWrite?`<h3>Formazione base</h3><div class="card"><p class="small" style="margin:0 0 12px">La formazione di partenza per tutte le partite. Ogni nuova partita parte da qui, poi il mister cambia 1, 2 o 3 giocatori.</p><div class="row wrap2"><button class="btn sm p" id="bSave">⭐ Salva questa come base</button>${base?`<button class="btn sm" id="bLoad">↺ Carica la base</button>`:""}</div>${base?`<p class="muted small" style="margin:10px 0 0">Base attuale: ${esc(base.modulo)} · ${(base.slots||[]).filter(Boolean).length} giocatori</p>`:""}</div>`:""}
     <button class="btn p" id="img" style="width:100%;margin-top:14px">Foto della formazione per WhatsApp</button>
-    ${S.canWrite?`<button class="btn" id="prn" style="width:100%;margin-top:10px">Stampa per spogliatoio (campo + convocati)</button>`:""}
-    <div class="row wrap2" style="margin-top:10px"><button class="btn sm" id="cp">Copia testo</button><a class="btn sm" style="text-decoration:none" id="wa" href="#">Invia testo su WhatsApp</a></div>
+    <div class="row wrap2" style="margin-top:10px"><button class="btn sm" id="cp">Copia testo</button><a class="btn sm" style="text-decoration:none" id="wa" href="#">Testo su WhatsApp</a></div>${S.canWrite?`<button class="btn" id="prn" style="width:100%;margin-top:10px">Stampa per spogliatoio</button>`:""}
     <div class="actions" style="position:sticky;bottom:0;background:var(--sheet);padding:10px 0"><button class="btn" onclick="openMatch('${id}')">Indietro</button>${S.canWrite?`<button class="btn p" id="sv">Salva</button>`:""}</div>`};
   const re=()=>{const y=$("#sheet").scrollTop;$("#sheet").innerHTML=`<div class="grab"></div>`+draw();bind();$("#sheet").scrollTop=y};
   const tapSlot=i=>{if(!S.canWrite){toast("Solo lo staff può modificare");return}sel=i;re();openPicker(i)};
@@ -1502,7 +1525,7 @@ function gcal(title,date,time,mins,loc,details){
   else{const n=new Date(date);n.setDate(n.getDate()+1);dates=d+"/"+n.toISOString().slice(0,10).replace(/-/g,"")}
   return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(title)+"&dates="+dates+"&ctz=Europe/Rome"+(loc?"&location="+encodeURIComponent(loc):"")+(details?"&details="+encodeURIComponent(details):"");
 }
-const calBtn=(href)=>href?`<a class="btn sm" style="text-decoration:none" href="${href}" target="_blank" rel="noopener">Aggiungi al calendario</a>`:"";
+const calBtn=(href)=>href?`<a class="btn sm" style="text-decoration:none" href="${href}" target="_blank" rel="noopener">Salva in calendario</a>`:"";
 
 // ================= COMPLEANNI E TRAGUARDI =================
 function birthdays(){const t=new Date();t.setHours(0,0,0,0);const out=[];
