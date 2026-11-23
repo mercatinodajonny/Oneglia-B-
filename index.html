@@ -187,6 +187,8 @@ table.cl td.pt{font-weight:700}
 .mods{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:12px 0}
 .mods::-webkit-scrollbar{display:none}
 .rgh{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:14px 16px 6px}.rgrp:first-child .rgh{padding-top:8px}
+.mvpc{display:flex;align-items:center;gap:14px;margin-top:10px;padding:14px 16px;border-radius:20px;background:linear-gradient(120deg,color-mix(in srgb,#ffcc00 30%,var(--card)),color-mix(in srgb,#ffcc00 8%,var(--card)));box-shadow:var(--shadow);cursor:pointer;transition:transform .12s ease-out}.mvpc:active{transform:scale(.985)}
+.mvpc .av{width:58px;height:58px;font-size:20px;box-shadow:0 0 0 3px #ffcc00}.mvpc .st{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a87800}.mvpc b{display:block;font-size:20px;font-weight:700;letter-spacing:-.01em}.mvpc .sb{font-size:14px;color:var(--muted)}
 .mecard{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:20px;background:var(--card);box-shadow:var(--shadow);cursor:pointer;transition:transform .12s ease-out}
 .mecard:active,.nextm:active,.lastm:active,.trn:active{transform:scale(.985)}
 .mecard .av{width:56px;height:56px;font-size:19px}.mecard b{display:block;font-size:19px;font-weight:700;letter-spacing:-.01em}.mecard .sp>span{color:var(--muted);font-size:14px}
@@ -389,8 +391,8 @@ function vHome(){
     return `<div class="card lastm" onclick="openMatch('${lp.id}')"><div class="row"><span class="k sp">Ultima partita${lp.giornata?" · "+esc(lp.giornata):""}</span><span class="tag ${res}">${res==="g"?"Vittoria":res==="r"?"Sconfitta":"Pareggio"}</span></div>
       ${vsRow(lp,`<b class="score">${lp.casa?lp.golFatti:lp.golSubiti}<i>–</i>${lp.casa?lp.golSubiti:lp.golFatti}</b><span class="hr">${esc(fmtD(lp.data,1))}</span>`)}
       ${g.length?`<div class="scr">⚽ ${g.join(" · ")}</div>`:""}
-      ${lmvp?`<div class="mvprow">${avatar({...lmvp,numero:""})}<div class="sp"><span class="st">⭐ Migliore in campo</span><b>${esc(fullName(lmvp))}</b></div></div>`:""}
       <div class="more">Vedi il report ›</div></div>`})():"";
+  const mvpCard=lp&&lmvp?`<div class="mvpc" onclick="openMatch('${lp.id}')">${avatar(lmvp)}<div class="sp"><span class="st">⭐ Migliore in campo</span><b>${esc(fullName(lmvp))}</b><span class="sb">${lp.casa?"vs ":"@ "}${esc(lp.avversario)} · ${lp.casa?lp.golFatti+"–"+lp.golSubiti:lp.golSubiti+"–"+lp.golFatti}</span></div>${badge(lp.avversario,40)}</div>`:"";
   setTimeout(applyLogoColors,0);
   return `<div class="view">${header("Gestione squadra")}
   ${news.map(n=>`<div class="news ${n.urgente?"urg":""}"><div class="t">${n.urgente?"Importante":"Comunicazione"} · ${esc(n.creato?fmtD(n.creato.slice(0,10),1):"")}${n.autore?" · "+esc(n.autore):""}</div><p>${esc(n.testo)}</p>${S.canWrite?`<button class="x" onclick="delNews('${n.id}')" aria-label="Elimina">✕</button>`:""}</div>`).join("")}
@@ -407,7 +409,7 @@ function vHome(){
   </div>
   ${nextCard}
   ${trCard}
-  ${S.canWrite&&(nt||nm)?`<div class="card" style="margin-top:10px;padding:6px 0"><div class="lbl" style="padding:10px 16px 2px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)">Presenze</div>${staffPresenze("t",nt,"Allenamento")}${staffPresenze("m",nm,nm?(nm.casa?"vs ":"@ ")+esc(nm.avversario):"")}</div>`:""}
+  ${mvpCard}
   ${lastCard}
   ${S.canWrite&&alerts.length?`<h3>Da controllare</h3><div class="list">`+alerts.slice(0,6).map(a=>`<div class="li alert ${a.c}" onclick="openPlayer('${a.id}')"><span class="dot"></span><span class="nm">${esc(a.t)}</span></div>`).join("")+`</div>`:""}
   ${sp.length||S.canWrite?`<h3>Sponsor</h3><div class="sponsor">${sp.map(n=>{const l=sponsorLogo(n);return l?`<img class="splogo" src="${l}" alt="${esc(n)}" title="${esc(n)}">`:`<span>${esc(n)}</span>`}).join("")}${S.canWrite?`<button class="btn sm" onclick="editSponsor()">Modifica</button>`:""}</div>`:""}
