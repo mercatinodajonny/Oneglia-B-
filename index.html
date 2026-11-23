@@ -189,6 +189,7 @@ table.cl td.pt{font-weight:700}
 .rgh{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:14px 16px 6px}.rgrp:first-child .rgh{padding-top:8px}
 .mvpc{display:flex;align-items:center;gap:14px;margin-top:10px;padding:14px 16px;border-radius:20px;background:linear-gradient(120deg,color-mix(in srgb,#ffcc00 30%,var(--card)),color-mix(in srgb,#ffcc00 8%,var(--card)));box-shadow:var(--shadow);cursor:pointer;transition:transform .12s ease-out}.mvpc:active{transform:scale(.985)}
 .mvpc .av{width:58px;height:58px;font-size:20px;box-shadow:0 0 0 3px #ffcc00}.mvpc .st{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#a87800}.mvpc b{display:block;font-size:20px;font-weight:700;letter-spacing:-.01em}.mvpc .sb{font-size:14px;color:var(--muted)}
+.back{border:0;background:none;color:var(--tint);font:inherit;font-size:17px;padding:4px 0;margin-bottom:4px;cursor:pointer}
 .mecard{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:20px;background:var(--card);box-shadow:var(--shadow);cursor:pointer;transition:transform .12s ease-out}
 .mecard:active,.nextm:active,.lastm:active,.trn:active{transform:scale(.985)}
 .mecard .av{width:56px;height:56px;font-size:19px}.mecard b{display:block;font-size:19px;font-weight:700;letter-spacing:-.01em}.mecard .sp>span{color:var(--muted);font-size:14px}
@@ -270,7 +271,6 @@ body.nf .toast{top:calc(10px + var(--safe-t))}
 <nav class="bar" id="nav">
   <a href="#home" data-v="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
   <a href="#rosa" data-v="rosa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17.5 14c2.2.3 3.6 2 4 4.5"/></svg>Rosa</a>
-  <a href="#allenamenti" data-v="allenamenti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M8 15l2 2 4-4"/></svg>Allenam.</a>
   <a href="#partite" data-v="partite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/></svg>Partite</a>
   <a href="#staff" data-v="staff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2 8 12.7 4 8.8 9.5 8z"/></svg>Staff</a>
 </nav>
@@ -444,7 +444,7 @@ function vAllenamenti(){
   if(loading(["trainings"]))return header("Allenamenti")+`<div class="skel"></div><div class="skel"></div>`;
   const up=upcoming(S.trainings), ps=past(S.trainings);
   const row=t=>{const n=t.presenze?Object.values(t.presenze).filter(v=>v==="P").length:0;const has=t.presenze&&Object.keys(t.presenze).length;return `<div class="li" onclick="openTraining('${t.id}')"><div class="av STF" style="flex-direction:column;line-height:1;font-size:15px">${Number(t.data.split("-")[2])}<span style="font-size:10px;font-weight:600">${MM[Number(t.data.split("-")[1])-1]}</span></div><div class="nm"><b>${esc(t.tipo||"Allenamento")}</b><span>${GG[new Date(t.data).getDay()]} ${esc(t.ora||"")} ${t.luogo?"· "+esc(t.luogo):""}${t.fasi&&t.fasi.length?" · 📋 "+t.fasi.length+" fasi":""}${daysTo(t.data)>=0?(()=>{const d=Object.values(dispMap("t",t.id));return d.length?" · ✅ "+d.filter(v=>v==="si").length:""})():""}</span></div>${has?`<span class="tag g">${n}/${S.players.length}</span>`:`<span class="tag">${daysTo(t.data)<0?"appello":rel(t.data)}</span>`}</div>`};
-  return `<div class="view">${header("Allenamenti e presenze")}
+  return `<div class="view"><button class="back" onclick="S.staffTab='staff';go('staff')">‹ Staff</button>${header("Allenamenti e presenze")}
   <h3>In programma</h3>${up.length?`<div class="list">${up.map(row).join("")}</div>`:`<div class="card muted small">Nessun allenamento in programma. Tocca “Nuovo” per aggiungerne uno o creare la settimana tipo.</div>`}
   ${S.canWrite?`<div class="row" style="margin-top:10px"><button class="btn sm" onclick="weekSheet()">+ Settimana tipo</button></div>`:""}
   <h3>Svolti</h3>${ps.length?`<div class="list">${ps.map(row).join("")}</div>`:`<div class="card muted small">Ancora nessun allenamento svolto.</div>`}
@@ -484,6 +484,7 @@ function vStaff(){
   if(tab==="inf")return `<div class="view">${header("Infortuni")}${segs}${vInfortuni()}</div>`;
   if(tab==="acc"&&S.isManager)return `<div class="view">${header("Account della squadra")}${segs}${vAccount()}</div>`;
   return `<div class="view">${header("Staff tecnico e società")}${segs}
+  ${S.canWrite?`<div class="card trn" onclick="go('allenamenti')" style="margin:0 0 12px"><div class="sp"><span class="k">Area mister</span><b>📅 Allenamenti e presenze</b><span class="muted small">Chi c'è, chi no, chi non ha risposto · programma e settimana tipo</span></div><span class="chev">›</span></div>`:""}
   ${S.canWrite?`<button class="btn sm" style="margin-bottom:12px" onclick="regoleSheet()">⚖️ Regole diffide e squalifiche (${(S.info.regole&&S.info.regole.sqGialli)||4} gialli)</button>`:""}
   ${list.length?`<div class="list">${list.map(s=>`<div class="li" onclick="openStaff('${s.id}')">${avatar({...s,ruolo:"STF",numero:""})}<div class="nm"><b>${esc(fullName(s))}</b><span>${esc(s.ruolo||"")}</span></div>${s.telefono?`<span class="tag">📞</span>`:""}</div>`).join("")}</div>`:`<div class="empty">Nessun membro dello staff.</div>`}
   </div>`;
@@ -495,7 +496,7 @@ const FAB={rosa:["Giocatore",()=>editPlayer()],allenamenti:["Nuovo",()=>editTrai
 function render(){
   _disc=null;
   $("#app").innerHTML=VIEWS[S.view]();
-  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===S.view));
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===S.view||(S.view==="allenamenti"&&a.dataset.v==="staff")));
   const f=FAB[S.view],fab=$("#fab");
   if(f&&S.canWrite){fab.hidden=false;fab.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>${f[0]}`;fab.onclick=f[1]}else fab.hidden=true;
   bindDisp(null,$("#app"));
@@ -504,7 +505,7 @@ function render(){
 function renderKeep(id){const el=document.getElementById(id);const pos=el?el.selectionStart:0;render();const n=document.getElementById(id);if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}}
 function setRole(r){S.roleFilter=r;render()}
 function go(v){location.hash=v}
-function route(){const h=location.hash.slice(1);S.view=VIEWS[h]?h:"home";render();window.scrollTo(0,0)}
+function route(){let h=location.hash.slice(1);if(h==="allenamenti"&&!S.canWrite)h="home";S.view=VIEWS[h]?h:"home";render();window.scrollTo(0,0)}
 window.addEventListener("hashchange",route);
 
 // ---------- sheet
