@@ -401,6 +401,25 @@ html.v2 .dvb.on{animation:pop .32s var(--ease)}
 @media (prefers-reduced-motion:reduce){html.v2 .view>*,html.v2 .dvb.on{animation:none!important}}
 /* schermi piccoli (iPhone SE, Android compatti) */
 @media (max-width:360px){html.v2 .ltitle{font-size:25px}html.v2 .hero .big{font-size:28px}html.v2 .hero img{width:52px}html.v2 .sponsor{grid-template-columns:repeat(2,1fr)}html.v2 .vs .tm .tlogo{width:52px!important;height:52px!important}html.v2 nav.bar a{font-size:10px}}
+
+/* area admin */
+.li.nochev::after{display:none!important}
+.more{border:0;background:var(--fill);color:var(--muted);width:38px;height:30px;border-radius:999px;font-size:13px;letter-spacing:1px;font-weight:800;cursor:pointer;flex:none;transition:transform .15s,background .2s}.more:active{transform:scale(.92);background:var(--fill2)}
+.astat{text-align:right;font-size:14px;font-weight:600;white-space:nowrap}.astat small{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.sw{width:51px;height:31px;border-radius:999px;border:0;background:var(--fill2);position:relative;cursor:pointer;flex:none;transition:background .25s}.sw i{position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .25s cubic-bezier(.3,.7,.3,1)}.sw.on{background:#34c759}.sw.on i{transform:translateX(20px)}
+.cards{display:flex;gap:6px}.cards i{font-style:normal;width:22px;height:28px;border-radius:4px;display:grid;place-items:center;font-size:13px;font-weight:800;color:#3a2a00}.cards .cy{background:#ffd60a}.cards .cr{background:#ff3b30;color:#fff}
+
+/* comunicazioni: ben riconoscibili e staccate dalle altre schede */
+.news,html.v2 .news{margin:14px 0 0;padding:14px 46px 14px 62px;border-radius:18px;background:linear-gradient(90deg,color-mix(in srgb,#1d7a3e 7%,var(--card)),var(--card) 70%);border:1px solid color-mix(in srgb,#1d7a3e 32%,transparent);box-shadow:inset 4px 0 0 #1d7a3e,var(--shadow)}
+.news::before,html.v2 .news::before{content:"";position:absolute;left:14px;top:14px;width:34px;height:34px;border-radius:50%;background:color-mix(in srgb,#1d7a3e 14%,var(--card)) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d7a3e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z'/%3E%3Cpath d='M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13'/%3E%3C/svg%3E") center/18px no-repeat}
+.news .t,html.v2 .news .t{color:#1d7a3e;font-size:11.5px;letter-spacing:.07em}
+.news p,html.v2 .news p{font-size:16px;font-weight:600;margin-top:4px}
+.news.urg,html.v2 .news.urg{background:linear-gradient(90deg,color-mix(in srgb,var(--red) 9%,var(--card)),var(--card) 70%);border-color:color-mix(in srgb,var(--red) 40%,transparent);box-shadow:inset 4px 0 0 var(--red),var(--shadow)}
+.news.urg::before,html.v2 .news.urg::before{content:"";background:color-mix(in srgb,var(--red) 14%,var(--card)) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d93a32' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M12 7v6M12 17h.01'/%3E%3C/svg%3E") center/20px no-repeat}
+.news.urg .t{color:var(--red)}
+.news .x{top:10px;right:10px;width:28px;height:28px}
+.news+.news{margin-top:10px}
+.mecard+.news,.mecard+.conv{margin-top:14px}.conv{margin-top:14px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -418,6 +437,7 @@ html.v2 .dvb.on{animation:pop .32s var(--ease)}
   <a href="#rosa" data-v="rosa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17.5 14c2.2.3 3.6 2 4 4.5"/></svg>Rosa</a>
   <a href="#partite" data-v="partite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/></svg>Partite</a>
   <a href="#staff" data-v="staff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2 8 12.7 4 8.8 9.5 8z"/></svg>Staff</a>
+  <a href="#admin" data-v="admin" class="adm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Admin</a>
 </nav>
 
 <button class="fab" id="fab" hidden></button>
@@ -482,7 +502,7 @@ const upcoming=(arr)=>arr.filter(x=>x.data&&daysTo(x.data)>=0).sort((a,b)=>(a.da
 const past=(arr)=>arr.filter(x=>x.data&&daysTo(x.data)<0).sort((a,b)=>(b.data+(b.ora||"")).localeCompare(a.data+(a.ora||"")));
 
 // ---------- views
-const TITLES={home:"Oneglia Sq. B",rosa:"Rosa",allenamenti:"Allenamenti",partite:"Partite",staff:"Staff"};
+const TITLES={admin:"Admin",home:"Oneglia Sq. B",rosa:"Rosa",allenamenti:"Allenamenti",partite:"Partite",staff:"Staff"};
 function heroHTML(){const cl=(S.info.classifica&&S.info.classifica.righe)||[];const me=cl.find(r=>r.me)||null;
   return `<div class="hero home" onclick="S.matchTab='cla';go('partite')" style="cursor:pointer"><img src="${CREST}" alt="Stemma Oneglia Calcio">
     <div class="sp"><div class="lbl">Oneglia Sq. B${me?" · Classifica":""}</div>
@@ -552,14 +572,12 @@ function vHome(){
     const when=daysTo(nm.data)===0?"Oggi":daysTo(nm.data)===1?"Domani":fmtD(nm.data,1);
     return yes?`<div class="conv" onclick="openMatch('${nm.id}')"><div class="t">🎉 Sei stato convocato${tit?" · titolare":""}!</div><b>${when}${nm.ora?" alle "+esc(nm.ora):""} · ${nm.casa?"vs ":"@ "}${esc(nm.avversario)}</b>${nm.ritrovo||nm.ritrovoOra?`<div>📍 Ritrovo ${esc([nm.ritrovoOra,nm.ritrovo].filter(Boolean).join(" · "))}</div>`:""}<div style="margin-top:6px;opacity:.85">Tocca per i dettagli ›</div></div>`
       :`<div class="news" onclick="openMatch('${nm.id}')" style="cursor:pointer"><div class="t">Convocazioni ${nm.casa?"vs ":"@ "}${esc(nm.avversario)}</div><p>Questa volta non sei tra i convocati. Forza, continua ad allenarti! 💪</p></div>`})()}
-  ${S.canWrite?`<button class="btn sm" style="margin-bottom:12px" onclick="newsSheet()">📣 Nuova comunicazione</button>`:""}
   ${[[nm,nextCard],[nt,trCard]].filter(x=>x[0]).sort((x,y)=>(x[0].data+(x[0].ora||"")).localeCompare(y[0].data+(y[0].ora||""))).map(x=>x[1]).join("")}
   ${lp?`<h3>Partite precedenti</h3>`:""}
 
   ${mvpCard}
   ${lastCard}
   ${lp?`<button class="btn sm" style="margin-top:12px" onclick="S.matchTab='cal';go('partite')">Tutte le partite ›</button>`:""}
-  ${S.canWrite&&alerts.length?`<h3>Da controllare</h3><div class="list">`+alerts.slice(0,6).map(a=>`<div class="li alert ${a.c}" onclick="openPlayer('${a.id}')"><span class="dot"></span><span class="nm">${esc(a.t)}</span></div>`).join("")+`</div>`:""}
   ${sp.length||S.canWrite?`<h3>Sponsor</h3><div class="sponsor">${sp.map(n=>{const l=sponsorLogo(n);return l?`<img class="splogo" src="${l}" alt="${esc(n)}" title="${esc(n)}">`:`<span>${esc(n)}</span>`}).join("")}${S.canWrite?`<button class="btn sm" onclick="editSponsor()">Modifica</button>`:""}</div>`:""}
   </div>`;
 }
@@ -592,7 +610,7 @@ function vAllenamenti(){
   if(loading(["trainings"]))return header("Allenamenti")+`<div class="skel"></div><div class="skel"></div>`;
   const up=upcoming(S.trainings), ps=past(S.trainings);
   const row=t=>{const n=t.presenze?Object.values(t.presenze).filter(v=>v==="P").length:0;const has=t.presenze&&Object.keys(t.presenze).length;return `<div class="li" onclick="openTraining('${t.id}')"><div class="av STF" style="flex-direction:column;line-height:1;font-size:15px">${Number(t.data.split("-")[2])}<span style="font-size:10px;font-weight:600">${MM[Number(t.data.split("-")[1])-1]}</span></div><div class="nm"><b>${esc(t.tipo||"Allenamento")}</b><span>${GG[new Date(t.data).getDay()]} ${esc(t.ora||"")} ${t.luogo?"· "+esc(t.luogo):""}${t.fasi&&t.fasi.length?" · 📋 "+t.fasi.length+" fasi":""}${daysTo(t.data)>=0?(()=>{const d=Object.values(dispMap("t",t.id));return d.length?" · ✅ "+d.filter(v=>v==="si").length:""})():""}</span></div>${has?`<span class="tag g">${n}/${S.players.length}</span>`:`<span class="tag">${daysTo(t.data)<0?"appello":rel(t.data)}</span>`}</div>`};
-  return `<div class="view"><button class="back" onclick="S.staffTab='staff';go('staff')">‹ Staff</button>${header("Allenamenti e presenze")}
+  return `<div class="view"><button class="back" onclick="S.adminTab='home';go('admin')">‹ Admin</button>${header("Allenamenti e presenze")}
   <h3>In programma</h3>${up.length?`<div class="list">${up.map(row).join("")}</div>`:`<div class="card muted small">Nessun allenamento in programma. Tocca “Nuovo” per aggiungerne uno o creare la settimana tipo.</div>`}
   ${S.canWrite?`<div class="row" style="margin-top:10px"><button class="btn sm" onclick="weekSheet()">+ Settimana tipo</button></div>`:""}
   <h3>Svolti</h3>${ps.length?`<div class="list">${ps.map(row).join("")}</div>`:`<div class="card muted small">Ancora nessun allenamento svolto.</div>`}
@@ -627,24 +645,23 @@ function vStaff(){
   const ord=r=>{const i=STAFF_ROLES.indexOf(r);return i<0?99:i};
   const list=[...S.staff].sort((a,b)=>ord(a.ruolo)-ord(b.ruolo)||fullName(a).localeCompare(fullName(b)));
   const tab=S.canWrite?S.staffTab:"staff";
-  const segs=S.canWrite?`<div class="seg" style="margin-bottom:12px">${[["staff","Staff"],["cassa","💶 Cassa"],["inf","🩹 Infort."],...(S.isManager?[["acc","👤 Account"]]:[])].map(([k,l])=>`<button class="${tab===k?"on":""}" onclick="S.staffTab='${k}';render()">${l}</button>`).join("")}</div>`:"";
+  const segs=S.canWrite?`<div class="seg" style="margin-bottom:12px">${[["staff","Staff"],["cassa","Cassa"],["inf","Infort."],...(S.isManager?[["acc","Account"]]:[])].map(([k,l])=>`<button class="${tab===k?"on":""}" onclick="S.staffTab='${k}';render()">${l}</button>`).join("")}</div>`:"";
   if(tab==="cassa")return `<div class="view">${header("Cassa squadra")}${segs}${vCassa()}</div>`;
   if(tab==="inf")return `<div class="view">${header("Infortuni")}${segs}${vInfortuni()}</div>`;
   if(tab==="acc"&&S.isManager)return `<div class="view">${header("Account della squadra")}${segs}${vAccount()}</div>`;
   return `<div class="view">${header("Staff tecnico e società")}${segs}
-  ${S.canWrite?`<div class="card trn" onclick="go('allenamenti')" style="margin:0 0 12px"><div class="sp"><span class="k">Area mister</span><b>📅 Allenamenti e presenze</b><span class="muted small">Chi c'è, chi no, chi non ha risposto · programma e settimana tipo</span></div><span class="chev">›</span></div>`:""}
-  ${S.canWrite?`<button class="btn sm" style="margin-bottom:12px" onclick="regoleSheet()">⚖️ Regole diffide e squalifiche (${(S.info.regole&&S.info.regole.sqGialli)||4} gialli)</button>`:""}
+  ${S.canWrite?`<button class="btn sm" style="margin-bottom:12px" onclick="regoleSheet()">Regole diffide e squalifiche (${(S.info.regole&&S.info.regole.sqGialli)||4} gialli)</button>`:""}
   ${list.length?`<div class="list">${list.map(s=>`<div class="li" onclick="openStaff('${s.id}')">${avatar({...s,ruolo:"STF",numero:""})}<div class="nm"><b>${esc(fullName(s))}</b><span>${esc(s.ruolo||"")}</span></div>${s.telefono?`<span class="tag">📞</span>`:""}</div>`).join("")}</div>`:`<div class="empty">Nessun membro dello staff.</div>`}
   </div>`;
 }
 
 // ---------- render & routing
-const VIEWS={home:vHome,rosa:vRosa,allenamenti:vAllenamenti,partite:vPartite,staff:vStaff};
+const VIEWS={admin:vAdmin,home:vHome,rosa:vRosa,allenamenti:vAllenamenti,partite:vPartite,staff:vStaff};
 const FAB={rosa:["Giocatore",()=>editPlayer()],allenamenti:["Nuovo",()=>editTraining()],partite:["Partita",()=>editMatch()],staff:["Membro",()=>S.staffTab==="cassa"?multaSheet():S.staffTab==="inf"?injSheet():S.staffTab==="acc"?accSheet():editStaff()]};
 function render(){
   _disc=null;
   $("#app").innerHTML=VIEWS[S.view]();
-  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===S.view||(S.view==="allenamenti"&&a.dataset.v==="staff")));
+  document.querySelectorAll("#nav a").forEach(a=>{a.classList.toggle("on",a.dataset.v===S.view||(S.view==="allenamenti"&&a.dataset.v==="admin"));if(a.dataset.v==="admin")a.style.display=S.canWrite?"":"none"});
   const f=FAB[S.view],fab=$("#fab");
   if(f&&S.canWrite){fab.hidden=false;fab.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>${f[0]}`;fab.onclick=f[1]}else fab.hidden=true;
   bindDisp(null,$("#app"));
@@ -653,7 +670,7 @@ function render(){
 function renderKeep(id){const el=document.getElementById(id);const pos=el?el.selectionStart:0;render();const n=document.getElementById(id);if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}}
 function setRole(r){S.roleFilter=r;render()}
 function go(v){location.hash=v}
-function route(){let h=location.hash.slice(1);if(h==="allenamenti"&&!S.canWrite)h="home";S.view=VIEWS[h]?h:"home";render();window.scrollTo(0,0)}
+function route(){let h=location.hash.slice(1);if((h==="allenamenti"||h==="admin")&&!S.canWrite)h="home";if(h==="admin"&&location.hash.slice(1)!==h)S.adminTab="home";S.view=VIEWS[h]?h:"home";render();window.scrollTo(0,0)}
 window.addEventListener("hashchange",route);
 
 // ---------- sheet
@@ -703,7 +720,7 @@ function openPlayer(id){
   ${rows.length?`<h3>Ultimi allenamenti</h3><div class="row wrap2">${rows.map(t=>`<span class="tag ${t.presenze[id]==="P"?"g":t.presenze[id]==="G"?"a":"r"}">${fmtD(t.data).slice(0,-5)} · ${t.presenze[id]==="P"?"presente":t.presenze[id]==="G"?"giustif.":"assente"}</span>`).join("")}</div>`:""}
   ${S.canWrite?(()=>{const inj=S.infortuni.filter(i=>i.pid===id).sort((a,b)=>String(b.inizio).localeCompare(String(a.inizio)));const deb=cassaSummary().deb[id];
     return `${inj.length?`<h3>Infortuni</h3><div class="list">${inj.map(i=>`<div class="li" onclick="injSheet('${i.id}')"><div class="nm"><b>${esc(i.tipo||"Infortunio")}${i.zona?" · "+esc(i.zona):""}</b><span>dal ${fmtD(i.inizio)}${i.chiuso?" al "+fmtD(i.fine):i.rientro?" · rientro "+fmtD(i.rientro):""}</span></div>${i.chiuso?`<span class="tag g">ok</span>`:`<span class="tag a">in corso</span>`}</div>`).join("")}</div>`:""}
-    <div class="row wrap2" style="margin-top:14px"><button class="btn sm" onclick="injSheet(null,'${id}')">🩹 Segna infortunio</button><button class="btn sm" onclick="multaSheet('${id}')">💶 Multa</button>${deb?`<button class="btn sm" onclick="debSheet('${id}')">Deve ${euro(deb)}</button>`:""}</div>`})():""}
+    <div class="row wrap2" style="margin-top:14px"><button class="btn sm" onclick="injSheet(null,'${id}')">Segna infortunio</button><button class="btn sm" onclick="multaSheet('${id}')">Multa</button>${deb?`<button class="btn sm" onclick="debSheet('${id}')">Deve ${euro(deb)}</button>`:""}</div>`})():""}
   <div class="actions"><button class="btn" onclick="closeSheet()">Chiudi</button>${S.canWrite?`<button class="btn p" onclick="editPlayer('${id}')">Modifica</button>`:""}</div>`);
 }
 function editPlayer(id){
@@ -858,18 +875,18 @@ function openMatch(id){
   const pub=(k,on,lab)=>staff?`<button class="chip ${on?"on":""}" data-pub="${k}">${on?"✓ "+lab+" visibili a tutti":lab+": solo staff"}</button>`:"";
   const formOld=()=>`<h3>Formazione${m.formazione&&hasForm?" · "+esc(m.formazione.modulo):""}</h3>
   ${staff?`<div class="chips" style="margin-bottom:8px">${pub("formPubblica",m.formPubblica,"Formazione")}</div>`:""}
-  ${showForm&&hasForm?`<div onclick="formationSheet('${id}')" style="cursor:pointer">${pitchHTML(m.formazione,{mini:true})}</div><div class="row wrap2" style="margin-top:10px"><button class="btn sm" id="mimg">📸 Foto formazione</button>${staff?`<button class="btn sm" id="mprint">🖨 Stampa per spogliatoio</button>`:""}</div>`:staff?`<div class="card row" style="cursor:pointer" onclick="formationSheet('${id}')"><span class="sp muted">Prepara la formazione sul campo</span><span class="tag g">Crea</span></div>`:`<div class="card muted small">La formazione non è ancora stata pubblicata.</div>`}`;
+  ${showForm&&hasForm?`<div onclick="formationSheet('${id}')" style="cursor:pointer">${pitchHTML(m.formazione,{mini:true})}</div><div class="row wrap2" style="margin-top:10px"><button class="btn sm" id="mimg">Foto formazione</button>${staff?`<button class="btn sm" id="mprint">Stampa per spogliatoio</button>`:""}</div>`:staff?`<div class="card row" style="cursor:pointer" onclick="formationSheet('${id}')"><span class="sp muted">Prepara la formazione sul campo</span><span class="tag g">Crea</span></div>`:`<div class="card muted small">La formazione non è ancora stata pubblicata.</div>`}`;
   const cron=(m.cronaca||[]).slice().sort((x,y)=>(+x.min||0)-(+y.min||0));
   openSheet(`<div class="row wrap2"><span class="tag b">${esc(m.competizione||"Campionato")}</span>${m.giornata?`<span class="tag">${esc(m.giornata)}</span>`:""}${played?`<span class="tag g">Report partita</span>`:""}</div>
   <div class="vs"><div class="tm">${badge(h,64)}<span>${esc(h)}</span></div><div class="mid">${sc}<small>${played?"Finale":esc(m.ora||fmtD(m.data))}</small></div><div class="tm">${badge(a,64)}<span>${esc(a)}</span></div></div>
   <p class="muted small" style="text-align:center;margin:10px 0 0">${fmtD(m.data,1)} ${esc(m.ora||"")} ${m.luogo?"· "+esc(m.luogo):""}</p>
   ${!played&&(m.ritrovo||m.ritrovoOra||m.info)?`<div class="card" style="margin-top:12px;border-left:4px solid var(--tint)">${m.ritrovo||m.ritrovoOra?`<div class="row"><span style="font-size:22px">📍</span><div class="sp"><div class="muted small" style="font-weight:600">RITROVO</div><b>${m.ritrovoOra?esc(m.ritrovoOra)+" · ":""}${esc(m.ritrovo||"")}</b></div></div>`:""}${m.info?`<p style="margin:${m.ritrovo||m.ritrovoOra?"12px":"0"} 0 0;white-space:pre-wrap">💬 ${esc(m.info)}</p>`:""}</div>`:""}
-  ${!played&&staff&&!(m.ritrovo||m.ritrovoOra||m.info)?`<button class="btn sm" style="margin-top:12px" onclick="editMatch('${id}')">📍 Aggiungi ritrovo e messaggio</button>`:""}
+  ${!played&&staff&&!(m.ritrovo||m.ritrovoOra||m.info)?`<button class="btn sm" style="margin-top:12px" onclick="editMatch('${id}')">Aggiungi ritrovo e messaggio</button>`:""}
 
   ${!played&&daysTo(m.data)>=0?`<div class="row wrap2" style="margin-top:12px">${calBtn(gcal((m.casa?TEAM+" – "+m.avversario:m.avversario+" – "+TEAM),m.data,m.ora,120,m.luogo,m.ritrovo||m.ritrovoOra?"Ritrovo: "+[m.ritrovoOra,m.ritrovo].filter(Boolean).join(" · "):""))}</div>`:""}
-  ${played?`<button class="btn" style="width:100%;margin-top:12px" onclick="resultImage(S.matches.find(x=>x.id==='${id}'))">📸 Grafica risultato per Instagram/WhatsApp</button>`:""}
+  ${played?`<button class="btn" style="width:100%;margin-top:12px" onclick="resultImage(S.matches.find(x=>x.id==='${id}'))">Grafica risultato per Instagram/WhatsApp</button>`:""}
   ${m.mvp&&P(m.mvp)?`<div class="mvp">${avatar({...P(m.mvp),numero:""})}<div class="sp"><div class="st">⭐ Migliore in campo</div><b>${esc(fullName(P(m.mvp)))}</b></div></div>`:""}
-  ${staff?`<button class="btn p" style="width:100%;margin-top:14px" onclick="resultSheet('${id}')">${played?"✏️ Modifica report partita":"📝 Inserisci risultato e report"}</button>`:""}
+  ${staff?`<button class="btn p" style="width:100%;margin-top:14px" onclick="resultSheet('${id}')">${played?"Modifica report partita":"Inserisci risultato e report"}</button>`:""}
   ${played&&(gol.length||ass.length)?`<h3>Gol e assist</h3><div class="list">${gol.map(([p,n])=>evRow(p,n>1?n+" gol":"gol","⚽")).join("")}${ass.map(([p,n])=>evRow(p,n>1?n+" assist":"assist","🅰️")).join("")}</div>`:""}
   ${played&&(gia.length||ros.length)?`<h3>Cartellini</h3><div class="list">${gia.map(([p,n])=>evRow(p,n>1?"2 gialli":"giallo","🟨")).join("")}${ros.map(([p])=>evRow(p,"rosso","🟥")).join("")}</div>`:""}
   ${played&&Object.keys(m.voti||{}).length?`<h3>Pagelle</h3><div class="list">${Object.entries(m.voti).filter(([p,v])=>v&&P(p)).sort((a,b)=>b[1]-a[1]).map(([p,v])=>`<div class="li" style="cursor:default;min-height:52px">${avatar({...P(p),numero:""})}<div class="nm"><b>${esc(fullName(P(p)))}</b></div><span class="tag ${v>=7?"g":v<6?"r":""}" style="font-size:16px">${String(v).replace(".",",")}</span></div>`).join("")}</div>`:""}
@@ -881,7 +898,7 @@ function openMatch(id){
   ${staff?`<div class="chips" style="margin-bottom:8px">${pub("convPubblici",m.convPubblici,"Convocati")}</div>`:""}
   ${showConv?(conv.length?`<div class="row wrap2">${conv.map(p=>`<span class="tag">${p.numero?esc(p.numero)+" · ":""}${esc(fullName(p))}</span>`).join("")}</div>`:`<p class="muted small">Nessun convocato ancora.</p>`):`<div class="card muted small">I convocati non sono ancora usciti.</div>`}
   ${!played&&(staff||(m.formPubblica&&hasForm))?`<h3>Formazione</h3><div class="card"><div class="row"><span style="font-size:24px">🏟️</span><div class="sp"><b style="font-weight:600">${hasForm?"Formazione "+esc(m.formazione.modulo):"Formazione non ancora preparata"}</b><div class="muted small">${staff?(m.formPubblica?"Visibile a tutti":"Visibile solo allo staff"):"Pubblicata dal mister"}</div></div><button class="btn sm" onclick="formationSheet('${id}')">${hasForm?"Apri":"Prepara"}</button></div>
-   ${hasForm?`<div class="row wrap2" style="margin-top:12px"><button class="btn sm" id="mimg">📸 Foto</button>${staff?`<button class="btn sm" id="mprint">🖨 Stampa</button>`:""}${staff?pub("formPubblica",m.formPubblica,"Formazione"):""}</div>`:""}</div>`:""}
+   ${hasForm?`<div class="row wrap2" style="margin-top:12px"><button class="btn sm" id="mimg">Foto</button>${staff?`<button class="btn sm" id="mprint">Stampa</button>`:""}${staff?pub("formPubblica",m.formPubblica,"Formazione"):""}</div>`:""}</div>`:""}
   <div class="row wrap2" style="margin-top:14px">
    ${staff?`<button class="btn sm" onclick="convSheet('${id}')">Convocati</button>`:""}
    ${showConv&&conv.length?`<button class="btn sm" id="cp">Copia convocati</button><a class="btn sm" style="text-decoration:none" href="https://wa.me/?text=${encodeURIComponent(convText(m))}">Convocati su WhatsApp</a>`:""}
@@ -1028,7 +1045,7 @@ function formationSheet(id){
     const bench=pool().filter(p=>!f.slots.includes(p.id));
     const sl=slotsFor(f.modulo);const want=sel!==null?sl[sel].r:null;
     bench.sort((a,b)=>(want?(b.ruolo===want)-(a.ruolo===want):0));
-    return `<div class="row"><div class="sp"><h2>Formazione</h2><span class="muted small">${m.casa?"vs":"@"} ${esc(m.avversario)} · ${fmtD(m.data,1)}</span></div>${S.canWrite?`<button class="btn sm" id="auto">✨ Proponi</button>`:""}</div>
+    return `<div class="row"><div class="sp"><h2>Formazione</h2><span class="muted small">${m.casa?"vs":"@"} ${esc(m.avversario)} · ${fmtD(m.data,1)}</span></div>${S.canWrite?`<button class="btn sm" id="auto">Proponi</button>`:""}</div>
     ${usedBase?`<div class="banner" style="margin-top:12px;background:color-mix(in srgb,var(--tint) 12%,var(--card))">Partita dalla <b>formazione base</b>: cambia solo chi serve e salva.</div>`:""}
     <div class="mods">${MODULI.map(x=>`<button class="chip ${x===f.modulo?"on":""}" data-mod="${x}">${x}</button>`).join("")}</div>
     ${pitchHTML(f,{id:"pe",sel})}
@@ -1036,8 +1053,8 @@ function formationSheet(id){
     <h3 style="margin-top:14px">${(m.convocati||[]).length?"Panchina":"Rosa"} · ${bench.length}</h3>
     <div class="bench">${bench.map(p=>`<button class="bp" data-b="${p.id}">${avatar(p)}<span>${esc(p.cognome)}</span></button>`).join("")||`<span class="muted small" style="padding:10px">Tutti in campo</span>`}</div>
     ${S.canWrite?`<h3>Formazione base</h3><div class="card"><p class="small" style="margin:0 0 12px">La formazione di partenza per tutte le partite. Ogni nuova partita parte da qui, poi il mister cambia 1, 2 o 3 giocatori.</p><div class="row wrap2"><button class="btn sm p" id="bSave">⭐ Salva questa come base</button>${base?`<button class="btn sm" id="bLoad">↺ Carica la base</button>`:""}</div>${base?`<p class="muted small" style="margin:10px 0 0">Base attuale: ${esc(base.modulo)} · ${(base.slots||[]).filter(Boolean).length} giocatori</p>`:""}</div>`:""}
-    <button class="btn p" id="img" style="width:100%;margin-top:14px">📸 Foto della formazione per WhatsApp</button>
-    ${S.canWrite?`<button class="btn" id="prn" style="width:100%;margin-top:10px">🖨 Stampa per spogliatoio (campo + convocati)</button>`:""}
+    <button class="btn p" id="img" style="width:100%;margin-top:14px">Foto della formazione per WhatsApp</button>
+    ${S.canWrite?`<button class="btn" id="prn" style="width:100%;margin-top:10px">Stampa per spogliatoio (campo + convocati)</button>`:""}
     <div class="row wrap2" style="margin-top:10px"><button class="btn sm" id="cp">Copia testo</button><a class="btn sm" style="text-decoration:none" id="wa" href="#">Invia testo su WhatsApp</a></div>
     <div class="actions" style="position:sticky;bottom:0;background:var(--sheet);padding:10px 0"><button class="btn" onclick="openMatch('${id}')">Indietro</button>${S.canWrite?`<button class="btn p" id="sv">Salva</button>`:""}</div>`};
   const re=()=>{const y=$("#sheet").scrollTop;$("#sheet").innerHTML=`<div class="grab"></div>`+draw();bind();$("#sheet").scrollTop=y};
@@ -1160,7 +1177,7 @@ async function formationImage(m,f){
   const pk=$("#picker");
   pk.innerHTML=`<div class="grab"></div><div class="row"><div class="sp"><h2>Foto formazione</h2><span class="muted small">Pronta da mandare nel gruppo</span></div><button class="btn sm" id="ix">Chiudi</button></div>
    <img src="${url}" alt="Formazione" style="width:100%;border-radius:16px;margin-top:14px;box-shadow:var(--shadow)">
-   <button class="btn p" id="isave" style="width:100%;margin-top:14px">📤 Invia su WhatsApp</button>
+   <button class="btn p" id="isave" style="width:100%;margin-top:14px">Invia su WhatsApp</button>
    <p class="muted small" id="ihint" style="text-align:center;margin:10px 0 0">Conferma, poi nel menu che si apre tocca <b>WhatsApp</b> e scegli il gruppo. Non serve salvarla prima.</p>`;
   pk.classList.add("on");$("#pscrim").classList.add("on");pk.scrollTop=0;
   const close=()=>{pk.classList.remove("on");$("#pscrim").classList.remove("on")};
@@ -1232,7 +1249,7 @@ async function printSheet(m,f){
   const pk=$("#picker");
   pk.innerHTML=`<div class="grab"></div><div class="row"><div class="sp"><h2>Foglio spogliatoio</h2><span class="muted small">A4 orizzontale, da stampare e appendere</span></div><button class="btn sm" id="ix">Chiudi</button></div>
    <img src="${url}" alt="Foglio formazione" style="width:100%;border-radius:12px;margin-top:14px;box-shadow:var(--shadow);background:#fff">
-   <button class="btn p" id="ipdf" style="width:100%;margin-top:14px">🖨 Scarica PDF da stampare</button>
+   <button class="btn p" id="ipdf" style="width:100%;margin-top:14px">Scarica PDF da stampare</button>
    <button class="btn" id="ipng" style="width:100%;margin-top:10px">Salva come immagine</button>
    <p class="muted small" id="ihint" style="text-align:center;margin:10px 0 0">Apri il PDF e scegli Stampa (su iPhone: Condividi → Stampa), oppure mandalo su WhatsApp.</p>`;
   pk.classList.add("on");$("#pscrim").classList.add("on");pk.scrollTop=0;
@@ -1392,7 +1409,7 @@ function vInfortuni(){
   const P=id=>S.players.find(p=>p.id===id);const open=S.infortuni.filter(i=>!i.chiuso&&P(i.pid)).sort((a,b)=>String(a.rientro||"9").localeCompare(String(b.rientro||"9")));
   const closed=S.infortuni.filter(i=>i.chiuso&&P(i.pid)).sort((a,b)=>String(b.fine||"").localeCompare(String(a.fine||""))).slice(0,30);
   const row=i=>{const p=P(i.pid);const n=i.rientro?daysTo(i.rientro):null;return `<div class="li" onclick="injSheet('${i.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${esc(i.tipo||"Infortunio")} · dal ${fmtD(i.inizio)}${i.chiuso?" al "+fmtD(i.fine):""}</span></div>${i.chiuso?`<span class="tag g">rientrato</span>`:i.rientro?`<span class="tag ${n<=0?"g":"a"}">${n<=0?"rientro previsto":"rientro "+rel(i.rientro)}</span>`:`<span class="tag a">in recupero</span>`}</div>`};
-  return `<button class="btn sm p" onclick="injSheet()">🩹 Nuovo infortunio</button>
+  return `<button class="btn sm p" onclick="injSheet()">Nuovo infortunio</button>
   <h3>In recupero · ${open.length}</h3>${open.length?`<div class="list">${open.map(row).join("")}</div>`:`<div class="card muted small">Nessun infortunato 💪</div>`}
   <h3>Storico</h3>${closed.length?`<div class="list">${closed.map(row).join("")}</div>`:`<div class="card muted small">Nessun infortunio passato.</div>`}`;
 }
@@ -1402,7 +1419,7 @@ function injSheet(id,pid){
   <div class="f2">${field("iT","Tipo",i.tipo,"select",["","Muscolare","Distorsione","Contusione","Frattura","Tendinite","Influenza/malattia","Altro"])}${field("iZ","Zona",i.zona,"select",["","Coscia","Polpaccio","Caviglia","Ginocchio","Inguine/pube","Schiena","Spalla","Piede","Testa","Altro"])}</div>
   <div class="f2">${field("iI","Inizio",i.inizio,"date")}${field("iR","Rientro previsto",i.rientro,"date")}</div>
   ${field("iN","Note",i.note,"textarea")}
-  ${id&&!i.chiuso?`<button class="btn p" id="back" style="width:100%;margin-top:14px">✅ Rientrato oggi</button>`:""}
+  ${id&&!i.chiuso?`<button class="btn p" id="back" style="width:100%;margin-top:14px">Rientrato oggi</button>`:""}
   <div class="actions"><button class="btn" onclick="closeSheet()">Annulla</button><button class="btn p" id="sv">Salva</button></div>
   ${id?`<div style="text-align:center;margin-top:14px"><button class="btn sm d" id="del">Elimina</button></div>`:""}`);
   const setStato=async(p,st)=>{const pl=S.players.find(x=>x.id===p);if(pl&&pl.stato!==st)await save("players",p,{...clean(pl),stato:st})};
@@ -1419,7 +1436,7 @@ function gcal(title,date,time,mins,loc,details){
   else{const n=new Date(date);n.setDate(n.getDate()+1);dates=d+"/"+n.toISOString().slice(0,10).replace(/-/g,"")}
   return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(title)+"&dates="+dates+"&ctz=Europe/Rome"+(loc?"&location="+encodeURIComponent(loc):"")+(details?"&details="+encodeURIComponent(details):"");
 }
-const calBtn=(href)=>href?`<a class="btn sm" style="text-decoration:none" href="${href}" target="_blank" rel="noopener">📅 Aggiungi al calendario</a>`:"";
+const calBtn=(href)=>href?`<a class="btn sm" style="text-decoration:none" href="${href}" target="_blank" rel="noopener">Aggiungi al calendario</a>`:"";
 
 // ================= COMPLEANNI E TRAGUARDI =================
 function birthdays(){const t=new Date();t.setHours(0,0,0,0);const out=[];
@@ -1445,7 +1462,7 @@ async function showImage(cv,o){
   const url=cv.toDataURL("image/png");const pk=$("#picker");
   pk.innerHTML=`<div class="grab"></div><div class="row"><div class="sp"><h2>${esc(o.title)}</h2><span class="muted small">${esc(o.sub||"Pronta da mandare nel gruppo")}</span></div><button class="btn sm" id="ix">Chiudi</button></div>
    <img src="${url}" alt="${esc(o.title)}" style="width:100%;border-radius:16px;margin-top:14px;box-shadow:var(--shadow)">
-   <button class="btn p" id="isave" style="width:100%;margin-top:14px">📤 Invia su WhatsApp / Instagram</button>
+   <button class="btn p" id="isave" style="width:100%;margin-top:14px">Invia su WhatsApp / Instagram</button>
    <p class="muted small" id="ihint" style="text-align:center;margin:10px 0 0">Conferma, poi nel menu che si apre scegli WhatsApp, Instagram o “Salva immagine”.</p>`;
   pk.classList.add("on");$("#pscrim").classList.add("on");pk.scrollTop=0;
   const close=()=>{pk.classList.remove("on");$("#pscrim").classList.remove("on")};$("#ix").onclick=close;$("#pscrim").onclick=close;
@@ -1455,6 +1472,114 @@ async function showImage(cv,o){
 }
 
 
+// ================= AREA ADMIN (mister, staff, dirigenti) =================
+const aRow=(t,sub,on,right="")=>`<div class="li" onclick="${on}"><div class="nm"><b>${t}</b>${sub?`<span>${sub}</span>`:""}</div>${right}</div>`;
+function stTag(p){const d=discipline()[p.id]||{};if(p.stato==="infortunato")return `<span class="tag a">Infortunato</span>`;if(p.stato==="squalificato"||d.squalificato)return `<span class="tag r">Squalificato</span>`;if(d.diffidato)return `<span class="tag a">Diffidato</span>`;return `<span class="tag g">Disponibile</span>`}
+function vAdmin(){
+  if(!S.canWrite){return vHome()}
+  const t=S.adminTab||"home";
+  TITLES.admin={gioc:"Giocatori",disp:"Disponibilità",cart:"Cartellini"}[t]||"Admin";
+  const back=`<button class="back" onclick="S.adminTab='home';render()">‹ Admin</button>`;
+  if(t==="gioc"){
+    const q=(S.aq||"").toLowerCase();const RO={POR:3,DIF:2,CEN:1,ATT:0};
+    const list=[...S.players].filter(p=>!q||fullName(p).toLowerCase().includes(q)).sort((a,b)=>((RO[a.ruolo]??9)-(RO[b.ruolo]??9))||fullName(a).localeCompare(fullName(b),"it"));
+    const groups=["ATT","CEN","DIF","POR"].map(k=>({k,ps:list.filter(p=>p.ruolo===k)})).concat([{k:"",ps:list.filter(p=>!["ATT","CEN","DIF","POR"].includes(p.ruolo))}]).filter(g=>g.ps.length);
+    return `<div class="view">${back}${header(S.players.length+" giocatori")}
+    <input class="search" id="aq" placeholder="Cerca un giocatore" value="${esc(S.aq||"")}" oninput="S.aq=this.value;renderKeep('aq')">
+    <button class="btn sm" style="margin-top:12px" onclick="editPlayer()">Aggiungi giocatore</button>
+    ${groups.map(g=>`<h3>${g.k&&ROLE[g.k]?ROLE[g.k].l:"Altri"} · ${g.ps.length}</h3><div class="list">${g.ps.map(p=>`<div class="li nochev" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${stTag(p)}</span></div><button class="more" onclick="event.stopPropagation();playerActions('${p.id}')" aria-label="Azioni per ${esc(fullName(p))}">•••</button></div>`).join("")}</div>`).join("")}
+    </div>`;
+  }
+  if(t==="disp"){
+    const dd=discipline();
+    const inf=S.players.filter(p=>p.stato==="infortunato"),sq=S.players.filter(p=>p.stato==="squalificato"||(dd[p.id]||{}).squalificato),dif=S.players.filter(p=>!sq.includes(p)&&(dd[p.id]||{}).diffidato);
+    const ok=S.players.filter(isAvailable);
+    const cert=S.players.filter(p=>p.certScad&&daysTo(p.certScad)<=30);
+    const sect=(lab,arr,sub)=>arr.length?`<h3>${lab} · ${arr.length}</h3><div class="list">${arr.map(p=>`<div class="li nochev" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${sub(p)}</span></div><button class="more" onclick="event.stopPropagation();playerActions('${p.id}')" aria-label="Azioni">•••</button></div>`).join("")}</div>`:"";
+    const injOf=p=>{const i=S.infortuni.find(x=>x.pid===p.id&&!x.chiuso);return i?[i.tipo,i.zona,i.rientro?"rientro "+fmtD(i.rientro,1):""].filter(Boolean).join(" · "):"Infortunato"};
+    return `<div class="view">${back}${header("Chi è a disposizione")}
+    <div class="stat3"><div><b style="color:var(--green)">${ok.length}</b><span>disponibili</span></div><div><b style="color:var(--amber)">${inf.length}</b><span>infortunati</span></div><div><b style="color:var(--red)">${sq.length}</b><span>squalificati</span></div></div>
+    ${sect("Infortunati",inf,injOf)}${sect("Squalificati",sq,p=>(dd[p.id]||{}).squalificato||"Squalificato")}${sect("Diffidati",dif,p=>(dd[p.id]||{}).gialli+" gialli")}${sect("Certificato medico",cert,p=>daysTo(p.certScad)<0?"Scaduto":"Scade "+rel(p.certScad))}
+    ${!inf.length&&!sq.length&&!dif.length&&!cert.length?`<div class="card muted small" style="margin-top:12px">Tutti disponibili.</div>`:""}
+    </div>`;
+  }
+  if(t==="cart"){
+    const dd=discipline();
+    const rows=S.players.map(p=>({p,d:dd[p.id]||{},s:playerStats(p.id)})).filter(x=>x.s.gia||x.s.ros||x.d.squalificato).sort((a,b)=>(b.d.squalificato?1:0)-(a.d.squalificato?1:0)||b.s.gia-a.s.gia||b.s.ros-a.s.ros);
+    const th=(S.info.regole&&S.info.regole.sqGialli)||4;
+    return `<div class="view">${back}${header("Cartellini e squalifiche")}
+    <p class="muted small" style="margin:0 4px 10px">Squalifica automatica ogni ${th} gialli. I cartellini si inseriscono dal report della partita.</p>
+    ${rows.length?`<div class="list">${rows.map(x=>`<div class="li nochev" onclick="openPlayer('${x.p.id}')">${avatar(x.p)}<div class="nm"><b>${esc(fullName(x.p))}</b><span>${x.d.squalificato?"Squalificato prossima partita":x.d.diffidato?"Diffidato":"Ammonizioni nel ciclo: "+(x.d.gialli||0)+" su "+th}</span></div><span class="cards"><i class="cy">${x.s.gia}</i><i class="cr">${x.s.ros}</i></span></div>`).join("")}</div>`:`<div class="card muted small">Nessun cartellino finora.</div>`}
+    <button class="btn sm" style="margin-top:12px" onclick="regoleSheet()">Regole diffide e squalifiche</button>
+    </div>`;
+  }
+  // pagina principale admin
+  const up=upcoming(S.matches).filter(m=>!isPlayed(m)).slice(0,4);
+  const pl=S.matches.filter(isPlayed).sort((a,b)=>(b.data||"").localeCompare(a.data||"")).slice(0,3);
+  const dd=discipline();const nInf=S.players.filter(p=>p.stato==="infortunato").length,nSq=S.players.filter(p=>p.stato==="squalificato"||(dd[p.id]||{}).squalificato).length,nDif=S.players.filter(p=>(dd[p.id]||{}).diffidato).length;
+  const nt=upcoming(S.trainings)[0];
+  const ntInfo=nt?(()=>{const m=dispMap("t",nt.id);const si=Object.values(m).filter(v=>v==="si").length,no=Object.values(m).filter(v=>v==="no").length;return `Prossimo ${fmtD(nt.data,1)} · ${si} ci sono · ${no} no`})():"Nessuno in programma";
+  return `<div class="view">${header("Gestione squadra")}
+  <h3>Prossime partite</h3>
+  ${up.length?`<div class="list">${up.map(m=>`<div class="li" onclick="adminMatch('${m.id}')">${badge(m.avversario,36)}<div class="nm"><b>${m.casa?"vs ":"@ "}${esc(m.avversario)}</b><span>${fmtD(m.data,1)}${m.ora?" · "+esc(m.ora):""}</span></div><span class="astat">${(m.convocati||[]).length?(m.convocati.length+" conv."):"Da convocare"}<small>${m.convPubblici?"Pubblicati":"Non pubblicati"}</small></span></div>`).join("")}</div>`:`<div class="card muted small">Nessuna partita in programma.</div>`}
+  <h3>Report partite giocate</h3>
+  ${pl.length?`<div class="list">${pl.map(m=>{const mv=m.mvp&&S.players.find(p=>p.id===m.mvp);return `<div class="li" onclick="resultSheet('${m.id}')">${badge(m.avversario,36)}<div class="nm"><b>${m.casa?"vs ":"@ "}${esc(m.avversario)} · ${m.casa?m.golFatti+"–"+m.golSubiti:m.golSubiti+"–"+m.golFatti}</b><span>${mv?"Migliore in campo: "+esc(fullName(mv)):"Manca il migliore in campo"}</span></div></div>`}).join("")}</div>`:`<div class="card muted small">Nessuna partita giocata.</div>`}
+  <h3>Squadra</h3><div class="list">
+   ${aRow("Giocatori",S.players.length+" in rosa · modifica, stato, multe","S.adminTab='gioc';render()")}
+   ${aRow("Disponibilità",(nInf||nSq||nDif)?[nInf?nInf+(nInf>1?" infortunati":" infortunato"):"",nSq?nSq+(nSq>1?" squalificati":" squalificato"):"",nDif?nDif+(nDif>1?" diffidati":" diffidato"):""].filter(Boolean).join(" · "):"Tutti disponibili","S.adminTab='disp';render()")}
+   ${aRow("Cartellini e squalifiche","Gialli, rossi, diffide","S.adminTab='cart';render()")}
+   ${aRow("Allenamenti e presenze",ntInfo,"go('allenamenti')")}
+   ${aRow("Infortuni","Registro infortuni e rientri","S.staffTab='inf';go('staff')")}
+   ${aRow("Cassa e multe","Quote, multe, entrate e uscite","S.staffTab='cassa';go('staff')")}
+  </div>
+  <h3>Comunicazioni</h3><div class="list">${aRow("Nuova comunicazione","Compare in alto nella Home di tutti","newsSheet()")}</div>
+  <h3>Società</h3><div class="list">
+   ${aRow("Classifica","Aggiorna posizioni e punti","editClassifica()")}
+   ${aRow("Sponsor","Loghi dei partner","editSponsor()")}
+   ${aRow("Staff tecnico","Mister, dirigenti, preparatori","S.staffTab='staff';go('staff')")}
+   ${S.isManager?aRow("Account","Chi può entrare nell'app e con quale ruolo","S.staffTab='acc';go('staff')"):""}
+  </div>
+  </div>`;
+}
+function adminMatch(id){
+  const m=S.matches.find(x=>x.id===id);if(!m)return;
+  const hasForm=m.formazione&&(m.formazione.slots||[]).some(Boolean);
+  const sw=(k,on)=>`<button class="sw ${on?"on":""}" data-tg="${k}" role="switch" aria-checked="${!!on}"><i></i></button>`;
+  const h=m.casa?TEAM:m.avversario,a=m.casa?m.avversario:TEAM;
+  openSheet(`<div class="vs"><div class="tm">${badge(h,52)}<span>${esc(h)}</span></div><div class="mid" style="font-size:20px">${esc(fmtD(m.data,1))}<small>${esc(m.ora||"")}</small></div><div class="tm">${badge(a,52)}<span>${esc(a)}</span></div></div>
+  <h3>Convocazioni</h3><div class="list">
+   ${aRow("Scegli i convocati",(m.convocati||[]).length?(m.convocati.length+" convocati"):"Nessun convocato","convSheet('"+id+"')")}
+   <div class="li nochev" style="cursor:default"><div class="nm"><b>Visibili ai giocatori</b><span>${m.convPubblici?"Tutti vedono i convocati":"Li vede solo lo staff"}</span></div>${sw("convPubblici",m.convPubblici)}</div>
+  </div>
+  <h3>Formazione</h3><div class="list">
+   ${aRow("Schiera la formazione",hasForm?"Modulo "+esc(m.formazione.modulo):"Non ancora preparata","formationSheet('"+id+"')")}
+   <div class="li nochev" style="cursor:default"><div class="nm"><b>Visibile ai giocatori</b><span>${m.formPubblica?"Tutti vedono la formazione":"La vede solo lo staff"}</span></div>${sw("formPubblica",m.formPubblica)}</div>
+   ${hasForm?`<div class="li" id="amPrint"><div class="nm"><b>Stampa per lo spogliatoio</b><span>Foglio A4 con titolari e panchina</span></div></div><div class="li" id="amImg"><div class="nm"><b>Foto della formazione</b><span>Da inviare su WhatsApp</span></div></div>`:""}
+  </div>
+  <h3>Partita</h3><div class="list">
+   ${aRow("Ritrovo e messaggio",m.ritrovo||m.ritrovoOra?esc([m.ritrovoOra,m.ritrovo].filter(Boolean).join(" · ")):"Non ancora indicato","editMatch('"+id+"')")}
+   ${aRow("Risultato e report","Gol, assist, cartellini, migliore in campo","resultSheet('"+id+"')")}
+   ${aRow("Scheda completa","Come la vedono i giocatori","openMatch('"+id+"')")}
+  </div>
+  <div class="actions"><button class="btn" onclick="closeSheet()">Chiudi</button></div>`,()=>adminMatch(id));
+  document.querySelectorAll("#sheet [data-tg]").forEach(b=>b.onclick=async()=>{const k=b.dataset.tg;const cur=S.matches.find(x=>x.id===id);b.classList.toggle("on");if(await save("matches",id,{...clean(cur),[k]:!cur[k]}))toast(!cur[k]?"Ora lo vedono tutti":"Visibile solo allo staff");adminMatch(id)});
+  const pr=$("#amPrint");if(pr)pr.onclick=()=>printSheet(m,m.formazione);
+  const im=$("#amImg");if(im)im.onclick=()=>formationImage(m,m.formazione);
+}
+function playerActions(id){
+  const p=S.players.find(x=>x.id===id);if(!p)return;
+  const st=p.stato||"ok";
+  openSheet(`<div class="row" style="gap:14px;margin-bottom:6px">${avatar(p)}<div class="sp"><h2 style="margin:0">${esc(fullName(p))}</h2><span class="muted small">${p.numero?"n° "+esc(p.numero)+" · ":""}${ROLE[p.ruolo]?ROLE[p.ruolo].s:""}</span></div></div>
+  <h3>Stato</h3><div class="seg" id="paSt">${[["ok","Disponibile"],["infortunato","Infortunato"],["squalificato","Squalificato"]].map(([k,l])=>`<button class="${st===k?"on":""}" data-st="${k}">${l}</button>`).join("")}</div>
+  <h3>Azioni</h3><div class="list">
+   ${aRow("Scheda giocatore","Statistiche, presenze, multe","openPlayer('"+id+"')")}
+   ${aRow("Modifica dati","Nome, ruolo, numero, certificato","editPlayer('"+id+"')")}
+   ${aRow("Segna infortunio","Tipo, zona, rientro previsto","injSheet(null,'"+id+"')")}
+   ${aRow("Aggiungi multa","Finisce nella cassa","multaSheet('"+id+"')")}
+  </div>
+  <div class="actions"><button class="btn" onclick="closeSheet()">Chiudi</button></div>`);
+  document.querySelectorAll("#paSt [data-st]").forEach(b=>b.onclick=async()=>{const v=b.dataset.st;if(await save("players",id,{...clean(p),stato:v})){toast("Stato aggiornato");playerActions(id)}});
+}
 // ================= SALUTO DEL GIORNO =================
 const FRASI=["Come stai fisicamente oggi?","Che hai fatto di bello oggi?","Pronto per la prossima?","Gambe buone oggi?","Come va la settimana?","Ricordati di bere tanta acqua.","Una giornata alla volta.","Oggi si recupera o si spinge?","Dormito bene stanotte?","Testa alla prossima partita.","Com'è andata a lavoro?","Ogni allenamento conta.","Il gruppo prima di tutto.","Forza Oneglia!","Come ti senti dopo l'ultima?","Stretching fatto?","Oggi giornata da campioni.","Tutto a posto?","Un passo avanti ogni giorno.","Ci vediamo al campo."];
 function greetHTML(){
@@ -1701,7 +1826,7 @@ function webSaver(){return{save:async({filename,data})=>{
   const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);return{status:"saved"}}}}
 
 // expose for inline handlers
-Object.assign(window,{logout,accSheet,myProfile,regoleSheet,whoAmI,multaSheet,quotaSheet,movSheet,debSheet,movDetail,injSheet,resultImage,newsSheet,delNews,formationSheet,fabAct,editClassifica,editSponsor,openPlayer,editPlayer,openStaff,editStaff,openTraining,editTraining,weekSheet,openMatch,editMatch,convSheet,resultSheet,closeSheet,go,setRole,render,renderKeep,S});
+Object.assign(window,{adminMatch,playerActions,vAdmin,logout,accSheet,myProfile,regoleSheet,whoAmI,multaSheet,quotaSheet,movSheet,debSheet,movDetail,injSheet,resultImage,newsSheet,delNews,formationSheet,fabAct,editClassifica,editSponsor,openPlayer,editPlayer,openStaff,editStaff,openTraining,editTraining,weekSheet,openMatch,editMatch,convSheet,resultSheet,closeSheet,go,setRole,render,renderKeep,S});
 if(/netlify\.app$/.test(location.hostname))document.body.classList.add("nf");
 route();
 initDb();
