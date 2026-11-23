@@ -187,6 +187,13 @@ table.cl td.pt{font-weight:700}
 .mods{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:12px 0}
 .mods::-webkit-scrollbar{display:none}
 .rgh{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:14px 16px 6px}.rgrp:first-child .rgh{padding-top:8px}
+.dvg{display:flex;gap:8px;flex:none}
+.dvb{width:44px;height:44px;border-radius:50%;border:0;background:var(--fill);color:var(--muted);display:grid;place-items:center;cursor:pointer;transition:transform .12s ease,background .2s ease,color .2s ease;-webkit-tap-highlight-color:transparent}
+.dvb:active,.dvp:active{transform:scale(.92)}
+.dvb.si.on{background:var(--green);color:#fff}.dvb.no.on{background:var(--red);color:#fff}
+.dvp{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 14px;border-radius:999px;border:0;background:var(--fill);color:var(--text);font:inherit;font-size:16px;font-weight:600;cursor:pointer;transition:transform .12s ease,background .2s ease,color .2s ease}
+.dvp.si svg{color:var(--green)}.dvp.no svg{color:var(--red)}
+.dvp.si.on{background:var(--green);color:#fff}.dvp.no.on{background:var(--red);color:#fff}.dvp.on svg{color:#fff}
 .bench{display:flex;gap:10px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:none}
 .bench::-webkit-scrollbar{display:none}
 .bp{display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;flex:none;cursor:pointer;border:0;background:none;padding:0}
@@ -349,11 +356,10 @@ function vHome(){
     <div class="big">${me?me.pos+"° posto":"Oneglia"}</div>
     <div class="row">${me?`<div><b>${me.pt}</b><span>punti</span></div><div><b>${me.v}-${me.n}-${me.p}</b><span>V-N-P</span></div><div><b>${me.dr>0?"+":""}${me.dr}</b><span>diff. reti</span></div>`:`<div><b>${S.players.length}</b><span>giocatori</span></div>`}</div></div>
   </div>
-  ${lp?`<div class="mvp" onclick="openMatch('${lp.id}')">${lmvp?avatar({...lmvp,numero:""}):badge(lp.avversario,48)}<div class="sp"><div class="st">${lmvp?"⭐ Migliore in campo":"Ultima partita"}</div><b>${lmvp?esc(fullName(lmvp)):(lp.casa?"vs ":"@ ")+esc(lp.avversario)}</b><div class="rs">${lp.casa?TEAM+" "+lp.golFatti+"–"+lp.golSubiti+" "+esc(lp.avversario):esc(lp.avversario)+" "+lp.golSubiti+"–"+lp.golFatti+" "+TEAM}</div>${(()=>{const P=id=>S.players.find(x=>x.id===id);const g=Object.entries(lp.marcatori||{}).filter(([p,n])=>n>0&&P(p)).map(([p,n])=>esc(P(p).cognome)+(n>1?" "+n:""));const y=Object.values(lp.gialli||{}).filter(Boolean).length,r=Object.values(lp.rossi||{}).filter(Boolean).length;return g.length||y||r?`<div class="rs">${g.length?"⚽ "+g.join(", "):""}${y?" · 🟨 "+y:""}${r?" · 🟥 "+r:""}</div>`:""})()}<div class="rs" style="color:var(--tint);font-weight:600">Vedi il report ›</div></div>${badge(lp.avversario,30)}</div>`:""}
+  ${lp?`<div class="mvp" onclick="openMatch('${lp.id}')">${lmvp?avatar({...lmvp,numero:""}):badge(lp.avversario,48)}<div class="sp"><div class="st">${lmvp?"⭐ Migliore in campo":"Ultima partita"}</div><b>${lmvp?esc(fullName(lmvp)):(lp.casa?"vs ":"@ ")+esc(lp.avversario)}</b><div class="rs">${lp.casa?TEAM+" "+lp.golFatti+"–"+lp.golSubiti+" "+esc(lp.avversario):esc(lp.avversario)+" "+lp.golSubiti+"–"+lp.golFatti+" "+TEAM}</div>${(()=>{const P=id=>S.players.find(x=>x.id===id);const g=Object.entries(lp.marcatori||{}).filter(([p,n])=>n>0&&P(p)).map(([p,n])=>esc(P(p).cognome)+(n>1?" "+n:""));const y=Object.values(lp.gialli||{}).filter(Boolean).length,r=Object.values(lp.rossi||{}).filter(Boolean).length;return g.length||y||r?`<div class="rs">${g.length?"⚽ "+g.join(", "):""}${y?" · 🟨 "+y:""}${r?" · 🟥 "+r:""}</div>`:""})()}<div class="rs" style="color:var(--tint);font-weight:600">Vedi il report ›</div></div>${lmvp?badge(lp.avversario,30):""}</div>`:""}
   ${(()=>{const me=meP();if(!nt&&!nm)return"";if(!me)return "";
-    const q=(k,ev,lab)=>{if(!ev)return"";const v=dispMap(k,ev.id)[me.id];return `<div class="row" style="margin-top:10px;flex-wrap:wrap"><span class="sp small"><b>${lab}</b> · ${fmtD(ev.data,1)} ${esc(ev.ora||"")}</span>${Object.entries(DV).map(([kk,[e]])=>`<button class="chip ${v===kk?"on":""}" style="padding:6px 12px" data-dsp="${k}|${ev.id}|${me.id}|${kk}" aria-label="${DV[kk][1]}">${e}</button>`).join("")}</div>`};
+    const q=(k,ev,lab)=>{if(!ev)return"";const v=dispMap(k,ev.id)[me.id];return `<div class="row" style="margin-top:12px"><span class="sp small"><b>${lab}</b> · ${fmtD(ev.data,1)} ${esc(ev.ora||"")}</span><span class="dvg">${Object.keys(DV).map(kk=>dvBtn(kk,v===kk,`${k}|${ev.id}|${me.id}|${kk}`,DV[kk][1])).join("")}</span></div>`};
     return `<div class="card" style="margin-top:10px"><div class="row"><b class="sp" style="font-weight:600">Ciao ${esc(me.nome||me.cognome)}, ci sei?</b><button class="btn sm" style="padding:4px 10px" onclick="myProfile()">il mio profilo</button></div>${q("t",nt,"Allenamento")}${q("m",nm,(nm&&(nm.casa?"vs ":"@ ")+nm.avversario)||"")}${(()=>{const d=cassaSummary().deb[me.id];return d?`<p class="small" style="margin:10px 0 0;color:var(--amber)">💶 Hai ${euro(d)} da versare in cassa</p>`:""})()}</div>`})()}
-  ${(()=>{const b=birthdays(),ms=milestones();if(!b.length&&!ms.length)return"";return `<div class="card" style="margin-top:10px">${b.map(x=>`<div class="row" style="padding:4px 0"><span style="font-size:22px">🎂</span><span class="sp">${x.n===0?`<b>Oggi</b> compie ${x.eta} anni <b>${esc(fullName(x.p))}</b>! Auguri!`:`${esc(fullName(x.p))} compie ${x.eta} anni ${x.n===1?"domani":"tra "+x.n+" giorni"}`}</span></div>`).join("")}${ms.map(x=>`<div class="row" style="padding:4px 0"><span style="font-size:22px">🏆</span><span class="sp"><b>${esc(fullName(x.p))}</b>: ${esc(x.t)}</span></div>`).join("")}</div>`})()}
   <div class="grid2" style="margin-top:10px">
     <div class="card next" onclick="${nt?`openTraining('${nt.id}')`:`go('allenamenti')`}"><span class="k">Prossimo allenamento</span>${nt?`<span class="v">${fmtD(nt.data,1)}</span><span class="muted small">${esc(nt.ora||"")} ${nt.luogo?"· "+esc(nt.luogo):""}</span><span><span class="tag g">${rel(nt.data)}</span></span>`:`<span class="muted small">Nessuno in programma</span>`}</div>
     <div class="card next" onclick="${nm?`openMatch('${nm.id}')`:`go('partite')`}"><span class="k">Prossima partita</span>${nm?`<span class="row" style="gap:8px">${badge(nm.avversario,30)}<span class="v">${nm.casa?"vs":"@"} ${esc(nm.avversario)}</span></span><span class="muted small">${fmtD(nm.data,1)} ${esc(nm.ora||"")}</span>${nm.ritrovo||nm.ritrovoOra?`<span class="small">📍 ${esc([nm.ritrovoOra,nm.ritrovo].filter(Boolean).join(" · "))}</span>`:""}${nm.info?`<span class="small">💬 Messaggio del mister</span>`:""}<span>${S.canWrite||nm.convPubblici?`<span class="tag b">${(nm.convocati||[]).length} convocati</span>`:`<span class="tag">Convocati in arrivo</span>`}${nm.formPubblica?` <span class="tag g">Formazione ✓</span>`:""}</span>`:`<span class="muted small">Nessuna in programma</span>`}</div>
@@ -685,9 +691,9 @@ function openMatch(id){
 }
 function convSheet(id){
   const m=S.matches.find(x=>x.id===id);const sel=new Set(m.convocati||[]);const dm=dispMap("m",id);
-  const draw=()=>`<h2>Convocati</h2><p class="muted small">${sel.size} selezionati · ✅ ci sono ${Object.values(dm).filter(v=>v==="si").length} · ❌ ${Object.values(dm).filter(v=>v==="no").length} · 🤔 ${Object.values(dm).filter(v=>v==="forse").length}</p>
+  const draw=()=>`<h2>Convocati</h2><p class="muted small">${sel.size} selezionati · ${Object.values(dm).filter(v=>v==="si").length} ci sono · ${Object.values(dm).filter(v=>v==="no").length} no</p>
    <button class="btn sm" id="cAll" style="margin-top:8px">Convoca tutti i ✅ disponibili</button>
-   ${ROLES.slice().reverse().map(r=>{const g=sortedPlayers().filter(p=>p.ruolo===r.k);return g.length?`<h3>${r.l}</h3><div class="list">${g.map(p=>{const st=playerStats(p.id);return `<div class="li" data-c="${p.id}">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${(()=>{const v=dm[p.id];return v?DV[v][0]+" ":""})()}presenze ${st.pct===null?"—":st.pct+"%"}${p.stato&&p.stato!=="ok"?" · "+esc(p.stato):""}</span> ${discTag(p.id)}</div><div class="check ${sel.has(p.id)?"on":""}">${sel.has(p.id)?"✓":""}</div></div>`}).join("")}</div>`:""}).join("")}
+   ${ROLES.slice().reverse().map(r=>{const g=sortedPlayers().filter(p=>p.ruolo===r.k);return g.length?`<h3>${r.l}</h3><div class="list">${g.map(p=>{const st=playerStats(p.id);return `<div class="li" data-c="${p.id}">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${(()=>{const v=dm[p.id];return v==="si"?`<b style="color:var(--green)">✓</b> `:v==="no"?`<b style="color:var(--red)">✕</b> `:""})()}presenze ${st.pct===null?"—":st.pct+"%"}${p.stato&&p.stato!=="ok"?" · "+esc(p.stato):""}</span> ${discTag(p.id)}</div><div class="check ${sel.has(p.id)?"on":""}">${sel.has(p.id)?"✓":""}</div></div>`}).join("")}</div>`:""}).join("")}
    <div class="actions" style="position:sticky;bottom:0;background:var(--bg2);padding:10px 0"><button class="btn" onclick="openMatch('${id}')">Annulla</button><button class="btn p" id="sv">Salva (${sel.size})</button></div>`;
   const bind=()=>{document.querySelectorAll("[data-c]").forEach(r=>r.onclick=()=>{const p=r.dataset.c;sel.has(p)?sel.delete(p):sel.add(p);const y=$("#sheet").scrollTop;$("#sheet").innerHTML=`<div class="grab"></div>`+draw();bind();$("#sheet").scrollTop=y});
     const ca=$("#cAll");if(ca)ca.onclick=()=>{S.players.forEach(p=>{if(dm[p.id]==="si"&&isAvailable(p))sel.add(p.id)});const y=$("#sheet").scrollTop;$("#sheet").innerHTML=`<div class="grab"></div>`+draw();bind();$("#sheet").scrollTop=y};
@@ -1092,23 +1098,25 @@ async function setDisp(kind,id,pid,v){
   const ok=v?await save("disp",key,{ev,pid,v,at:new Date().toISOString()}):await remove("disp",key);
   if(ok)haptic();return ok;
 }
-const DV={si:["✅","Ci sono","g"],no:["❌","Non ci sono","r"],forse:["🤔","Forse","a"]};
+const ICK=`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`,IXM=`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+const DV={si:[ICK,"Ci sono","g"],no:[IXM,"Non ci sono","r"]};
+const dvBtn=(k,on,data,label)=>`<button class="dvb ${k} ${on?"on":""}" data-dsp="${data}" aria-label="${label}" aria-pressed="${on}">${DV[k][0]}</button>`;
 function dispBlock(kind,id,opts={}){
   const map=dispMap(kind,id),me=meP();const cnt=k=>Object.values(map).filter(v=>v===k).length;
   const mine=me?map[me.id]:null;
-  let h=`<div class="card disp" style="margin-top:12px"><div class="row"><b class="sp" style="font-weight:600">${kind==="m"?"Disponibilità per la partita":"Disponibilità"}</b><span class="small muted">✅ ${cnt("si")} · ❌ ${cnt("no")} · 🤔 ${cnt("forse")}</span></div>`;
-  if(me)h+=`<div class="muted small" style="margin-top:8px">${esc(fullName(me))}, ci sei?</div><div class="row wrap2" style="margin-top:8px">${Object.entries(DV).map(([k,[e,l]])=>`<button class="chip ${mine===k?"on":""}" data-dsp="${kind}|${id}|${me.id}|${k}">${e} ${l}</button>`).join("")}</div>`;
+  let h=`<div class="card disp" style="margin-top:12px"><div class="row"><b class="sp" style="font-weight:600">${kind==="m"?"Disponibilità per la partita":"Disponibilità"}</b><span class="small muted">${cnt("si")} ci sono · ${cnt("no")} no</span></div>`;
+  if(me)h+=`<div class="muted small" style="margin-top:8px">${esc(fullName(me))}, ci sei?</div><div class="row" style="margin-top:8px;gap:10px">${Object.entries(DV).map(([k,[e,l]])=>`<button class="dvp ${k} ${mine===k?"on":""}" data-dsp="${kind}|${id}|${me.id}|${k}" aria-pressed="${mine===k}">${e}<span>${l}</span></button>`).join("")}</div>`;
   
   if(S.canWrite&&!opts.compact){
-    const ps=sortedPlayers();const grp=(k)=>ps.filter(p=>map[p.id]===k);const none=ps.filter(p=>!map[p.id]);
+    const ps=sortedPlayers();const grp=(k)=>ps.filter(p=>map[p.id]===k);const none=ps.filter(p=>!map[p.id]||map[p.id]==="forse");
     const line=(arr,lab)=>arr.length?`<div class="small" style="margin-top:10px"><b>${lab}</b> ${arr.map(p=>`<button class="tag" style="border:0;cursor:pointer;margin:2px" data-dcy="${kind}|${id}|${p.id}">${esc(p.cognome)}</button>`).join("")}</div>`:"";
-    h+=line(grp("si"),"✅")+line(grp("forse"),"🤔")+line(grp("no"),"❌")+line(none,"Non hanno risposto:")+`<p class="muted small" style="margin:8px 0 0">Staff: tocca un nome per segnare la risposta (es. data su WhatsApp).</p>`;
+    h+=line(grp("si"),"Ci sono:")+line(grp("no"),"Non ci sono:")+line(none,"Non hanno risposto:")+`<p class="muted small" style="margin:8px 0 0">Staff: tocca un nome per segnare la risposta (es. data su WhatsApp).</p>`;
   }
   return h+`</div>`;
 }
 function bindDisp(after,root){root=root||document;
   root.querySelectorAll("[data-dsp]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const [k,id,pid,v]=b.dataset.dsp.split("|");const cur=dispMap(k,id)[pid];if(await setDisp(k,id,pid,cur===v?"":v)){toast(cur===v?"Risposta tolta":"Risposta salvata");after&&after()}});
-  root.querySelectorAll("[data-dcy]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const [k,id,pid]=b.dataset.dcy.split("|");const cyc={"":"si",si:"forse",forse:"no",no:""};const cur=dispMap(k,id)[pid]||"";if(await setDisp(k,id,pid,cyc[cur]))after&&after()});
+  root.querySelectorAll("[data-dcy]").forEach(b=>b.onclick=async e=>{e.stopPropagation();const [k,id,pid]=b.dataset.dcy.split("|");const cyc={"":"si",si:"no",forse:"si",no:""};const cur=dispMap(k,id)[pid]||"";if(await setDisp(k,id,pid,cyc[cur]))after&&after()});
 }
 function whoAmI(){
   const me=getMe();
