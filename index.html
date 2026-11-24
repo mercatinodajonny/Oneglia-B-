@@ -529,7 +529,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-25";
+const BUILD="2026-11-24-26";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2100,7 +2100,7 @@ async function startSession(session){
 // ---------- portale pubblico FootCore: campionati, risultati e classifiche per tutti, senza account
 const PUB={camp:null,id:null,tab:"cl",q:"",sq:null,sez:"dil",vista:"partite",acc:null,reg:"Liguria",chi:"gio"};
 const REGIONI=["Abruzzo","Basilicata","Calabria","Campania","Emilia-Romagna","Friuli-Venezia Giulia","Lazio","Liguria","Lombardia","Marche","Molise","Piemonte","Puglia","Sardegna","Sicilia","Toscana","Trentino-Alto Adige","Umbria","Valle d'Aosta","Veneto"];
-const PUB_SEZ=[{k:"dil",l:"Dilettanti",re:/serie d|categoria|eccellenza|promozione|juniores|amatori|coppa liguria (prima|seconda|terza)/i},{k:"gio",l:"Giovanili",re:/allievi|giovanissimi|esordienti|pulcini|under|u1\d/i},{k:"c5",l:"Calcio a 5",re:/calcio a 5|futsal/i},{k:"fem",l:"Femminile",re:/femminil/i}];
+const PUB_SEZ=[{k:"dil",l:"Dilettanti",re:/serie d|categoria|eccellenza|promozione|juniores|amatori|coppa liguria (prima|seconda|terza)/i},{k:"gio",l:"Giovanili",re:/allievi|giovanissimi|esordienti|pulcini|under|u1\d/i},{k:"l0",l:"Serie D",lv:[0]},{k:"l1",l:"Eccellenza",lv:[1]},{k:"l2",l:"Promozione",lv:[2]},{k:"l3",l:"Prima Categoria",lv:[3]},{k:"l4",l:"Seconda Categoria",lv:[4]},{k:"l5",l:"Terza Categoria",lv:[5]},{k:"l6",l:"Juniores",lv:[6]},{k:"l7",l:"Allievi",lv:[7]},{k:"l8",l:"Giovanissimi",lv:[8]},{k:"l9",l:"Esordienti e Pulcini",lv:[9]},{k:"c5",l:"Calcio a 5",re:/calcio a 5|futsal/i},{k:"fem",l:"Femminile",re:/femminil/i},{k:"l12",l:"Coppe",lv:[12]}];
 // stemma generato: iniziali su un cerchio colorato (il logo vero lo carica la società)
 function sqIniz(n){const w=String(n||"").replace(/[^A-Za-zÀ-ÿ0-9' ]/g," ").split(/\s+/).filter(x=>x&&!/^(asd|a|s|d|ssd|srl|calcio|sq|b|fc|ac|us|polisportiva|sport|academy|\d+)$/i.test(x));return ((w[0]||n||"?")[0]+((w[1]||"")[0]||"")).toUpperCase()}
 function sqColor(n){let h=0;for(const c of String(n||""))h=(h*31+c.charCodeAt(0))%360;return h}
@@ -2228,7 +2228,7 @@ const campLivIdx=c=>{const t=c.categoria||"";if(/coppa|torneo/i.test(t))return L
 const campLiv=campLivIdx;
 const delBreve=c=>{const d=c.delegazione||"Imperia";return /serie d/i.test(d)?"Interregionale":/regionale/i.test(d)?"Regionale":d};
 const campSort=(a,b)=>campLiv(a)-campLiv(b)||(/regionale|serie d/i.test(a.delegazione||"")?0:1)-(/regionale|serie d/i.test(b.delegazione||"")?0:1)||String(a.delegazione||"").localeCompare(String(b.delegazione||""))||String(a.girone).localeCompare(String(b.girone));
-function pubCampSez(){const s=PUB_SEZ.find(x=>x.k===PUB.sez);return (PUB.camp||[]).filter(c=>s.k==="fem"?/femminil|femm\b/i.test(c.categoria):s.k==="c5"?/calcio a 5|futsal/i.test(c.categoria):s.re.test(c.categoria)&&!/femminil|femm\b|calcio a 5|futsal/i.test(c.categoria)).sort(campSort)}
+function pubCampSez(){const s=PUB_SEZ.find(x=>x.k===PUB.sez)||PUB_SEZ[1];if(s.k==="tutti")return (PUB.camp||[]).slice().sort(campSort);if(s.lv)return (PUB.camp||[]).filter(c=>s.lv.includes(campLiv(c))).sort(campSort);return (PUB.camp||[]).filter(c=>s.k==="fem"?/femminil|femm\b/i.test(c.categoria):s.k==="c5"?/calcio a 5|futsal/i.test(c.categoria):s.re.test(c.categoria)&&!/femminil|femm\b|calcio a 5|futsal/i.test(c.categoria)).sort(campSort)}
 function pubMatchView(x){const m=x.m,c=x.c||{};const fatto=m.gc!=null;
   const pitchHalf=(nome,mine)=>{const sl=slotsFor("4-4-2");
     return `<div class="fteam"><div class="fth" role="button" tabindex="0" onclick="PUB.match=null;PUB.id='${esc(c.id||"")}';PUB.sq=${esc(JSON.stringify(nome))};pubRender()" style="cursor:pointer">${sqBadge(nome,28)}<b>${esc(nome)} <span style="color:var(--muted);font-weight:600">›</span></b><span class="tag">${mine&&mine.modulo?esc(mine.modulo):"4-4-2"}</span></div>
@@ -2255,7 +2255,7 @@ function pubRender(){
   const el=pubEl();el.scrollTop=0;const C=PUB.camp||[];let body="";PUB.mm=[];
   if(PUB.match!=null&&PUB.mmLast&&PUB.mmLast[PUB.match]){const x=PUB.mmLast[PUB.match];el.innerHTML=pubCSS+`<div class="lg">${pubMatchView(x)}</div>`+pubBar();return}
   PUB.match=null;
-  const tabs=`<div class="tabs" role="tablist">${PUB_SEZ.map(s=>`<button role="tab" class="${PUB.sez===s.k?"on":""}" onclick="PUB.sez='${s.k}';pubRender()">${s.l}</button>`).join("")}</div>`;
+  const tabs=`<div class="tabs" role="tablist">${PUB_SEZ.filter(s=>{if(s.k==="dil")return true;const o=PUB.sez;PUB.sez=s.k;const n=pubCampSez().length;PUB.sez=o;return n>0}).map(s=>`<button role="tab" class="${PUB.sez===s.k?"on":""}" onclick="PUB.sez='${s.k}';pubRender()">${s.l}</button>`).join("")}</div>`;
   if(PUB.id){
     const c=C.find(x=>x.id===PUB.id);if(!c){PUB.id=null;return pubRender()}
     const d=c.dati||{},cl=(d.classifica||{}).righe||[],R=d.risultati||[],P=d.programma||[];
