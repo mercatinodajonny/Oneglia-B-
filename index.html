@@ -529,7 +529,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-8";
+const BUILD="2026-11-24-9";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2087,7 +2087,8 @@ async function initDb(){
   SB=window.supabase.createClient(CONFIG.url,CONFIG.key,{auth:{persistSession:true,autoRefreshToken:true}});
   const {data:{session}}=await SB.auth.getSession();
   SB.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_OUT"){location.reload()}});
-  if(location.hash==="#pubblico"||!session){showPublic();return}
+  let inApp=false;try{inApp=sessionStorage.getItem("fc_app")==="1"}catch(e){}
+  if(location.hash==="#pubblico"||!session||!inApp){showPublic();return}
   await startSession(session);
 }
 async function startSession(session){
@@ -2224,7 +2225,7 @@ function pubRender(){
   }
   el.innerHTML=pubCSS+`<div class="lg">${body}</div>`+pubBar();
 }
-function closePublic(){const el=$("#pub");if(el)el.classList.remove("on");if(location.hash==="#pubblico")history.replaceState(null,"",location.pathname+location.search);if(!S.session){if(SB&&SB.auth)SB.auth.getSession().then(({data})=>data&&data.session?startSession(data.session):showLogin());else showLogin()}}
+function closePublic(){try{sessionStorage.setItem("fc_app","1")}catch(e){}const el=$("#pub");if(el)el.classList.remove("on");if(location.hash==="#pubblico")history.replaceState(null,"",location.pathname+location.search);if(!S.session){if(SB&&SB.auth)SB.auth.getSession().then(({data})=>data&&data.session?startSession(data.session):showLogin());else showLogin()}}
 // ---------- schermata di accesso
 function showLogin(mode){
   let el=$("#login");if(!el){el=document.createElement("div");el.id="login";document.body.appendChild(el)}
@@ -2256,7 +2257,7 @@ function showLogin(mode){
   $("#lgReset").onclick=async()=>{const email=val("lgE").toLowerCase();if(!email){msg("Scrivi prima la tua email");return}const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});msg(error?"Non riuscito, riprova più tardi":"Ti ho mandato un'email per cambiare la password")};
 }
 function hideLogin(){const el=$("#login");if(el)el.classList.remove("on")}
-async function logout(){if(SB)await SB.auth.signOut();else location.reload()}
+async function logout(){try{sessionStorage.removeItem("fc_app")}catch(e){}if(SB)await SB.auth.signOut();else location.reload()}
 
 // ---------- gestione account (staff)
 function vAccount(){
