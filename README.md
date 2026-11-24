@@ -1,4 +1,4 @@
-# Oneglia Sq. B · App della squadra
+# FootCore · Oneglia Sq. B
 
 App web per gestire rosa, allenamenti, partite, formazioni, cassa e comunicazioni dell'Oneglia Calcio Sq. B.
 
@@ -9,3 +9,8 @@ App web per gestire rosa, allenamenti, partite, formazioni, cassa e comunicazion
 
 ## Nota per chi modifica
 A ogni modifica di index.html aggiorna la costante `BUILD` (es. "2026-11-24-1"): così le app già aperte sui telefoni si ricaricano da sole con la versione nuova.
+
+## FootCore
+- `supabase/fcore_fase1.sql`: società, stagioni, squadre, ruoli e permessi.
+- `supabase/footcore_fase2.sql`: conferma automatica degli account invitati dallo staff e pagina pubblica (`#pubblico`, funzione `footcore_pubblico`).
+- Logo e icone in `assets/` (footcore-logo.svg, footcore-mark.svg, footcore-icon.svg).

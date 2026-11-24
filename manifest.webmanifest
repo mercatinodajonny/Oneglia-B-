@@ -1,11 +1,11 @@
 {
- "name": "Oneglia Sq. B",
- "short_name": "Oneglia B",
+ "name": "FootCore",
+ "short_name": "FootCore",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
  "background_color": "#f2f2f7",
- "theme_color": "#0b1d4d",
+ "theme_color": "#157A3A",
  "icons": [
   {
    "src": "icon-192.png",

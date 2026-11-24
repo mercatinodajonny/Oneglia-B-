@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Oneglia Sq. B · Gestione squadra</title>
+<title>FootCore · Oneglia Sq. B</title>
 
 <script>(function(){try{var q=new URLSearchParams(location.search).get("nuovo");if(q==="1")localStorage.setItem("og_v2","1");if(q==="0")localStorage.removeItem("og_v2");if(localStorage.getItem("og_v2")==="1")document.documentElement.classList.add("v2")}catch(e){}})();</script>
 <style>
@@ -260,6 +260,11 @@ table.cl td.pt{font-weight:700}
 .conv .t{font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;opacity:.9;margin-bottom:4px}.conv b{font-size:20px;display:block;margin-bottom:4px}
 .mebtn{border:0;background:none;padding:0;cursor:pointer}.mebtn .av{width:36px;height:36px;font-size:13px}
 #login{position:fixed;inset:0;z-index:60;background:var(--bg);display:none;overflow:auto}#login.on{display:block}
+#pub{position:fixed;inset:0;z-index:61;background:var(--bg);display:none;overflow:auto}#pub.on{display:block}
+#pub .lg{max-width:640px;margin:0 auto;padding:calc(28px + var(--safe-t)) 16px 48px}
+#pub h2{font-size:20px;margin:26px 6px 10px}
+.fcbrand{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800;letter-spacing:-.03em;font-size:17px;color:var(--text,inherit)}.fcbrand b{color:#157A3A;font-weight:800}
+.pubrow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-top:.5px solid var(--line)}.pubrow:first-child{border-top:0}.pubrow .sc{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 #login .lg{max-width:420px;margin:0 auto;padding:calc(60px + var(--safe-t)) 22px 40px}
 .hint{font-size:14px;color:var(--muted);text-align:center;margin:8px 0 0;min-height:20px}
 
@@ -488,8 +493,8 @@ html.v2 .dvb.on{animation:pop .32s var(--ease)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=2">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=2">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=3">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-title" content="Oneglia B">
 <meta name="theme-color" content="#0b1d4d">
@@ -524,7 +529,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-3";
+const BUILD="2026-11-24-4";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2082,6 +2087,7 @@ async function initDb(){
   SB=window.supabase.createClient(CONFIG.url,CONFIG.key,{auth:{persistSession:true,autoRefreshToken:true}});
   const {data:{session}}=await SB.auth.getSession();
   SB.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_OUT"){location.reload()}});
+  if(location.hash==="#pubblico"){showPublic();return}
   if(!session){showLogin();return}
   await startSession(session);
 }
@@ -2090,6 +2096,36 @@ async function startSession(session){
   if(!S.member){showLogin("noaccount");return}
   await loadAll();
 }
+// ---------- pagina pubblica FootCore (senza account): solo dati pubblici, letti con footcore_pubblico
+async function showPublic(){
+  let el=$("#pub");if(!el){el=document.createElement("div");el.id="pub";document.body.appendChild(el)}
+  el.classList.add("on");
+  const head=`<div class="fcbrand" style="justify-content:flex-start;margin:0 6px 18px"><img src="assets/footcore-mark.svg" alt="" width="30" height="30">foot<b>core</b></div>`;
+  el.innerHTML=`<div class="lg">${head}<p class="muted" style="margin:0 6px">Caricamento…</p></div>`;
+  const tid=new URLSearchParams(location.search).get("squadra")||"oneglia-b";
+  let d=null;try{if(!SB)SB=window.supabase.createClient(CONFIG.url,CONFIG.key);const r=await SB.rpc("footcore_pubblico",{t:tid});d=r.data}catch(e){}
+  const back=`<button class="btn p" style="width:100%;margin-top:26px" onclick="closePublic()">Sei della squadra? Accedi</button>`;
+  if(!d){el.innerHTML=`<div class="lg">${head}<div class="card muted">Pagina pubblica non disponibile per questa squadra.</div>${back}</div>`;return}
+  const sq=d.squadra||{},nm=sq.nome||"",P=d.partite||[],oggi=new Date().toISOString().slice(0,10);
+  const giocate=P.filter(m=>m.golFatti!=null&&m.golFatti!=="").sort((a,b)=>(b.data||"").localeCompare(a.data||""));
+  const prossime=P.filter(m=>(m.golFatti==null||m.golFatti==="")&&(m.data||"")>=oggi).sort((a,b)=>(a.data+(a.ora||"")).localeCompare(b.data+(b.ora||"")));
+  const riga=m=>{const casa=m.casa!==false&&m.casa!=="false";const a=casa?nm:m.avversario,b=casa?m.avversario:nm;const fatto=m.golFatti!=null&&m.golFatti!=="";const sc=fatto?(casa?`${m.golFatti} - ${m.golSubiti}`:`${m.golSubiti} - ${m.golFatti}`):esc(m.ora||"");
+    return `<div class="pubrow"><div><b>${esc(a||"")}</b> – <b>${esc(b||"")}</b><div class="muted" style="font-size:13px">${esc(fmtD(m.data))}${m.giornata?` · Giornata ${esc(m.giornata)}`:""}${m.competizione?` · ${esc(m.competizione)}`:""}</div></div><span class="sc">${sc}</span></div>`};
+  const cl=(d.classifica&&d.classifica.righe)||[];
+  const G=(d.giocatori||[]).slice().sort((a,b)=>(a.cognome||"").localeCompare(b.cognome||"","it"));
+  const marc=G.filter(g=>Number(g.gol)>0).sort((a,b)=>b.gol-a.gol).slice(0,5);
+  const ruolo=k=>(ROLE[k]&&ROLE[k].s)||k||"";
+  el.innerHTML=`<div class="lg">${head}
+   <h1 style="font-size:28px;letter-spacing:-.02em;margin:0 6px">${esc(nm)}</h1><p class="muted" style="margin:4px 6px 0">${esc([sq.club,sq.categoria,sq.girone?"Girone "+sq.girone:""].filter(Boolean).join(" · "))}</p>
+   ${prossime.length?`<h2>Prossima partita</h2><div class="card" style="padding:6px 12px">${riga(prossime[0])}</div>`:""}
+   <h2>Ultimi risultati</h2><div class="card" style="padding:6px 12px">${giocate.length?giocate.slice(0,6).map(riga).join(""):`<p class="muted small">Nessuna partita giocata.</p>`}</div>
+   <h2>Classifica</h2>${cl.length?`<div class="card" style="padding:6px 8px"><table class="cl"><tr><th style="text-align:left">#  Squadra</th><th>PT</th><th>G</th><th>V</th><th>N</th><th>P</th><th>DR</th></tr>${cl.map(r=>`<tr class="${r.me?"me":""}"><td class="tm">${esc(r.pos)}. ${esc(r.squadra)}</td><td class="pt">${esc(r.pt)}</td><td>${esc(r.g)}</td><td>${esc(r.v)}</td><td>${esc(r.n)}</td><td>${esc(r.p)}</td><td>${esc(r.dr)}</td></tr>`).join("")}</table></div>`:`<div class="card muted small">Classifica non ancora disponibile.</div>`}
+   ${marc.length?`<h2>Marcatori</h2><div class="card" style="padding:6px 12px">${marc.map(g=>`<div class="pubrow"><div>${esc(g.nome||"")} <b>${esc(g.cognome||"")}</b></div><span class="sc">${esc(g.gol)} gol</span></div>`).join("")}</div>`:""}
+   <h2>Rosa</h2><div class="card" style="padding:6px 8px"><table class="cl"><tr><th style="text-align:left">Giocatore</th><th>Età</th><th>Pres.</th><th>Gol</th></tr>${G.map(g=>`<tr><td class="tm">${g.numero!=null&&g.numero!==""?`<span class="muted">${esc(g.numero)}</span> `:""}${esc(g.nome||"")} <b>${esc(g.cognome||"")}</b><div class="muted" style="font-size:12px">${esc(ruolo(g.ruolo))}</div></td><td>${g.eta!=null?esc(g.eta):"–"}</td><td>${esc(g.presenze)}</td><td>${esc(g.gol)}</td></tr>`).join("")}</table></div>
+   <p class="muted" style="font-size:13px;margin:12px 6px 0">Pagina pubblica: si vedono solo risultati, classifica, età, presenze e gol.</p>
+   ${back}</div>`;
+}
+function closePublic(){const el=$("#pub");if(el)el.classList.remove("on");if(location.hash==="#pubblico")history.replaceState(null,"",location.pathname+location.search);if(!S.session)showLogin()}
 // ---------- schermata di accesso
 function showLogin(mode){
   let el=$("#login");if(!el){el=document.createElement("div");el.id="login";document.body.appendChild(el)}
@@ -2103,7 +2139,9 @@ function showLogin(mode){
    <div class="f"><label for="lgP">Password</label><input id="lgP" type="password" autocomplete="current-password"></div>
    <button class="btn p" style="width:100%;margin-top:18px" id="lgGo">Accedi</button>
    <button class="btn" style="width:100%;margin-top:10px;background:none" id="lgReset">Password dimenticata?</button>
-   <p class="small" id="lgMsg" style="text-align:center;min-height:20px;margin-top:10px"></p>`}</div>`;
+   <p class="small" id="lgMsg" style="text-align:center;min-height:20px;margin-top:10px"></p>`}
+   <a class="btn" style="display:block;width:100%;margin-top:6px;text-align:center;text-decoration:none;box-sizing:border-box" href="#pubblico" onclick="setTimeout(()=>{hideLogin();showPublic()},0)">Risultati, classifica e rosa</a>
+   <div class="fcbrand" style="margin-top:28px"><img src="assets/footcore-mark.svg" alt="" width="26" height="26">foot<b>core</b></div></div>`;
   el.classList.add("on");
   const out=$("#lgOut");if(out){out.onclick=async()=>{await SB.auth.signOut()};return}
   let m="in";
@@ -2113,7 +2151,7 @@ function showLogin(mode){
     $("#lgGo").disabled=true;msg("Un attimo…");
     const r=m==="in"?await SB.auth.signInWithPassword({email,password}):await SB.auth.signUp({email,password});
     $("#lgGo").disabled=false;
-    if(r.error){msg(/invalid login/i.test(r.error.message)?"Email o password sbagliate":/already registered|already been registered/i.test(r.error.message)?"Hai già un account: usa Accedi":/rate/i.test(r.error.message)?"Troppi tentativi, riprova tra poco":"Errore: "+r.error.message);return}
+    if(r.error){msg(/invalid login/i.test(r.error.message)?"Email o password sbagliate":/already registered|already been registered/i.test(r.error.message)?"Hai già un account: usa Accedi":/rate/i.test(r.error.message)?"Troppi tentativi, riprova tra poco":/not confirmed/i.test(r.error.message)?"Account non ancora attivo: chiedi allo staff di sbloccarlo, poi riprova":"Errore: "+r.error.message);return}
     if(!r.data.session){msg("Controlla la tua email per confermare, poi accedi.");return}
     startSession(r.data.session)};
   $("#lgReset").onclick=async()=>{const email=val("lgE").toLowerCase();if(!email){msg("Scrivi prima la tua email");return}const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});msg(error?"Non riuscito, riprova più tardi":"Ti ho mandato un'email per cambiare la password")};
