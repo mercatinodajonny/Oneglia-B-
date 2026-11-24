@@ -466,6 +466,7 @@ html.v2 .dvb.on{animation:pop .32s var(--ease)}
 .lvseg{flex-wrap:wrap}.lvseg button{flex:1 1 30%}
 .lvtag,.pvtag{display:inline-block;font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:6px}.lvtag{background:#ff3b30;color:#fff}.pvtag{background:var(--fill2);color:var(--muted)}
 
+.teamchip{margin-top:8px;border:0;border-radius:999px;padding:7px 14px;background:var(--fill);color:var(--text);font:inherit;font-size:14px;font-weight:700;cursor:pointer}
 /* area admin */
 .li.nochev::after{display:none!important}
 .dots{border:0;background:var(--fill);color:var(--muted);width:38px;height:30px;border-radius:999px;font-size:13px;letter-spacing:1px;font-weight:800;cursor:pointer;flex:none;transition:transform .15s,background .2s}.dots:active{transform:scale(.92);background:var(--fill2)}
@@ -523,7 +524,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-2";
+const BUILD="2026-11-24-3";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -1910,7 +1911,8 @@ function greetHTML(){
   const mp=meP();const nome=((mp&&mp.nome)||(S.member&&S.member.nome)||"").trim().split(/\s+/)[0]||"";
   const h=new Date().getHours();const sal=h>=5&&h<13?"Buongiorno":h>=13&&h<18?"Buon pomeriggio":"Buonasera";
   const d=new Date();const doy=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);
-  return `<div class="greet"><b>${sal}${nome?", "+esc(nome):""}</b><span>${FRASI[doy%FRASI.length]}</span></div>`;
+  const ts=S.teams&&S.teams.length>1?`<button class="teamchip" onclick="teamSheet()">${esc((S.teams.find(t=>t.id===S.team)||{}).nome||"Squadra")} ▾</button>`:"";
+  return `<div class="greet"><b>${sal}${nome?", "+esc(nome):""}</b><span>${FRASI[doy%FRASI.length]}</span>${ts}</div>`;
 }
 // ================= PRESENZE PER LO STAFF (HOME) =================
 function staffPresenze(kind,ev,lab){
@@ -2011,7 +2013,13 @@ function fasiHTML(f){if(!f||!f.length)return"";const tot=f.reduce((a,x)=>a+(+x.m
 // ================= SUPABASE: accesso e dati =================
 const CONFIG={url:"https://xgsmvirezubvgpqcfxjp.supabase.co",key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhnc212aXJlenVidmdwcWNmeGpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU0MjQwODgsImV4cCI6MjExMTAwMDA4OH0.uddXqojTP58uTXqIphTGod938wvNF06_Aiz565mss-g"};
 const COLS=["players","staff","trainings","matches","info","news","disp","cassa","infortuni"];
-const RUOLI={giocatore:"Giocatore",staff:"Staff",dirigente:"Dirigente",mister:"Mister",admin:"Amministratore"};
+const RUOLI={giocatore:"Giocatore",staff:"Staff",dirigente:"Dirigente",mister:"Mister",admin:"Amministratore",
+  proprietario:"Proprietario account",presidente:"Presidente",amministratore:"Amministratore",segretario:"Segretario",direttore_sportivo:"Direttore sportivo",resp_giovanile:"Resp. settore giovanile",allenatore:"Allenatore",vice_allenatore:"Vice allenatore",preparatore_atletico:"Preparatore atletico",preparatore_portieri:"Preparatore portieri",medico:"Medico / sanitario",genitore:"Genitore / tutore"};
+// ruoli FCORE in ordine di importanza
+const RUOLI2=["proprietario","presidente","amministratore","segretario","direttore_sportivo","resp_giovanile","allenatore","vice_allenatore","preparatore_atletico","preparatore_portieri","dirigente","medico","giocatore","genitore"];
+const CLUBWIDE=new Set(["proprietario","presidente","amministratore","segretario","direttore_sportivo","resp_giovanile"]);
+const can=p=>!!(S.perms&&S.perms.has(p));
+const scopeRow=()=>S.club?{club_id:S.club,team_id:S.team}:{};
 let SB=null;
 function applyRow(r,del){const col=r.col,id=r.id;if(!COLS.includes(col))return;
   if(col==="info"){if(del)delete S.info[id];else S.info[id]={...(r.data||{}),id};return}
@@ -2020,28 +2028,55 @@ function applyRow(r,del){const col=r.col,id=r.id;if(!COLS.includes(col))return;
 async function save(col,id,data){
   const d=clean(data);applyRow({col,id,data:d});render();
   if(!SB)return true;
-  const {error}=await SB.from("docs").upsert({col,id,data:d,updated_at:new Date().toISOString()});
+  const {error}=await SB.from("docs").upsert({col,id,data:d,updated_at:new Date().toISOString(),...scopeRow()},S.club?{onConflict:"club_id,col,id"}:undefined);
   if(error){handleErr(error);await reloadCol(col);return false}return true}
 async function remove(col,id){applyRow({col,id},true);render();if(!SB)return true;
-  const {error}=await SB.from("docs").delete().match({col,id});if(error){handleErr(error);await reloadCol(col);return false}return true}
+  const {error}=await SB.from("docs").delete().match({col,id,...(S.club?{club_id:S.club}:{})});if(error){handleErr(error);await reloadCol(col);return false}return true}
 function handleErr(e){console.warn(e);toast(/row-level|permission|policy/i.test(e.message||"")?"Non hai i permessi per questa modifica":"Salvataggio non riuscito, controlla la connessione")}
-async function reloadCol(col){if(!SB)return;const {data}=await SB.from("docs").select("col,id,data").eq("col",col);if(!data)return;if(col==="info")S.info={};else S[col]=[];data.forEach(r=>applyRow(r));render()}
+async function reloadCol(col){if(!SB)return;let q=SB.from("docs").select("col,id,data").eq("col",col);if(S.club)q=q.eq("club_id",S.club).or(`team_id.eq.${S.team},team_id.is.null`);const {data}=await q;if(!data)return;if(col==="info")S.info={};else S[col]=[];data.forEach(r=>applyRow(r));render()}
 async function loadAll(){
   const timer=setTimeout(()=>{S.slow=true;render()},10000);
   let from=0,all=[];
-  while(true){const {data,error}=await SB.from("docs").select("col,id,data").range(from,from+999);if(error){clearTimeout(timer);S.err=true;toast("Errore nel caricamento dati");break}all=all.concat(data);if(data.length<1000)break;from+=1000}
+  while(true){let q=SB.from("docs").select("col,id,data");if(S.club)q=q.eq("club_id",S.club).or(`team_id.eq.${S.team},team_id.is.null`);const {data,error}=await q.range(from,from+999);if(error){clearTimeout(timer);S.err=true;toast("Errore nel caricamento dati");break}all=all.concat(data);if(data.length<1000)break;from+=1000}
   clearTimeout(timer);S.slow=false;S.info={};COLS.filter(c=>c!=="info").forEach(c=>S[c]=[]);all.forEach(r=>applyRow(r));markAll();render();
-  SB.channel("docs-live").on("postgres_changes",{event:"*",schema:"public",table:"docs"},p=>{if(p.eventType==="DELETE")applyRow(p.old,true);else applyRow(p.new);render()}).subscribe();
+  SB.channel("docs-live").on("postgres_changes",{event:"*",schema:"public",table:"docs",...(S.club?{filter:`club_id=eq.${S.club}`}:{})},p=>{const r=p.eventType==="DELETE"?p.old:p.new;if(S.club&&r.team_id&&r.team_id!==S.team)return;if(p.eventType==="DELETE")applyRow(p.old,true);else applyRow(p.new);render()}).subscribe();
 }
 function markAll(){COLS.forEach(c=>S.loaded[c]=true)}
 async function loadMember(){
   const email=(S.session.user.email||"").toLowerCase();
+  // FCORE: società, squadre e permessi dal database (se la Fase 1 è installata)
+  try{const r=await SB.rpc("my_access");
+    if(!r.error&&Array.isArray(r.data)){const acc=r.data;S.fcore=true;S.access=acc;
+      if(!acc.length){S.member=null;S.role=null;S.canWrite=false;S.isManager=false;S.perms=new Set();return}
+      const clubs=[...new Set(acc.map(a=>a.club_id))];let club=localStorage.getItem("og_club");if(!clubs.includes(club))club=clubs[0];
+      const mine=acc.filter(a=>a.club_id===club);
+      let teams=mine.filter(a=>a.team_id).map(a=>({id:a.team_id,nome:a.team}));
+      if(mine.some(a=>!a.team_id)){const t=await SB.from("teams").select("id,nome,categoria,archiviata").eq("club_id",club).eq("archiviata",false);if(t.data)teams=t.data}
+      teams=teams.filter((t,i,a)=>a.findIndex(x=>x.id===t.id)===i);S.teams=teams;
+      let team=localStorage.getItem("og_team");if(!teams.some(t=>t.id===team))team=teams[0]&&teams[0].id;
+      S.club=club;S.team=team||null;S.clubName=mine[0].club;
+      const act=mine.filter(a=>!a.team_id||a.team_id===S.team);
+      S.perms=new Set(act.flatMap(a=>a.perms||[]));
+      const top=act.slice().sort((a,b)=>RUOLI2.indexOf(a.ruolo)-RUOLI2.indexOf(b.ruolo))[0]||mine[0];
+      const withPid=act.find(a=>a.pid&&a.ruolo==="giocatore")||act.find(a=>a.pid);
+      S.member={email,ruolo:top.ruolo,pid:withPid?withPid.pid:null,nome:(top.nome||(withPid&&withPid.nome)||"")};
+      S.role=top.ruolo;
+      S.canWrite=["partite.gestire","allenamenti.gestire","rosa.modificare","presenze.gestire","convocazioni.gestire"].some(can);
+      S.isManager=can("utenti.gestire");
+      if(S.isManager)loadMembers();
+      return}}catch(e){}
   let {data}=await SB.from("members").select("*").eq("email",email).maybeSingle();
   if(!data){const r=await SB.rpc("claim_admin");if(r.data===true){({data}=await SB.from("members").select("*").eq("email",email).maybeSingle());if(data)setTimeout(()=>toast("Sei l'amministratore: crea gli account da Staff → Account"),800)}}
   S.member=data||null;S.role=data?data.ruolo:null;S.canWrite=["staff","dirigente","mister","admin"].includes(S.role);S.isManager=["dirigente","mister","admin"].includes(S.role);
   if(S.isManager)loadMembers();
 }
-async function loadMembers(){if(!SB)return;const {data}=await SB.from("members").select("*").order("ruolo");S.members=data||[];render()}
+async function loadMembers(){if(!SB)return;
+  if(S.fcore){const {data}=await SB.from("memberships").select("*").eq("club_id",S.club);S.members=(data||[]).filter(m=>!m.team_id||m.team_id===S.team);render();return}
+  const {data}=await SB.from("members").select("*").order("ruolo");S.members=data||[];render()}
+function teamSheet(){
+  if(!S.teams||S.teams.length<2)return;
+  openSheet(`<h2>Scegli la squadra</h2><p class="muted small" style="margin:2px 0 12px">${esc(S.clubName||"")}</p><div class="list">${S.teams.map(t=>`<div class="li" onclick="localStorage.setItem('og_team','${t.id}');location.reload()"><div class="nm"><b>${esc(t.nome)}</b>${t.categoria?`<span>${esc(t.categoria)}</span>`:""}</div>${t.id===S.team?`<span class="tag g">Attiva</span>`:""}</div>`).join("")}</div><div class="actions"><button class="btn" onclick="closeSheet()">Chiudi</button></div>`);
+}
 async function initDb(){
   if(!window.supabase||CONFIG.url.startsWith("INCOLLA")){S.offline=true;S.canWrite=true;S.isManager=true;S.role="admin";S.member={email:"prova@locale",ruolo:"admin",nome:"Prova"};S.members=S.members||[];markAll();render();return}
   SB=window.supabase.createClient(CONFIG.url,CONFIG.key,{auth:{persistSession:true,autoRefreshToken:true}});
@@ -2092,32 +2127,38 @@ function vAccount(){
   const linked=new Set(list.map(m=>m.pid).filter(Boolean));const miss=sortedPlayers().filter(p=>!linked.has(p.id));
   return `<div class="card small">Crea qui l'account di ogni persona con la sua <b>email</b>. Poi gli mandi il link: la prima volta tocca <b>“Primo accesso”</b>, scrive la stessa email e sceglie la sua password.</div>
   <button class="btn sm p" style="margin-top:12px" onclick="accSheet()">+ Nuovo account</button>
-  <h3>Account · ${list.length}</h3>${list.length?`<div class="list">${list.map(m=>{const p=m.pid&&P(m.pid);return `<div class="li" onclick="accSheet('${esc(m.email)}')">${p?avatar({...p,numero:""}):`<div class="av STF">${esc((m.nome||m.email)[0].toUpperCase())}</div>`}<div class="nm"><b>${esc(m.nome||(p?fullName(p):m.email))}</b><span>${esc(m.email)}</span></div><span class="tag ${m.ruolo==="giocatore"?"":"b"}">${RUOLI[m.ruolo]||m.ruolo}</span></div>`}).join("")}</div>`:`<div class="card muted small">Nessun account.</div>`}
+  <h3>Account · ${list.length}</h3>${list.length?`<div class="list">${list.map(m=>{const p=m.pid&&P(m.pid);return `<div class="li" onclick="accSheet('${esc(m.id||m.email)}')">${p?avatar({...p,numero:""}):`<div class="av STF">${esc((m.nome||m.email)[0].toUpperCase())}</div>`}<div class="nm"><b>${esc(m.nome||(p?fullName(p):m.email))}</b><span>${esc(m.email)}${S.fcore&&!m.team_id?" · tutta la società":""}</span></div><span class="tag ${m.ruolo==="giocatore"?"":"b"}">${RUOLI[m.ruolo]||m.ruolo}</span></div>`}).join("")}</div>`:`<div class="card muted small">Nessun account.</div>`}
   ${miss.length?`<h3>Giocatori senza account · ${miss.length}</h3><div class="row wrap2">${miss.map(p=>`<button class="tag" style="border:0;cursor:pointer" onclick="accSheet(null,'${p.id}')">+ ${esc(fullName(p))}</button>`).join("")}</div>`:""}`;
 }
 function accSheet(email,pid){
-  const m=email?(S.members||[]).find(x=>x.email===email):{email:"",ruolo:pid?"giocatore":"giocatore",pid:pid||"",nome:""};
+  const m=email?(S.members||[]).find(x=>(x.id||x.email)===email):{email:"",ruolo:"giocatore",pid:pid||"",nome:""};
   if(!m)return;
   openSheet(`<h2>${email?"Account":"Nuovo account"}</h2>
   ${field("aE","Email",m.email,"email")}
-  ${field("aR","Ruolo",m.ruolo,"select",Object.entries(RUOLI))}
+  ${field("aR","Ruolo",m.ruolo,"select",S.fcore?RUOLI2.filter(r=>r!=="proprietario"||can("societa.gestire")).map(r=>[r,RUOLI[r]]):Object.entries(RUOLI).filter(([k])=>!RUOLI2.includes(k)||k==="giocatore"))}
+  ${S.fcore?field("aT","Accesso a",m.id?(m.team_id?"team":"club"):"team","select",[["team","Solo questa squadra"],["club","Tutta la società"]]):""}
   ${playerPick("aP","Giocatore collegato (se è un giocatore)",m.pid)}
   ${field("aN","Nome da mostrare (facoltativo)",m.nome)}
-  <p class="muted small" style="margin:10px 16px 0"><b>Giocatore</b>: vede tutto e risponde alla disponibilità. <b>Staff</b>: modifica presenze, partite e formazioni. <b>Mister, Dirigente, Amministratore</b>: anche gli account.</p>
+  ${S.fcore?`<p class="muted small" style="margin:10px 16px 0">Ogni ruolo ha i suoi permessi: l'allenatore vede solo la sua squadra, il medico i dati sanitari, il segretario la cassa. Giocatori e genitori vedono solo i propri dati.</p>`:""}
+  <p class="muted small" style="margin:10px 16px 0;${S.fcore?"display:none":""}"><b>Giocatore</b>: vede tutto e risponde alla disponibilità. <b>Staff</b>: modifica presenze, partite e formazioni. <b>Mister, Dirigente, Amministratore</b>: anche gli account.</p>
   <div class="actions"><button class="btn" onclick="closeSheet()">Annulla</button><button class="btn p" id="sv">Salva</button></div>
   ${email?`<div style="text-align:center;margin-top:14px"><button class="btn sm d" id="del">Elimina account</button></div>`:""}
   ${email?"":`<div class="card small" style="margin-top:14px">Messaggio da mandargli su WhatsApp:<p id="aMsg" style="margin:8px 0 0;white-space:pre-wrap"></p><button class="btn sm" id="aCp" style="margin-top:8px">Copia messaggio</button></div>`}`);
-  if(email)$("#aE").disabled=true;
+  if(email&&!S.fcore)$("#aE").disabled=true;
   const txt=()=>`Ciao! Ti ho creato l'account dell'app della squadra Oneglia Sq. B ⚽\n\n1. Apri ${location.origin+location.pathname}\n2. Tocca "Primo accesso"\n3. Email: ${val("aE").toLowerCase()||"(la tua email)"}\n4. Scegli una password\n\nPoi aggiungila alla schermata Home: Condividi → Aggiungi alla schermata Home.`;
   const upd=()=>{const e=$("#aMsg");if(e)e.textContent=txt()};upd();const ie=$("#aE");if(ie)ie.oninput=upd;
   const cp=$("#aCp");if(cp)cp.onclick=async()=>{try{await navigator.clipboard.writeText(txt());toast("Copiato")}catch(e){toast("Copia non riuscita")}};
   const pp=$("#aP");pp.onchange=()=>{const p=S.players.find(x=>x.id===pp.value);if(p&&!val("aN"))$("#aN").value=fullName(p)};
   $("#sv").onclick=async()=>{const em=val("aE").toLowerCase();if(!/^\S+@\S+\.\S+$/.test(em)){toast("Email non valida");return}
     const row={email:em,ruolo:val("aR"),pid:val("aP")||null,nome:val("aN")||null};
+    if(S.fcore){const r={email:em,ruolo:val("aR"),pid:val("aP")||null,nome:val("aN")||null,club_id:S.club,team_id:val("aT")==="club"?null:S.team};
+      const q=m.id?SB.from("memberships").update(r).eq("id",m.id):SB.from("memberships").insert(r);const {error}=await q;
+      if(error){toast(error.message.includes("policy")||error.code==="42501"?"Non hai il permesso di gestire gli account":"Errore: "+error.message);return}
+      toast(m.id?"Account aggiornato":"Account creato: ora mandagli il link");if(!m.id){await navigator.clipboard.writeText(txt()).catch(()=>{})}await loadMembers();closeSheet();return}
     if(!SB){S.members=(S.members||[]).filter(x=>x.email!==em).concat(row);toast("Salvato (prova locale)");closeSheet();render();return}
     const {error}=await SB.from("members").upsert(row);if(error){toast(error.message.includes("policy")?"Solo mister, dirigenti e amministratori possono creare account":"Errore: "+error.message);return}
     toast(email?"Account aggiornato":"Account creato: ora mandagli il link");if(!email){await navigator.clipboard.writeText(txt()).catch(()=>{})}await loadMembers();closeSheet()};
-  const d=$("#del");if(d)d.onclick=()=>askDelete("l'account "+email,async()=>{if(!SB){S.members=S.members.filter(x=>x.email!==email);render();return true}const {error}=await SB.from("members").delete().eq("email",email);if(error){toast("Non riuscito");return false}await loadMembers();return true});
+  const d=$("#del");if(d)d.onclick=()=>askDelete("l'account "+email,async()=>{if(!SB){S.members=S.members.filter(x=>x.email!==email);render();return true}const {error}=S.fcore?await SB.from("memberships").delete().eq("id",m.id):await SB.from("members").delete().eq("email",email);if(error){toast("Non riuscito");return false}await loadMembers();return true});
 }
 
 // ---------- il mio profilo
@@ -2150,7 +2191,7 @@ function webSaver(){return{save:async({filename,data})=>{
   const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);return{status:"saved"}}}}
 
 // expose for inline handlers
-Object.assign(window,{liveSheet,girLiveSheet,adminMatch,playerActions,vAdmin,logout,accSheet,myProfile,regoleSheet,whoAmI,multaSheet,quotaSheet,movSheet,debSheet,movDetail,injSheet,resultImage,newsSheet,delNews,formationSheet,fabAct,editClassifica,editSponsor,openPlayer,editPlayer,openStaff,editStaff,openTraining,editTraining,weekSheet,openMatch,editMatch,convSheet,resultSheet,closeSheet,go,setRole,render,renderKeep,S});
+Object.assign(window,{teamSheet,liveSheet,girLiveSheet,adminMatch,playerActions,vAdmin,logout,accSheet,myProfile,regoleSheet,whoAmI,multaSheet,quotaSheet,movSheet,debSheet,movDetail,injSheet,resultImage,newsSheet,delNews,formationSheet,fabAct,editClassifica,editSponsor,openPlayer,editPlayer,openStaff,editStaff,openTraining,editTraining,weekSheet,openMatch,editMatch,convSheet,resultSheet,closeSheet,go,setRole,render,renderKeep,S});
 if(/netlify\.app$/.test(location.hostname))document.body.classList.add("nf");
 route();
 initDb();

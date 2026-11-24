@@ -2,7 +2,7 @@
 """Sincronizza risultati, classifica e calendario della Seconda Categoria (girone A, Imperia)
 dai Comunicati Ufficiali pubblici della LND Liguria verso il database dell'app.
 Uso: SUPABASE_URL=... SUPABASE_SERVICE_KEY=... python3 scripts/lnd_sync.py [--dry]"""
-import os, re, sys, json, subprocess, tempfile, unicodedata, urllib.request, datetime
+import os, re, sys, json, subprocess, tempfile, unicodedata, urllib.request, urllib.error, datetime
 
 BASE = "https://www.lndliguria.it"
 LIST = BASE + "/area-comunicati/dp-imperia/"
@@ -124,18 +124,30 @@ KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
 H = {"apikey": KEY, "Authorization": "Bearer " + KEY, "Content-Type": "application/json"}
 
 def db_get(col, id=None):
-    q = f"?col=eq.{col}" + (f"&id=eq.{id}" if id else "") + "&select=id,data"
+    q = f"?col=eq.{col}" + (f"&id=eq.{id}" if id else "") + "&select=id,data" + (f"&club_id=eq.{CLUB}" if _FCORE else "")
     return json.loads(get_db(URL + q))
 
 def get_db(url):
     with urllib.request.urlopen(urllib.request.Request(url, headers=H), timeout=60) as r:
         return r.read().decode()
 
+CLUB, TEAM = os.environ.get("CLUB_ID", "oneglia"), os.environ.get("TEAM_ID", "oneglia-b")
+_FCORE = None
 def db_put(col, id, data):
+    """Salva un documento. Con FCORE Fase 1 installata i documenti hanno società e squadra."""
+    global _FCORE
     if DRY:
         print("  [dry] salverei", col, id); return
-    body = json.dumps({"col": col, "id": id, "data": data}).encode()
     h = dict(H, Prefer="resolution=merge-duplicates,return=minimal")
+    if _FCORE is not False:
+        body = json.dumps({"col": col, "id": id, "data": data, "club_id": CLUB, "team_id": TEAM}).encode()
+        try:
+            urllib.request.urlopen(urllib.request.Request(URL + "?on_conflict=club_id,col,id", data=body, headers=h, method="POST"), timeout=60)
+            _FCORE = True; return
+        except urllib.error.HTTPError as e:
+            if _FCORE: raise
+            _FCORE = False
+    body = json.dumps({"col": col, "id": id, "data": data}).encode()
     urllib.request.urlopen(urllib.request.Request(URL + "?on_conflict=col,id", data=body, headers=h, method="POST"), timeout=60)
 
 def main():
