@@ -6,22 +6,30 @@ on:
     - cron: "17 6,18 * * *"
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Strumento per leggere i PDF
         run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
       - name: Leggi i Comunicati Ufficiali e aggiorna l'app
+        continue-on-error: true
         env:
           SUPABASE_URL: https://xgsmvirezubvgpqcfxjp.supabase.co
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python3 scripts/lnd_sync.py
       - name: Campionati pubblici FootCore (tutte le categorie)
         if: always()
-        env:
-          SUPABASE_URL: https://xgsmvirezubvgpqcfxjp.supabase.co
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-        run: python3 scripts/lnd_campionati.py
+        run: python3 scripts/lnd_campionati.py --out data/campionati.json
+      - name: Pubblica i dati aggiornati
+        if: always()
+        run: |
+          git config user.name "FootCore bot"
+          git config user.email "footcore-bot@users.noreply.github.com"
+          git add data/campionati.json
+          git diff --cached --quiet || (git commit -m "Campionati aggiornati dai Comunicati LND" && git push)

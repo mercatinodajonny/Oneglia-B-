@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lnd_sync import get, pdf_text, comunicati, norm, simile
 
 DRY = "--dry" in sys.argv
-QUANTI = int(sys.argv[sys.argv.index("--n") + 1]) if "--n" in sys.argv else 15
+QUANTI = int(sys.argv[sys.argv.index("--n") + 1]) if "--n" in sys.argv else 60
 DELEGAZIONE = "Imperia"
 NON_CATEGORIE = ("RISULTATI", "PROGRAMMA GARE", "CLASSIFICHE", "GIUSTIZIA", "VARIAZIONE", "LOCALIT", "IMPIANTO",
                  "SQUADRA", "SOCIET", "ERRATA", "SETTORE GIOVANILE", "ALLEGATI", "COMUNICAZIONI", "D.P. IMPERIA",
@@ -106,15 +106,36 @@ def titolo_squadra(s):
     s = re.sub(r"\bA\.s\.d\.?", "A.S.D.", s)
     return re.sub(r"\b(Asd|A\.S\.D\.|Ssd|Sq\.B|Sq\. B)\b", lambda m: {"Asd": "ASD", "A.S.D.": "A.S.D.", "Ssd": "SSD"}.get(m.group(1), "Sq. B"), s)
 
+STAGIONE_INIZIO = "2026-07-01"
+
+def tutti_i_comunicati():
+    """Comunicati della stagione, anche dalle pagine precedenti dell'elenco."""
+    from lnd_sync import LIST
+    visti, out = set(), []
+    for pag in range(1, 6):
+        url = LIST if pag == 1 else LIST + f"page/{pag}/"
+        try: html = get(url)
+        except Exception: break
+        nuovi = re.findall(r'href="(https://www\.lndliguria\.it/comunicati-ufficiali/cu-(\d+)-[^"]*?im[^"]*)"', html)
+        if not nuovi: break
+        for u, n in nuovi:
+            if u in visti: continue
+            visti.add(u); out.append((int(n), u))
+    return out  # nell'ordine dell'elenco: dal più recente
+
 def main():
-    lista = comunicati()[:QUANTI]
+    lista = tutti_i_comunicati()[:QUANTI]
     letti = []
+    prec = None
     for n, page in lista:
+        if prec is not None and n > prec: break  # numerazione ricominciata: stagione precedente
+        prec = n
         html = get(page)
         pdfs = [u for u in re.findall(r'href="([^"]+\.pdf)"', html) if "C.U." in u or "cu-" in u.lower()]
         if not pdfs: continue
         txt = pdf_text(get(pdfs[0], True))
         dm = re.search(r"C\.U\. ?\d+ - (\d\d)/(\d\d)/(\d\d)", txt)
+        if dm and f"20{dm.group(3)}-{dm.group(2)}-{dm.group(1)}" < STAGIONE_INIZIO: break  # stagione precedente: fine
         letti.append({"n": n, "pdf": pdfs[0], "data": f"20{dm.group(3)}-{dm.group(2)}-{dm.group(1)}" if dm else None,
                       "ris": leggi_risultati(txt), "prog": leggi_programma(txt), "cl": leggi_classifiche(txt)})
     print("Comunicati letti:", [c["n"] for c in letti])
@@ -135,6 +156,10 @@ def main():
     righe_db = []
     stagione = None
     for x in camp.values():
+        tutto_prog = list(x["programma"].items())
+        for k, r in x["risultati"].items():
+            p = x["programma"].get(k) or next((v for (c, o), v in tutto_prog if simile(c, k[0]) and simile(o, k[1])), None)
+            if p and p.get("giornata"): r["giornata"] = p["giornata"]
         ris = sorted(x["risultati"].values(), key=lambda r: (r["giornata"] or 0, r["casa"]))
         giocate = list(x["risultati"].keys())
         oggi = datetime.date.today().isoformat()
@@ -148,10 +173,16 @@ def main():
                 "risultati": [{k: v for k, v in r.items() if k not in ("cat",)} | {"casa": titolo_squadra(r["casa"]), "ospite": titolo_squadra(r["ospite"])} for r in ris],
                 "programma": [{k: v for k, v in p.items() if k not in ("cat",)} | {"casa": titolo_squadra(p["casa"]), "ospite": titolo_squadra(p["ospite"])} for p in prog],
                 "fonte": "Comunicati Ufficiali LND Liguria – Delegazione di Imperia", "cu": x["cu"]}
-        if not (dati["risultati"] or dati["programma"] or dati["classifica"]): continue
+        if not dati["classifica"] and len(dati["risultati"]) < 2: continue
         righe_db.append({"id": x["id"], "delegazione": DELEGAZIONE, "categoria": x["categoria"], "girone": x["girone"],
                          "dati": dati, "aggiornato": x["aggiornato"], "updated_at": datetime.datetime.now(datetime.timezone.utc).isoformat()})
         print(f"  {x['id']}: {len(dati['risultati'])} risultati, {len(dati['programma'])} in programma, classifica {'sì' if x['classifica'] else 'no'}")
+    if "--out" in sys.argv:
+        dest = sys.argv[sys.argv.index("--out") + 1]
+        os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
+        json.dump({"aggiornato": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%MZ"), "campionati": righe_db},
+                  open(dest, "w"), ensure_ascii=False, separators=(",", ":"))
+        print("Salvato", dest); return
     if DRY:
         json.dump(righe_db, open("/tmp/campionati.json", "w"), ensure_ascii=False, indent=1); print("[dry] salvato /tmp/campionati.json"); return
     key = os.environ.get("SUPABASE_SERVICE_KEY", "")
