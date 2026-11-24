@@ -529,7 +529,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-5";
+const BUILD="2026-11-24-6";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2096,12 +2096,53 @@ async function startSession(session){
   await loadAll();
 }
 // ---------- pagina pubblica FootCore (senza account): solo dati pubblici, letti con footcore_pubblico
-async function showPublic(){
+// ---------- portale pubblico FootCore: campionati, risultati e classifiche per tutti, senza account
+const PUB={camp:null,id:null,tab:"cl",q:"",sq:null};
+function pubHead(back){return `<div style="display:flex;align-items:center;gap:10px;margin:0 6px 18px">${back?`<button class="btn sm" onclick="pubBack()" aria-label="Indietro">‹</button>`:""}<div class="fcbrand" style="justify-content:flex-start"><img src="assets/footcore-mark.svg" alt="" width="30" height="30"><span>Foot<b>Core</b></span></div><button class="btn sm" style="margin-left:auto" onclick="closePublic()">${S.session?"Torna all'app":"Accedi"}</button></div>`}
+function pubEl(){let el=$("#pub");if(!el){el=document.createElement("div");el.id="pub";document.body.appendChild(el)}el.classList.add("on");return el}
+async function pubLoad(){if(PUB.camp)return PUB.camp;try{if(!SB)SB=window.supabase.createClient(CONFIG.url,CONFIG.key);const r=await SB.from("campionati").select("id,categoria,girone,delegazione,stagione,dati,aggiornato").order("categoria");PUB.camp=r.data||[]}catch(e){PUB.camp=[]}return PUB.camp}
+function pubBack(){if(PUB.sq){PUB.sq=null}else if(PUB.club){PUB.club=null}else{PUB.id=null}pubRender()}
+async function showPublic(){pubEl().innerHTML=`<div class="lg">${pubHead(false)}<p class="muted" style="margin:0 6px">Caricamento…</p></div>`;await pubLoad();pubRender()}
+function pubRender(){
+  const el=pubEl();el.scrollTop=0;
+  if(PUB.club){pubClub(PUB.club);return}
+  const C=PUB.camp||[];
+  if(!PUB.id){
+    const q=PUB.q.trim().toLowerCase();
+    const squadre=[];if(q.length>1)C.forEach(c=>{const nomi=new Set();((c.dati.classifica||{}).righe||[]).forEach(r=>nomi.add(r.squadra));(c.dati.risultati||[]).concat(c.dati.programma||[]).forEach(m=>{nomi.add(m.casa);nomi.add(m.ospite)});[...nomi].filter(n=>n&&n.toLowerCase().includes(q)).forEach(n=>squadre.push({n,c}))});
+    const perCat={};C.forEach(c=>(perCat[c.categoria]=perCat[c.categoria]||[]).push(c));
+    el.innerHTML=`<div class="lg">${pubHead(false)}
+      <h1 style="font-size:28px;letter-spacing:-.02em;margin:0 6px">Campionati</h1><p class="muted" style="margin:4px 6px 14px">Risultati, classifiche e calendari · Delegazione di Imperia</p>
+      <div class="f" style="margin:0 0 6px"><label for="pubQ">Cerca una squadra</label><input id="pubQ" type="search" placeholder="Es. Oneglia" value="${esc(PUB.q)}" oninput="PUB.q=this.value;pubRender();const i=$('#pubQ');i.focus();i.setSelectionRange(i.value.length,i.value.length)"></div>
+      ${q.length>1?`<div class="card" style="padding:6px 12px">${squadre.length?squadre.slice(0,30).map(x=>`<div class="pubrow" style="cursor:pointer" onclick="PUB.id='${esc(x.c.id)}';PUB.sq=${esc(JSON.stringify(x.n))};pubRender()"><div><b>${esc(x.n)}</b><div class="muted" style="font-size:13px">${esc(x.c.categoria)} · Girone ${esc(x.c.girone)}</div></div><span class="sc">›</span></div>`).join(""):`<p class="muted small">Nessuna squadra trovata.</p>`}</div>`:""}
+      <div class="card" style="margin-top:14px;cursor:pointer" onclick="PUB.club='oneglia-b';pubRender()"><div class="muted" style="font-size:13px">Squadra su FootCore</div><b style="font-size:17px">Oneglia Sq. B</b><div class="muted" style="font-size:13px">Rosa, presenze e marcatori</div></div>
+      ${C.length?Object.keys(perCat).map(cat=>`<h2>${esc(cat)}</h2><div class="card" style="padding:6px 12px">${perCat[cat].map(c=>{const r=c.dati.risultati||[];const ult=r.length?Math.max(...r.map(x=>x.giornata||0)):0;return `<div class="pubrow" style="cursor:pointer" onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()"><div><b>Girone ${esc(c.girone)}</b><div class="muted" style="font-size:13px">${ult?`${ult}ª giornata giocata`:"Non ancora iniziato"}${c.aggiornato?` · aggiornato ${esc(fmtD(c.aggiornato))}`:""}</div></div><span class="sc">›</span></div>`}).join("")}</div>`).join(""):`<div class="card muted small" style="margin-top:14px">I campionati compariranno qui dopo il primo aggiornamento automatico.</div>`}
+      <p class="muted" style="font-size:13px;margin:16px 6px 0">Dati dai Comunicati Ufficiali LND Liguria, aggiornati due volte al giorno.</p></div>`;
+    return}
+  const c=C.find(x=>x.id===PUB.id);if(!c){PUB.id=null;pubRender();return}
+  const d=c.dati||{},cl=(d.classifica||{}).righe||[],R=d.risultati||[],P=d.programma||[];
+  const riga=m=>{const fatto=m.gc!=null;return `<div class="pubrow"><div><span style="${PUB.sq===m.casa?"font-weight:700":""}">${esc(m.casa)}</span> – <span style="${PUB.sq===m.ospite?"font-weight:700":""}">${esc(m.ospite)}</span><div class="muted" style="font-size:13px">${esc(fmtD(m.data))}${m.ora?` · ${esc(m.ora)}`:""}</div></div><span class="sc">${fatto?`${m.gc} - ${m.go}`:""}</span></div>`};
+  const perG=(arr,desc)=>{const g={};arr.forEach(m=>(g[m.giornata||0]=g[m.giornata||0]||[]).push(m));return Object.keys(g).map(Number).sort((a,b)=>desc?b-a:a-b).map(k=>`<h2 style="font-size:16px">${k?k+"ª giornata":"Altre gare"}</h2><div class="card" style="padding:6px 12px">${g[k].map(riga).join("")}</div>`).join("")};
+  let body;
+  if(PUB.sq){const mie=x=>x.casa===PUB.sq||x.ospite===PUB.sq;const pos=cl.find(r=>r.squadra.toLowerCase()===PUB.sq.toLowerCase());
+    body=`<h1 style="font-size:26px;letter-spacing:-.02em;margin:0 6px">${esc(PUB.sq)}</h1><p class="muted" style="margin:4px 6px 0">${esc(c.categoria)} · Girone ${esc(c.girone)}${pos?` · ${pos.pos}° posto, ${pos.pt} punti`:""}</p>
+      ${P.filter(mie).length?`<h2>Prossime partite</h2><div class="card" style="padding:6px 12px">${P.filter(mie).map(riga).join("")}</div>`:""}
+      <h2>Risultati</h2><div class="card" style="padding:6px 12px">${R.filter(mie).length?R.filter(mie).slice().reverse().map(riga).join(""):`<p class="muted small">Nessun risultato.</p>`}</div>`}
+  else{
+    const tab=(k,l)=>`<button class="${PUB.tab===k?"on":""}" onclick="PUB.tab='${k}';pubRender()">${l}</button>`;
+    body=`<h1 style="font-size:26px;letter-spacing:-.02em;margin:0 6px">${esc(c.categoria)}</h1><p class="muted" style="margin:4px 6px 14px">Girone ${esc(c.girone)} · ${esc(c.stagione||"")}</p>
+      <div class="seg" style="margin-bottom:6px">${tab("cl","Classifica")}${tab("ris","Risultati")}${tab("prog","Calendario")}</div>
+      ${PUB.tab==="cl"?(cl.length?`<div class="card" style="padding:6px 8px;margin-top:12px"><table class="cl"><tr><th style="text-align:left">#  Squadra</th><th>PT</th><th>G</th><th>V</th><th>N</th><th>P</th><th>DR</th></tr>${cl.map(r=>`<tr style="cursor:pointer" onclick="PUB.sq=${esc(JSON.stringify(r.squadra))};pubRender()"><td class="tm">${r.pos}. ${esc(r.squadra)}</td><td class="pt">${r.pt}</td><td>${r.g}</td><td>${r.v}</td><td>${r.n}</td><td>${r.p}</td><td>${r.dr}</td></tr>`).join("")}</table></div><p class="muted" style="font-size:13px;margin:8px 6px 0">Tocca una squadra per vedere le sue partite. Classifica del C.U. n. ${esc((d.classifica||{}).cu||"")}.</p>`:`<div class="card muted small" style="margin-top:12px">Classifica non ancora pubblicata.</div>`)
+       :PUB.tab==="ris"?(R.length?perG(R,true):`<div class="card muted small" style="margin-top:12px">Nessun risultato.</div>`)
+       :(P.length?perG(P,false):`<div class="card muted small" style="margin-top:12px">Nessuna partita in programma.</div>`)}`}
+  el.innerHTML=`<div class="lg">${pubHead(true)}${body}<p class="muted" style="font-size:13px;margin:16px 6px 0">Fonte: ${esc(d.fonte||"LND")}.</p></div>`;
+}
+async function pubClub(tid){
   let el=$("#pub");if(!el){el=document.createElement("div");el.id="pub";document.body.appendChild(el)}
   el.classList.add("on");
-  const head=`<div style="display:flex;align-items:center;margin:0 6px 18px"><div class="fcbrand" style="justify-content:flex-start"><img src="assets/footcore-mark.svg" alt="" width="30" height="30"><span>Foot<b>Core</b></span></div><button class="btn sm" style="margin-left:auto" onclick="closePublic()">${S.session?"Torna all'app":"Accedi"}</button></div>`;
+  const head=pubHead(true);
   el.innerHTML=`<div class="lg">${head}<p class="muted" style="margin:0 6px">Caricamento…</p></div>`;
-  const tid=new URLSearchParams(location.search).get("squadra")||"oneglia-b";
+  tid=tid||new URLSearchParams(location.search).get("squadra")||"oneglia-b";
   let d=null;try{if(!SB)SB=window.supabase.createClient(CONFIG.url,CONFIG.key);const r=await SB.rpc("footcore_pubblico",{t:tid});d=r.data}catch(e){}
   const back=`<button class="btn p" style="width:100%;margin-top:26px" onclick="closePublic()">${S.session?"Torna all'app":"Sei della squadra? Accedi"}</button>`;
   if(!d){el.innerHTML=`<div class="lg">${head}<div class="card muted">Pagina pubblica non disponibile per questa squadra.</div>${back}</div>`;return}

@@ -19,3 +19,9 @@ jobs:
           SUPABASE_URL: https://xgsmvirezubvgpqcfxjp.supabase.co
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python3 scripts/lnd_sync.py
+      - name: Campionati pubblici FootCore (tutte le categorie)
+        if: always()
+        env:
+          SUPABASE_URL: https://xgsmvirezubvgpqcfxjp.supabase.co
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python3 scripts/lnd_campionati.py

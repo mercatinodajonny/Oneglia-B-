@@ -14,3 +14,4 @@ A ogni modifica di index.html aggiorna la costante `BUILD` (es. "2026-11-24-1"):
 - `supabase/fcore_fase1.sql`: società, stagioni, squadre, ruoli e permessi.
 - `supabase/footcore_fase2.sql`: conferma automatica degli account invitati dallo staff e pagina pubblica (`#pubblico`, funzione `footcore_pubblico`).
 - Logo e icone in `assets/` (footcore-logo.svg, footcore-mark.svg, footcore-icon.svg).
+- `supabase/footcore_fase3.sql` + `scripts/lnd_campionati.py`: campionati pubblici di tutte le categorie della Delegazione di Imperia (tabella `campionati`, leggibile senza account), aggiornati dalla stessa GitHub Action.
