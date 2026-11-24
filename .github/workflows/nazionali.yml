@@ -1,0 +1,27 @@
+name: Aggiorna Serie A, B e C
+
+on:
+  schedule:
+    # ogni 2 ore
+    - cron: "37 */2 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scarica risultati, calendario e classifiche
+        run: python3 scripts/nazionali.py --out data/nazionali.json
+      - name: Pubblica
+        run: |
+          git config user.name "Golazo bot"
+          git config user.email "golazo-bot@users.noreply.github.com"
+          git add data/nazionali.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Serie A, B e C aggiornate"
+          git pull --rebase origin main && git push
