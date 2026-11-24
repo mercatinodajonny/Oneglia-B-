@@ -530,7 +530,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-28";
+const BUILD="2026-11-24-29";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2135,7 +2135,13 @@ const pubCSS=`<style>
 #pub .mrow .sc small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
 #pub .seg{background:var(--card)}#pub .seg button{color:var(--muted)}#pub .seg button.on{background:var(--fill);color:var(--text)}
 #pub .f input{background:var(--card);color:var(--text);border-color:var(--fill)}#pub .f label{color:var(--muted)}
-#pub .plog{max-width:420px;margin:0 auto;padding-top:18px;text-align:center}#pub .plog img{display:block;margin:0 auto 14px}#pub .plog h1{font-size:30px;letter-spacing:-.02em;margin:0}#pub .plog .sub{margin:6px 8px 22px}
+#pub .plog{max-width:420px;margin:0 auto;padding-top:8px;text-align:center}
+#pub .plog.soc .cta{background:#1B2B57}#pub .plog.soc .plink{color:#1B2B57}#pub .plog.soc .pf input:focus{box-shadow:inset 0 0 0 2px #1B2B57}
+#pub .lhero{border-radius:26px;padding:22px 20px 24px;margin-bottom:18px;color:#fff;text-align:left;position:relative;overflow:hidden}#pub .lhero.g{background:linear-gradient(145deg,#1E8A47,#0E5A2C)}#pub .lhero.s{background:linear-gradient(145deg,#1B2B57,#0D1B3D)}
+#pub .lhero:after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.08)}
+#pub .lhero .lico{width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+#pub .lhero small{display:block;font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.75}#pub .lhero h1{color:#fff;font-size:27px;line-height:1.15;letter-spacing:-.02em;margin:4px 0 6px}#pub .lhero p{margin:0;font-size:15px;line-height:1.4;opacity:.85}
+#pub .pf select{width:100%;box-sizing:border-box;border:0;border-radius:16px;background:var(--card);padding:16px;font:inherit;font-size:17px;color:var(--text);box-shadow:inset 0 0 0 1px var(--line);-webkit-appearance:none;appearance:none}#pub .plog img{display:block;margin:0 auto 14px}#pub .plog h1{font-size:30px;letter-spacing:-.02em;margin:0}#pub .plog .sub{margin:6px 8px 22px}
 #pub .pseg{display:flex;padding:4px;border-radius:99px;background:var(--fill);margin-bottom:18px}#pub .pseg button{flex:1;border:0;border-radius:99px;background:none;padding:11px;font:inherit;font-size:15px;font-weight:700;color:var(--muted);cursor:pointer}#pub .pseg button.on{background:var(--card);color:var(--text);box-shadow:0 2px 8px -2px rgba(0,0,0,.18)}
 #pub .pf{display:block;text-align:left;margin-bottom:12px}#pub .pf span{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:0 0 6px 16px}#pub .pf input{width:100%;box-sizing:border-box;border:0;border-radius:16px;background:var(--card);padding:16px;font:inherit;font-size:17px;color:var(--text);outline:none;box-shadow:inset 0 0 0 1px var(--line)}#pub .pf input:focus{box-shadow:inset 0 0 0 2px var(--tint)}
 #pub .plink{border:0;background:none;color:var(--tint);font:inherit;font-size:15px;font-weight:600;padding:14px;cursor:pointer}#pub .pmsg{min-height:20px;font-size:14px;color:var(--muted);margin:4px 0 0}
@@ -2224,6 +2230,12 @@ async function pubDoLogin(){const E=$("#plE"),P=$("#plP"),M=t=>{const m=$("#plMs
   if(!r.data.session){M("Controlla la tua email per confermare, poi accedi.");return}
   PUB.loggato=true;PUB.email=email;PUB.acc=null;try{const x=await SB.rpc("my_access");PUB.acc=x.data||[];const a=await SB.rpc("is_platform_admin");PUB.admin=a.data===true}catch(e){PUB.acc=[]}
   pubGo("account")}
+async function pubRichiesta(){const v=id=>(($("#"+id)||{}).value||"").trim();const M=t=>{const m=$("#plMsg");if(m)m.textContent=t};
+  const d={societa:v("rsS"),citta:v("rsC"),referente:v("rsN"),ruolo:v("rsR"),email:v("plE").toLowerCase(),telefono:v("rsT")};
+  if(d.societa.length<2||!/^\S+@\S+\.\S+$/.test(d.email)){M("Scrivi almeno il nome della società e un'email valida");return}
+  const g=$("#plGo");g.disabled=true;M("Invio in corso…");const {error}=await SB.from("richieste_societa").insert(d);g.disabled=false;
+  if(error){M("Invio non riuscito, riprova tra poco");return}
+  PUB.lE=d.email;$(".plog").innerHTML=`<div class="lhero s"><span class="lico"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><small>Richiesta inviata</small><h1>Grazie, ${esc(d.referente||d.societa)}!</h1><p>Ti contattiamo a breve per attivare ${esc(d.societa)} su FootCore. Intanto puoi guardare risultati e classifiche.</p></div><button class="cta" onclick="pubGo('partite')">Vai alle partite</button>`}
 async function pubReset(){const email=(($("#plE")||{}).value||"").trim().toLowerCase();const m=$("#plMsg");if(!email){m.textContent="Scrivi prima la tua email";return}const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});m.textContent=error?"Non riuscito, riprova più tardi":"Ti ho mandato un'email per cambiare la password"}
 function pubGo(v){PUB.vista=v;PUB.id=null;PUB.sq=null;PUB.match=null;pubRender()}
 function pubBar(){const b=(k,l,ico)=>`<button class="${PUB.vista===k&&!PUB.id?"on":""}" onclick="pubGo('${k}')">${ico}${l}</button>`;const s=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -2309,16 +2321,22 @@ function pubRender(){
       const nome=(PUB.acc.find(a=>a.nome)||{}).nome||"";
       body=pubTop("La mia area","")+`<div class="cc" style="cursor:default">${sqBadge(nome||"?",48)}<div><b>${esc(nome||"Account")}</b><small>${esc((PUB.email||""))}</small></div></div>
         <h2>Dove giochi e i tuoi ruoli</h2>${PUB.acc.length?PUB.acc.map(a=>`<button class="cc" onclick="closePublic()">${sqBadge(a.team||a.club,40)}<div><b>${esc(a.team||a.club)}</b><small>${esc(a.club)} · ${esc(R[a.ruolo]||a.ruolo)}</small></div><span class="chev">›</span></button>`).join(""):`<div class="card muted" style="padding:16px">Il tuo account non è ancora collegato a una squadra. Chiedi alla tua società di aggiungerti con questa email.</div>`}
-        ${PUB.acc.length?`<button class="cta" onclick="closePublic()">Apri la gestione della squadra</button>`:""}<button class="cta sec" onclick="logout()">Esci</button>`}
+        ${PUB.admin?(PUB.rich?`<h2>Richieste delle società</h2>${PUB.rich.length?PUB.rich.map(r=>`<div class="card" style="padding:14px 16px;margin-bottom:8px"><b>${esc(r.societa)}</b>${r.citta?` · ${esc(r.citta)}`:""}<br><small class="muted">${esc([r.referente,r.ruolo].filter(Boolean).join(", "))}</small><br><a href="mailto:${esc(r.email)}">${esc(r.email)}</a>${r.telefono?` · <a href="tel:${esc(r.telefono)}">${esc(r.telefono)}</a>`:""}</div>`).join(""):`<div class="card muted" style="padding:14px 16px">Nessuna richiesta per ora.</div>`}`:(setTimeout(async()=>{const r=await SB.from("richieste_societa").select("*").order("creato",{ascending:false});PUB.rich=r.data||[];pubRender()},0),"")):""}${PUB.acc.length?`<button class="cta" onclick="closePublic()">Apri la gestione della squadra</button>`:""}<button class="cta sec" onclick="logout()">Esci</button>`}
   } else if(PUB.vista==="login"){
-    const up=PUB.lm==="up";
-    body=`<div class="plog"><img src="assets/footcore-mark.svg" alt="" width="64" height="64"><h1>${up?"Crea il tuo accesso":"Accedi a FootCore"}</h1><p class="sub">${up?"Usa l'email che hai dato alla tua società e scegli una password.":"Giocatori, staff e società: un solo accesso."}</p>
-      <div class="pseg"><button class="${up?"":"on"}" onclick="PUB.lm='in';pubRender()">Accedi</button><button class="${up?"on":""}" onclick="PUB.lm='up';pubRender()">Primo accesso</button></div>
-      <label class="pf"><span>Email</span><input id="plE" type="email" autocomplete="email" inputmode="email" placeholder="nome@email.it" value="${esc(PUB.lE||"")}"></label>
-      <label class="pf"><span>Password</span><input id="plP" type="password" autocomplete="${up?"new-password":"current-password"}" placeholder="${up?"Almeno 6 caratteri":"La tua password"}"></label>
-      <button class="cta" id="plGo" onclick="pubDoLogin()">${up?"Crea la mia password":"Accedi"}</button>
-      ${up?"":`<button class="plink" onclick="pubReset()">Password dimenticata?</button>`}
-      <p class="pmsg" id="plMsg" role="status"></p></div>`;
+    const soc=PUB.chi==="soc",up=PUB.lm==="up";
+    const icP='<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
+    const icS='<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>';
+    const hero=`<div class="lhero ${soc?"s":"g"}"><span class="lico">${soc?icS:icP}</span><small>${soc?"Area società":"Area giocatore"}</small><h1>${soc?(up?"Porta la tua società su FootCore":"Gestisci la tua società"):(up?"Attiva il tuo profilo":"Bentornato in campo")}</h1><p>${soc?(up?"Compila i dati: ti contattiamo per attivare la società. La prova è gratuita.":"Per presidenti, segretari, dirigenti e allenatori."):(up?"Usa l'email che hai dato alla tua società e scegli una password.":"Entra con l'email che hai dato alla tua società.")}</p></div>`;
+    const seg=`<div class="pseg"><button class="${up?"":"on"}" onclick="PUB.lm='in';pubRender()">Accedi</button><button class="${up?"on":""}" onclick="PUB.lm='up';pubRender()">${soc?"Registra la società":"Primo accesso"}</button></div>`;
+    const f=(id,l,t,ph,ac,v)=>`<label class="pf"><span>${l}</span><input id="${id}" type="${t}" ${ac?`autocomplete="${ac}"`:""} placeholder="${ph}" value="${esc(v||"")}"></label>`;
+    const form=soc&&up?`${f("rsS","Nome della società","text","Es. ASD Oneglia Calcio","organization")}${f("rsC","Città","text","Es. Imperia","address-level2")}${f("rsN","Il tuo nome e cognome","text","Nome e cognome","name")}
+      <label class="pf"><span>Il tuo ruolo</span><select id="rsR">${["Presidente","Segretario","Dirigente","Direttore sportivo","Allenatore","Altro"].map(x=>`<option>${x}</option>`).join("")}</select></label>
+      ${f("plE","Email","email","nome@email.it","email",PUB.lE)}${f("rsT","Telefono","tel","Per richiamarti","tel")}
+      <button class="cta" id="plGo" onclick="pubRichiesta()">Invia la richiesta</button>`
+      :`${f("plE","Email","email","nome@email.it","email",PUB.lE)}<label class="pf"><span>Password</span><input id="plP" type="password" autocomplete="${up?"new-password":"current-password"}" placeholder="${up?"Almeno 6 caratteri":"La tua password"}"></label>
+      <button class="cta" id="plGo" onclick="pubDoLogin()">${up?"Crea la mia password":"Accedi"}</button>${up?"":`<button class="plink" onclick="pubReset()">Password dimenticata?</button>`}`;
+    const altro=`<button class="plink" onclick="PUB.chi='${soc?"gio":"soc"}';PUB.lm='in';pubRender()">${soc?"Sei un giocatore? Entra da qui":"Sei della società? Entra da qui"}</button>`;
+    body=`<div class="plog${soc?" soc":""}">${hero}${seg}${form}<p class="pmsg" id="plMsg" role="status"></p>${altro}</div>`;
   } else if(PUB.vista==="entra"){
     const ico=p=>`<span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg></span>`;
     const F='font-family="-apple-system,system-ui,sans-serif"';
@@ -2377,7 +2395,7 @@ function pubRender(){
   }
   el.innerHTML=pubCSS+`<div class="lg">${body}</div>`+pubBar();PUB.mmLast=PUB.mm;
 }
-function closePublic(){try{sessionStorage.setItem("fc_app","1")}catch(e){}const el=$("#pub");if(el)el.classList.remove("on");if(location.hash==="#pubblico")history.replaceState(null,"",location.pathname+location.search);if(!S.session){if(SB&&SB.auth)SB.auth.getSession().then(({data})=>data&&data.session?startSession(data.session):showLogin());else showLogin()}}
+function closePublic(){try{sessionStorage.setItem("fc_app","1")}catch(e){}const el=$("#pub");if(el)el.classList.remove("on");if(location.hash==="#pubblico")history.replaceState(null,"",location.pathname+location.search);if(!S.session){const toLog=()=>{try{sessionStorage.removeItem("fc_app")}catch(e){}PUB.lm="in";PUB.vista="login";showPublic()};if(SB&&SB.auth)SB.auth.getSession().then(({data})=>data&&data.session?startSession(data.session):toLog());else toLog()}}
 // ---------- schermata di accesso
 function showLogin(mode){
   let el=$("#login");if(!el){el=document.createElement("div");el.id="login";document.body.appendChild(el)}
