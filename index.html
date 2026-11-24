@@ -430,7 +430,7 @@ html.v2 .dvb.on{animation:pop .32s var(--ease)}
 .gv{font-size:22px;font-weight:800;letter-spacing:.04em;color:var(--muted)}
 .gf{margin-top:auto;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px}.gf .lk{font-size:14px;font-weight:600;color:var(--tint)}
 .glist .grow{display:grid;grid-template-columns:48px 1fr auto;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;position:relative}
-.glist .grow+.grow{border-top:1px solid var(--line)}.glist .grow:active{background:var(--fill)}
+.glist .grow+.grow{border-top:1px solid var(--line)}.glist .grow.nochev::after{display:none}.glist .grow:active{background:var(--fill)}
 .glist .grow.cur{background:color-mix(in srgb,var(--tint) 8%,transparent);box-shadow:inset 3px 0 0 var(--tint)}
 .gn{font-weight:800;font-size:14px;color:var(--text);line-height:1.15}.gn small{display:block;font-weight:500;font-size:11.5px;color:var(--muted)}
 .tt{display:flex;flex-direction:column;gap:6px;min-width:0}.tl{display:flex;align-items:center;gap:8px;min-width:0;font-size:14.5px;color:var(--muted)}.tl em{font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tl.w{color:var(--text);font-weight:700}.tl .tlogo{flex:none}
@@ -670,8 +670,21 @@ function vAllenamenti(){
   </div>`;
 }
 
+// partite di tutto il girone (dai Comunicati Ufficiali LND, aggiornati in automatico)
+function girDay(m,g,i,idx){
+  const G=S.info.girone;if(!G)return"";
+  const near=(d)=>d&&m.data&&Math.abs((new Date(d)-new Date(m.data))/864e5)<=3;
+  let rs=(G.risultati||[]).filter(r=>g?r.giornata===g:near(r.data)),played=true;
+  if(!rs.length){rs=(G.programma||[]).filter(r=>g?r.giornata===g:near(r.data));played=false}
+  const isUs=n=>n===TEAM||tkey(n)===tkey(TEAM);
+  rs=rs.filter(r=>!isUs(r.casa)&&!isUs(r.ospite));
+  if(!rs.length)return `<div class="gday" data-gd="${i}" ${i===idx?"":"hidden"}></div>`;
+  const w=(a,b)=>played&&+a>+b?" w":"";
+  return `<div class="gday" data-gd="${i}" ${i===idx?"":"hidden"}><h3>${g?"Giornata "+g:"Stessa giornata"} · altre partite</h3><div class="list glist">${rs.map(r=>`<div class="grow nochev" style="cursor:default"><span class="gn">${played?esc(fmtD(r.data||"").replace(/\s\d{4}$/,"").replace(/^\D+\s/,"")):esc((r.ora||"").replace(":","."))||"–"}<small>${played?"finale":esc(fmtD(r.data||"").replace(/\s\d{4}$/,""))}</small></span><span class="tt"><span class="tl${w(r.gc,r.go)}">${badge(r.casa,20)}<em>${esc(r.casa)}</em></span><span class="tl${w(r.go,r.gc)}">${badge(r.ospite,20)}<em>${esc(r.ospite)}</em></span></span>${played?`<span class="ss"><b class="${w(r.gc,r.go)}">${r.gc}</b><b class="${w(r.go,r.gc)}">${r.go}</b></span>`:`<span class="ss tm">VS</span>`}</div>`).join("")}</div>
+  <p class="muted small" style="margin:6px 4px 0">Fonte: Comunicati Ufficiali LND Liguria${G.cu?" · ultimo n. "+esc(G.cu):""} · aggiornamento automatico</p></div>`;
+}
 function initGiornate(){const car=$("#gcar"),ch=$("#gchips");if(!car||!ch)return;
-  const set=i=>{ch.querySelectorAll(".gchip").forEach(b=>b.classList.toggle("on",+b.dataset.gi===i));const b=ch.querySelector(`[data-gi="${i}"]`);if(b)ch.scrollTo({left:b.offsetLeft-ch.clientWidth/2+b.clientWidth/2,behavior:"smooth"})};
+  const set=i=>{ch.querySelectorAll(".gchip").forEach(b=>b.classList.toggle("on",+b.dataset.gi===i));document.querySelectorAll(".gday").forEach(d=>d.hidden=+d.dataset.gd!==i);const b=ch.querySelector(`[data-gi="${i}"]`);if(b)ch.scrollTo({left:b.offsetLeft-ch.clientWidth/2+b.clientWidth/2,behavior:"smooth"})};
   const go2=(i,smooth)=>{const c=car.children[i];if(c)car.scrollTo({left:c.offsetLeft-car.offsetLeft-16+16,behavior:smooth?"smooth":"auto"})};
   const st=+car.dataset.start||0;go2(st,false);set(st);
   let t;car.addEventListener("scroll",()=>{clearTimeout(t);t=setTimeout(()=>{const i=Math.round(car.scrollLeft/(car.children[0].offsetWidth+12));set(Math.max(0,Math.min(i,car.children.length-1)));const m=car.children[i];S.gSel=m?null:S.gSel},90)},{passive:true});
@@ -695,11 +708,12 @@ function vPartite(){
     setTimeout(initGiornate,0);
     body=all.length?`<div class="gchips" id="gchips">${all.map((m,i)=>`<button class="gchip ${i===idx?"on":""}" data-gi="${i}">${gN(m)?"G"+gN(m):i+1}</button>`).join("")}</div>
     <div class="gcar" id="gcar" data-start="${idx}">${all.map(card).join("")}</div>
+    ${all.map((m,i)=>girDay(m,gN(m),i,idx)).join("")}
     <h3>Tutte le giornate</h3><div class="list glist">${all.map(row).join("")}</div>`:`<div class="card muted small" style="margin-top:12px">Nessuna partita in calendario.</div>`;
   }else if(tab==="cla"){
     const cl=(S.info.classifica&&S.info.classifica.righe)||[];
     const zc={promo:"var(--green)",playoff:"var(--blue)",playout:"var(--amber)",retro:"var(--red)"};
-    body=cl.length?`<div class="card" style="padding:6px 8px;margin-top:12px"><table class="cl"><tr><th style="text-align:left">#  Squadra</th><th>PT</th><th>G</th><th>V</th><th>N</th><th>P</th><th>DR</th></tr>${cl.map(r=>`<tr class="${r.me?"me":""}"><td class="tm"><span style="display:flex;align-items:center;gap:8px"><span class="zone" style="background:${zc[r.zona]||"transparent"};margin:0"></span>${r.pos}. ${badge(r.squadra,22)}<span>${esc(r.squadra)}</span></span></td><td class="pt">${r.pt}</td><td>${r.g}</td><td>${r.v}</td><td>${r.n}</td><td>${r.p}</td><td>${r.dr}</td></tr>`).join("")}</table></div><p class="muted small" style="padding:0 6px">Fonte: Tuttocampo · aggiornata al ${esc(fmtD(S.info.classifica.aggiornata))}. <span style="color:var(--green)">■</span> promozione <span style="color:var(--blue)">■</span> playoff <span style="color:var(--amber)">■</span> playout <span style="color:var(--red)">■</span> retrocessione</p>${S.canWrite?`<button class="btn sm" onclick="editClassifica()">Aggiorna classifica</button>`:""}`:`<div class="card muted small" style="margin-top:12px">Classifica non ancora inserita.</div>${S.canWrite?`<button class="btn sm" style="margin-top:10px" onclick="editClassifica()">Inserisci classifica</button>`:""}`;
+    body=cl.length?`<div class="card" style="padding:6px 8px;margin-top:12px"><table class="cl"><tr><th style="text-align:left">#  Squadra</th><th>PT</th><th>G</th><th>V</th><th>N</th><th>P</th><th>DR</th></tr>${cl.map(r=>`<tr class="${r.me?"me":""}"><td class="tm"><span style="display:flex;align-items:center;gap:8px"><span class="zone" style="background:${zc[r.zona]||"transparent"};margin:0"></span>${r.pos}. ${badge(r.squadra,22)}<span>${esc(r.squadra)}</span></span></td><td class="pt">${r.pt}</td><td>${r.g}</td><td>${r.v}</td><td>${r.n}</td><td>${r.p}</td><td>${r.dr}</td></tr>`).join("")}</table></div><p class="muted small" style="padding:0 6px">Fonte: Tuttocampo · aggiornata al ${esc(fmtD(S.info.classifica.aggiornata))}${S.info.classifica.fonte?` · Comunicato Ufficiale LND n. ${esc(S.info.classifica.cu)}`:""}. <span style="color:var(--green)">■</span> promozione <span style="color:var(--blue)">■</span> playoff <span style="color:var(--amber)">■</span> playout <span style="color:var(--red)">■</span> retrocessione</p>${S.canWrite?`<button class="btn sm" onclick="editClassifica()">Aggiorna classifica</button>`:""}`:`<div class="card muted small" style="margin-top:12px">Classifica non ancora inserita.</div>${S.canWrite?`<button class="btn sm" style="margin-top:10px" onclick="editClassifica()">Inserisci classifica</button>`:""}`;
   }else{
     const rows=S.players.map(p=>({p,s:playerStats(p.id)})).sort((a,b)=>b.s.gol-a.s.gol||b.s.conv-a.s.conv);
     const played=S.matches.filter(m=>m.golFatti!=null&&m.golFatti!=="");
