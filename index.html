@@ -529,7 +529,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-9";
+const BUILD="2026-11-24-11";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2098,7 +2098,7 @@ async function startSession(session){
 }
 // ---------- pagina pubblica FootCore (senza account): solo dati pubblici, letti con footcore_pubblico
 // ---------- portale pubblico FootCore: campionati, risultati e classifiche per tutti, senza account
-const PUB={camp:null,id:null,tab:"cl",q:"",sq:null,sez:"dil",vista:"home",reg:"Liguria",chi:"gio"};
+const PUB={camp:null,id:null,tab:"cl",q:"",sq:null,sez:"dil",vista:"partite",acc:null,reg:"Liguria",chi:"gio"};
 const REGIONI=["Abruzzo","Basilicata","Calabria","Campania","Emilia-Romagna","Friuli-Venezia Giulia","Lazio","Liguria","Lombardia","Marche","Molise","Piemonte","Puglia","Sardegna","Sicilia","Toscana","Trentino-Alto Adige","Umbria","Valle d'Aosta","Veneto"];
 const PUB_SEZ=[{k:"dil",l:"Dilettanti",re:/categoria|eccellenza|promozione|juniores|amatori/i},{k:"gio",l:"Giovanili",re:/allievi|giovanissimi|esordienti|pulcini|under|u1\d/i},{k:"c5",l:"Calcio a 5",re:/calcio a 5|futsal/i},{k:"fem",l:"Femminile",re:/femminil/i}];
 // stemma generato: iniziali su un cerchio colorato (il logo vero lo carica la società)
@@ -2107,55 +2107,60 @@ function sqColor(n){let h=0;for(const c of String(n||""))h=(h*31+c.charCodeAt(0)
 function sqBadge(n,sz){sz=sz||34;const h=sqColor(n);return `<span aria-hidden="true" style="flex:none;width:${sz}px;height:${sz}px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.round(sz*.38)}px;letter-spacing:-.02em;color:#fff;background:hsl(${h} 55% 38%);box-shadow:inset 0 0 0 2px hsl(${h} 55% 52%)">${esc(sqIniz(n))}</span>`}
 function campBadge(c,sz){sz=sz||40;const t=/seconda/i.test(c.categoria)?"2ª":/prima/i.test(c.categoria)?"1ª":/terza/i.test(c.categoria)?"3ª":(c.categoria.match(/U\d\d/i)||[c.categoria.slice(0,2)])[0].toUpperCase();return `<span aria-hidden="true" style="flex:none;width:${sz}px;height:${sz}px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.round(sz*.34)}px;background:#fff;color:#157A3A;box-shadow:inset 0 0 0 3px #157A3A">${esc(t)}</span>`}
 const pubCSS=`<style>
-#pub{background:#0f2a1c;color:#fff}#pub .lg{max-width:680px;padding:calc(20px + var(--safe-t)) 14px 110px}
+#pub{--bg:#f2f2f7;--card:#fff;--fill:rgba(118,118,128,.12);--line:rgba(60,60,67,.14);--text:#000;--muted:rgba(60,60,67,.6);--tint:#248a3d;color-scheme:light;background:var(--bg);color:var(--text)}#pub .lg{max-width:680px;padding:calc(20px + var(--safe-t)) 14px 110px}
 #pub .ph{display:flex;align-items:center;gap:10px;margin:0 4px 6px}#pub .ph h1{font-size:30px;margin:0;letter-spacing:-.02em}
-#pub .sub{color:#b9d3c3;margin:0 4px 14px;font-size:15px}
+#pub .sub{color:var(--muted);margin:0 4px 14px;font-size:15px}
 #pub .tabs{display:flex;gap:4px;overflow-x:auto;margin:0 -14px 14px;padding:0 14px;scrollbar-width:none}#pub .tabs::-webkit-scrollbar{display:none}
-#pub .tabs button{flex:none;border:0;background:none;color:#cfe3d6;font-size:16px;font-weight:600;padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer}
-#pub .tabs button.on{color:#6ee787;border-bottom-color:#6ee787}
-#pub .cc{display:flex;align-items:center;gap:14px;background:#0b1f14;border-radius:22px;padding:14px 16px;margin-bottom:10px;cursor:pointer;color:#fff;border:0;width:100%;text-align:left;font:inherit}
-#pub .cc b{font-size:18px;display:block}#pub .cc small{color:#9fbfac;font-size:13px}#pub .cc .chev{margin-left:auto;color:#9fbfac;font-size:22px}
-#pub h2{font-size:19px;margin:22px 4px 10px;color:#fff}
-#pub .card{background:#0b1f14;color:#fff;border-radius:22px;box-shadow:none}
-#pub .muted{color:#9fbfac}#pub table.cl td,#pub table.cl th{border-color:#1f3a2a}#pub table.cl th{color:#9fbfac}
-#pub .pubrow{border-top-color:#1f3a2a}
-#pub .mrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:12px 4px;border-top:1px solid #1f3a2a}#pub .mrow:first-child{border-top:0}
+#pub .tabs button{flex:none;border:0;background:none;color:var(--muted);font-size:16px;font-weight:600;padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer}
+#pub .tabs button.on{color:var(--tint);border-bottom-color:var(--tint)}
+#pub .cc{box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;background:var(--card);border-radius:22px;padding:14px 16px;margin-bottom:10px;cursor:pointer;color:var(--text);border:0;width:100%;text-align:left;font:inherit}
+#pub .cc b{font-size:18px;display:block}#pub .cc small{color:var(--muted);font-size:13px}#pub .cc .chev{margin-left:auto;color:var(--muted);font-size:22px}
+#pub h2{font-size:19px;margin:22px 4px 10px;color:var(--text)}
+#pub .card{background:var(--card);color:var(--text);border-radius:18px;box-shadow:var(--shadow)}
+#pub .muted{color:var(--muted)}#pub table.cl td,#pub table.cl th{border-color:var(--fill)}#pub table.cl th{color:var(--muted)}
+#pub .pubrow{border-top-color:var(--fill)}
+#pub .mrow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:12px 4px;border-top:1px solid var(--fill)}#pub .mrow:first-child{border-top:0}
 #pub .mrow .t{display:flex;align-items:center;gap:8px;min-width:0;font-size:14px;font-weight:600}#pub .mrow .t span.n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #pub .mrow .t.r{justify-content:flex-end;text-align:right}#pub .mrow .sc{font-weight:800;font-size:17px;min-width:58px;text-align:center;font-variant-numeric:tabular-nums}
-#pub .mrow .sc small{display:block;font-weight:500;font-size:12px;color:#9fbfac}
-#pub .seg{background:#0b1f14}#pub .seg button{color:#cfe3d6}#pub .seg button.on{background:#1f3a2a;color:#fff}
-#pub .f input{background:#0b1f14;color:#fff;border-color:#1f3a2a}#pub .f label{color:#9fbfac}
-#pub .pbar{position:fixed;left:0;right:0;bottom:0;z-index:62;background:#0b1f14;border-top:1px solid #1f3a2a;display:flex;justify-content:space-around;padding:8px 6px calc(8px + var(--safe-b,0px))}
-#pub .pbar button{background:none;border:0;color:#9fbfac;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;min-width:64px;padding:4px}
-#pub .pbar button.on{color:#6ee787}#pub .pbar svg{width:24px;height:24px}
-#pub .regsel{appearance:none;-webkit-appearance:none;background:transparent;border:0;color:#fff;font-size:30px;font-weight:800;letter-spacing:-.02em;padding:0 30px 0 0;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right center;background-size:22px;font-family:inherit}
+#pub .mrow .sc small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
+#pub .seg{background:var(--card)}#pub .seg button{color:var(--muted)}#pub .seg button.on{background:var(--fill);color:var(--text)}
+#pub .f input{background:var(--card);color:var(--text);border-color:var(--fill)}#pub .f label{color:var(--muted)}
+#pub .pbar{position:fixed;left:0;right:0;bottom:0;z-index:62;background:rgba(249,249,249,.85);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:.5px solid var(--line);display:flex;justify-content:space-around;padding:8px 6px calc(8px + var(--safe-b,0px))}
+#pub .pbar button{background:none;border:0;color:var(--muted);font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;min-width:64px;padding:4px}
+#pub .pbar button.on{color:var(--tint)}#pub .pbar svg{width:24px;height:24px}
+#pub .regsel{appearance:none;-webkit-appearance:none;background:transparent;border:0;color:var(--text);font-size:30px;font-weight:800;letter-spacing:-.02em;padding:0 30px 0 0;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right center;background-size:22px;font-family:inherit}
 #pub .regsel option{color:#000}
-#pub .pill2{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#0b1f14;border-radius:999px;padding:5px;margin:4px 0 16px}
-#pub .pill2 button{border:0;border-radius:999px;padding:12px;font-weight:700;font-size:16px;background:none;color:#cfe3d6;cursor:pointer}#pub .pill2 button.on{background:#6ee787;color:#0b1f14}
+#pub .pill2{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--card);border-radius:999px;padding:5px;margin:4px 0 16px}
+#pub .pill2 button{border:0;border-radius:999px;padding:12px;font-weight:700;font-size:16px;background:none;color:var(--muted);cursor:pointer}#pub .pill2 button.on{background:var(--tint);color:#fff}
 #pub .car{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -14px;padding:0 14px 6px;scrollbar-width:none}#pub .car::-webkit-scrollbar{display:none}
-#pub .car>div{flex:0 0 84%;scroll-snap-align:center;background:#0b1f14;border-radius:24px;padding:18px;min-height:150px}
-#pub .car .ic{width:44px;height:44px;border-radius:50%;background:#1f3a2a;color:#6ee787;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
-#pub .car b{font-size:18px;display:block;margin-bottom:4px}#pub .car p{margin:0;color:#b9d3c3;font-size:15px;line-height:1.4}
-#pub .dots{display:flex;justify-content:center;gap:6px;margin:10px 0 4px}#pub .dots i{width:7px;height:7px;border-radius:50%;background:#1f3a2a}
-#pub .cta{display:block;width:100%;border:0;border-radius:999px;padding:15px;font-weight:800;font-size:17px;background:#6ee787;color:#0b1f14;cursor:pointer;margin-top:14px}
-#pub .cta.sec{background:#1f3a2a;color:#fff;margin-top:10px}
-#pub .plan{background:#0b1f14;border-radius:24px;padding:18px;margin-bottom:10px;border:2px solid transparent}#pub .plan.hl{border-color:#6ee787}
-#pub .plan ul{margin:8px 0 0;padding-left:18px;color:#cfe3d6;font-size:15px;line-height:1.55}
-#pub .tag2{display:inline-block;background:#6ee787;color:#0b1f14;font-weight:800;font-size:12px;border-radius:999px;padding:3px 10px;margin-left:6px;vertical-align:middle}
+#pub .car>div{flex:0 0 84%;scroll-snap-align:center;background:var(--card);border-radius:24px;padding:18px;min-height:150px}
+#pub .car .ic{width:44px;height:44px;border-radius:50%;background:var(--fill);color:var(--tint);display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+#pub .car b{font-size:18px;display:block;margin-bottom:4px}#pub .car p{margin:0;color:var(--muted);font-size:15px;line-height:1.4}
+#pub .dots{display:flex;justify-content:center;gap:6px;margin:10px 0 4px}#pub .dots i{width:7px;height:7px;border-radius:50%;background:var(--fill)}
+#pub .cta{display:block;width:100%;border:0;border-radius:999px;padding:15px;font-weight:700;font-size:17px;background:var(--tint);color:#fff;cursor:pointer;margin-top:14px}
+#pub .cta.sec{background:var(--fill);color:var(--text);margin-top:10px}
+#pub .plan{background:var(--card);border-radius:24px;padding:18px;margin-bottom:10px;border:2px solid transparent}#pub .plan.hl{border-color:var(--tint)}
+#pub .plan ul{margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:15px;line-height:1.55}
+#pub .tag2{display:inline-block;background:var(--tint);color:#fff;font-weight:800;font-size:12px;border-radius:999px;padding:3px 10px;margin-left:6px;vertical-align:middle}
 #pub .mock{display:flex;align-items:flex-end;justify-content:center;gap:14px;margin:6px 0 8px}
 #pub .lap{width:68%;aspect-ratio:16/10;background:#e9efe9;border:8px solid #22302a;border-bottom-width:12px;border-radius:14px;overflow:hidden;display:flex}
 #pub .tel{width:26%;aspect-ratio:9/19;background:#f2f2f7;border:6px solid #22302a;border-radius:22px;overflow:hidden;padding:8px 6px;display:flex;flex-direction:column;gap:5px}
-#pub .rbtn{border:0;border-radius:999px;background:#1f3a2a;color:#fff;font-weight:700;padding:9px 16px;cursor:pointer;font-size:15px}
+#pub .acct{margin-left:auto;width:42px;height:42px;border-radius:50%;border:0;background:var(--fill);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px}
+#pub .regchip{position:relative;display:inline-flex;align-items:center;gap:6px;background:var(--fill);border-radius:999px;padding:8px 14px;font-weight:700;margin:2px 4px 12px}#pub .regchip select{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:16px}
+#pub .rbtn{border:0;border-radius:999px;background:var(--fill);color:var(--text);font-weight:700;padding:9px 16px;cursor:pointer;font-size:15px}
 </style>`;
 function pubEl(){let el=$("#pub");if(!el){el=document.createElement("div");el.id="pub";document.body.appendChild(el)}el.classList.add("on");return el}
 async function pubLoad(){if(PUB.camp)return PUB.camp;try{if(!SB)SB=window.supabase.createClient(CONFIG.url,CONFIG.key);const r=await SB.from("campionati").select("id,categoria,girone,delegazione,stagione,dati,aggiornato").order("categoria");PUB.camp=r.data||[]}catch(e){PUB.camp=[]}return PUB.camp}
 function pubBack(){if(PUB.sq){PUB.sq=null}else{PUB.id=null}pubRender()}
-async function showPublic(){pubEl().innerHTML=pubCSS+`<div class="lg"><p class="sub">Caricamento…</p></div>`;await pubLoad();pubRender()}
+async function showPublic(){pubEl().innerHTML=pubCSS+`<div class="lg"><p class="sub">Caricamento…</p></div>`;await pubLoad();try{const {data}=await SB.auth.getSession();if(data&&data.session){PUB.loggato=true;PUB.email=data.session.user.email;const r=await SB.rpc("my_access");PUB.acc=r.data||[]}}catch(e){}pubRender()}
 function pubGo(v){PUB.vista=v;PUB.id=null;PUB.sq=null;pubRender()}
-function pubBar(){const b=(k,l,ico)=>`<button class="${PUB.vista===k&&!PUB.id?"on":""}" onclick="${k==="entra"&&S.session?"closePublic()":`pubGo('${k}')`}">${ico}${l}</button>`;const s=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
-  return `<nav class="pbar">${b("home","Campionati",s('<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'))}${b("partite","Partite",s('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'))}${b("cerca","Cerca",s('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'))}${b("entra",S.session?"La mia app":"Accedi",s('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>'))}</nav>`}
-function pubTop(t,sub,back){return `<div class="ph">${back?`<button class="rbtn" onclick="pubBack()" aria-label="Indietro">‹</button>`:`<img src="assets/footcore-mark.svg" alt="" width="34" height="34">`}<h1>${t}</h1></div>${sub?`<p class="sub">${sub}</p>`:""}`}
-function mrow(m,evid){const fatto=m.gc!=null;const t=(n,r)=>`<div class="t${r?" r":""}" style="${evid===n?"color:#6ee787":""}">${r?`<span class="n">${esc(n)}</span>${sqBadge(n,26)}`:`${sqBadge(n,26)}<span class="n">${esc(n)}</span>`}</div>`;
+function pubBar(){const b=(k,l,ico)=>`<button class="${PUB.vista===k&&!PUB.id?"on":""}" onclick="pubGo('${k}')">${ico}${l}</button>`;const s=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  return `<nav class="pbar">${b("partite","Partite",s('<circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/>'))}${b("home","Campionati",s('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>'))}${b("cerca","Cerca",s('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'))}</nav>`}
+function pubAcct(){const ini=(S.session||PUB.loggato)&&PUB.acc&&PUB.acc[0]&&PUB.acc[0].nome?sqIniz(PUB.acc[0].nome):"";return `<button class="acct" onclick="pubGo('account')" aria-label="Account">${S.session||PUB.loggato?(ini?`<b>${esc(ini)}</b>`:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`):`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`}</button>`}
+function pubBrand(){return `<div class="ph"><img src="assets/footcore-mark.svg" alt="" width="36" height="36"><h1>Foot<span style="color:var(--tint)">Core</span></h1>${pubAcct()}</div>`}
+function regChip(){return `<span class="regchip"><span>${esc(PUB.reg)}</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><select aria-label="Scegli la regione" onchange="PUB.reg=this.value;pubRender()">${REGIONI.map(r=>`<option ${r===PUB.reg?"selected":""}>${r}</option>`).join("")}</select></span>`}
+function pubTop(t,sub,back){return `<div class="ph">${back?`<button class="rbtn" onclick="pubBack()" aria-label="Indietro">‹</button>`:`<img src="assets/footcore-mark.svg" alt="" width="34" height="34">`}<h1>${t}</h1>${back?"":pubAcct()}</div>${sub?`<p class="sub">${sub}</p>`:""}`}
+function mrow(m,evid){const fatto=m.gc!=null;const t=(n,r)=>`<div class="t${r?" r":""}" style="${evid===n?"color:var(--tint)":""}">${r?`<span class="n">${esc(n)}</span>${sqBadge(n,26)}`:`${sqBadge(n,26)}<span class="n">${esc(n)}</span>`}</div>`;
   return `<div class="mrow">${t(m.casa)}<div class="sc">${fatto?`${m.gc} - ${m.go}`:esc(m.ora||"–")}<small>${esc(fmtD(m.data).replace(/ \d{4}$/,""))}</small></div>${t(m.ospite,1)}</div>`}
 function pubCampSez(){const s=PUB_SEZ.find(x=>x.k===PUB.sez);return (PUB.camp||[]).filter(c=>s.re.test(c.categoria))}
 function pubRender(){
@@ -2177,16 +2182,24 @@ function pubRender(){
         :(P.length?perG(P,false):`<div class="card muted" style="padding:16px">Nessuna partita in programma.</div>`))}
     body+=`<p class="muted" style="font-size:13px;margin:16px 6px 0">Fonte: ${esc(d.fonte||"LND")}.</p>`;
   } else if(PUB.vista==="partite"){
-    const oggi=new Date().toISOString().slice(0,10);const tutte=[];pubCampSez().forEach(c=>{(c.dati.risultati||[]).concat(c.dati.programma||[]).forEach(m=>tutte.push({...m,cat:c}))});
+    const oggi=new Date().toISOString().slice(0,10);const tutte=[];(PUB.reg==="Liguria"?pubCampSez():[]).forEach(c=>{(c.dati.risultati||[]).concat(c.dati.programma||[]).forEach(m=>tutte.push({...m,cat:c}))});
     const prossime=tutte.filter(m=>m.gc==null&&(m.data||"")>=oggi).sort((a,b)=>(a.data+(a.ora||"")).localeCompare(b.data+(b.ora||"")));
     const ultime=tutte.filter(m=>m.gc!=null).sort((a,b)=>(b.data||"").localeCompare(a.data||"")).slice(0,30);
     const grp=(arr)=>{const g={};arr.forEach(m=>{const k=m.cat.id;(g[k]=g[k]||{c:m.cat,l:[]}).l.push(m)});return Object.values(g).map(x=>`<button class="cc" style="padding:10px 14px;margin:0 0 6px" onclick="PUB.id='${esc(x.c.id)}';PUB.tab='cl';pubRender()">${campBadge(x.c,30)}<div><b style="font-size:15px">${esc(x.c.categoria)}</b><small>Girone ${esc(x.c.girone)}</small></div><span class="chev">›</span></button><div class="card" style="padding:4px 12px;margin-bottom:14px">${x.l.map(m=>mrow(m)).join("")}</div>`).join("")};
-    body=pubTop("Partite","Prossime gare e ultimi risultati")+tabs+`<h2>In programma</h2>${prossime.length?grp(prossime.slice(0,40)):`<div class="card muted" style="padding:16px">Nessuna partita in programma.</div>`}<h2>Ultimi risultati</h2>${ultime.length?grp(ultime):`<div class="card muted" style="padding:16px">Nessun risultato.</div>`}`;
+    body=pubBrand()+regChip()+tabs+`<h2>In programma</h2>${prossime.length?grp(prossime.slice(0,40)):`<div class="card muted" style="padding:16px">Nessuna partita in programma.</div>`}<h2>Ultimi risultati</h2>${ultime.length?grp(ultime):`<div class="card muted" style="padding:16px">Nessun risultato.</div>`}`;
   } else if(PUB.vista==="cerca"){
     const q=PUB.q.trim().toLowerCase();const trov=[];
     if(q.length>1)C.forEach(c=>{const nomi=new Set();((c.dati.classifica||{}).righe||[]).forEach(r=>nomi.add(r.squadra));[...nomi].filter(n=>n&&n.toLowerCase().includes(q)).forEach(n=>trov.push({n,c}))});
     body=pubTop("Cerca","Squadre e campionati")+`<div class="f"><label for="pubQ">Nome della squadra</label><input id="pubQ" type="search" placeholder="Es. Sanremese" value="${esc(PUB.q)}" oninput="PUB.q=this.value;pubRender();const i=$('#pubQ');i.focus();i.setSelectionRange(i.value.length,i.value.length)"></div>
       ${q.length>1?(trov.length?trov.slice(0,40).map(x=>`<button class="cc" onclick="PUB.id='${esc(x.c.id)}';PUB.sq=${esc(JSON.stringify(x.n))};pubRender()">${sqBadge(x.n,40)}<div><b style="font-size:16px">${esc(x.n)}</b><small>${esc(x.c.categoria)} · Girone ${esc(x.c.girone)}</small></div><span class="chev">›</span></button>`).join(""):`<div class="card muted" style="padding:16px">Nessuna squadra trovata.</div>`):`<p class="sub">Scrivi almeno due lettere.</p>`}`;
+  } else if(PUB.vista==="account"){
+    if(!S.session&&!PUB.loggato){PUB.vista="entra";return pubRender()}
+    if(!PUB.acc){body=pubTop("Il mio account","")+`<p class="sub">Caricamento…</p>`;setTimeout(async()=>{try{const r=await SB.rpc("my_access");PUB.acc=r.data||[]}catch(e){PUB.acc=[]}pubRender()},0)}
+    else{const R={proprietario:"Proprietario",presidente:"Presidente",amministratore:"Amministratore",segretario:"Segretario",direttore_sportivo:"Direttore sportivo",resp_giovanile:"Responsabile giovanile",allenatore:"Allenatore",vice_allenatore:"Vice allenatore",preparatore_atletico:"Preparatore atletico",preparatore_portieri:"Preparatore portieri",dirigente:"Dirigente",medico:"Medico",giocatore:"Giocatore",genitore:"Genitore"};
+      const nome=(PUB.acc.find(a=>a.nome)||{}).nome||"";
+      body=pubTop("Il mio account","")+`<div class="cc" style="cursor:default">${sqBadge(nome||"?",48)}<div><b>${esc(nome||"Account")}</b><small>${esc((PUB.email||""))}</small></div></div>
+        <h2>Dove giochi e i tuoi ruoli</h2>${PUB.acc.length?PUB.acc.map(a=>`<button class="cc" onclick="closePublic()">${sqBadge(a.team||a.club,40)}<div><b>${esc(a.team||a.club)}</b><small>${esc(a.club)} · ${esc(R[a.ruolo]||a.ruolo)}</small></div><span class="chev">›</span></button>`).join(""):`<div class="card muted" style="padding:16px">Il tuo account non è ancora collegato a una squadra. Chiedi alla tua società di aggiungerti con questa email.</div>`}
+        ${PUB.acc.length?`<button class="cta" onclick="closePublic()">Apri la gestione della squadra</button>`:""}<button class="cta sec" onclick="logout()">Esci</button>`}
   } else if(PUB.vista==="entra"){
     const ico=p=>`<span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg></span>`;
     const card=(i,t,d)=>`<div>${ico(i)}<b>${t}</b><p>${d}</p></div>`;
@@ -2215,12 +2228,10 @@ function pubRender(){
   } else {
     const L=PUB.reg==="Liguria"?pubCampSez():[];
     const oggi=new Date().toISOString().slice(0,10);
-    body=`<div class="ph"><span style="position:relative;display:inline-flex;align-items:center;gap:8px"><h1>${esc(PUB.reg)}</h1><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><select id="pubReg" aria-label="Scegli la regione" onchange="PUB.reg=this.value;pubRender()" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;font-size:16px">${REGIONI.map(r=>`<option ${r===PUB.reg?"selected":""}>${r}</option>`).join("")}</select></span><img src="assets/footcore-mark.svg" alt="FootCore" width="34" height="34" style="margin-left:auto"></div><p class="sub">Scegli categoria e girone${PUB.reg==="Liguria"?" · Delegazione di Imperia":""}</p>${tabs}
+    body=pubBrand()+regChip()+`<p class="sub">Scegli categoria e girone${PUB.reg==="Liguria"?" · Delegazione di Imperia":""}</p>${tabs}
       ${PUB.reg!=="Liguria"?`<div class="card" style="padding:18px"><b>${esc(PUB.reg)}: in arrivo</b><p class="muted" style="margin:6px 0 0">Stiamo aggiungendo i campionati di questa regione. Per ora trovi la Liguria.</p></div>`:L.length?L.map(c=>{const r=c.dati.risultati||[],cl=(c.dati.classifica||{}).righe||[];const ult=r.length?Math.max(...r.map(x=>x.giornata||0)):0;const prox=(c.dati.programma||[]).filter(m=>(m.data||"")>=oggi).length;
         return `<button class="cc" onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()">${campBadge(c)}<div><b>${esc(c.categoria)}</b><small>Girone ${esc(c.girone)}${cl.length?` · ${cl.length} squadre`:""}${ult?` · ${ult}ª giornata giocata`:""}${prox?` · ${prox} gare in programma`:""}</small></div><span class="chev">›</span></button>`}).join("")
         :`<div class="card" style="padding:18px"><b>In arrivo</b><p class="muted" style="margin:6px 0 0">Stiamo aggiungendo questi campionati. Per ora trovi Dilettanti e Giovanili della Delegazione di Imperia.</p></div>`}
-      ${(()=>{const pr=[],ri=[];L.forEach(c=>{(c.dati.programma||[]).filter(m=>(m.data||"")>=oggi).forEach(m=>pr.push(m));(c.dati.risultati||[]).forEach(m=>ri.push(m))});pr.sort((a,b)=>(a.data+(a.ora||"")).localeCompare(b.data+(b.ora||"")));ri.sort((a,b)=>(b.data||"").localeCompare(a.data||""));
-        return (pr.length?`<h2>Prossime partite</h2><div class="card" style="padding:4px 12px">${pr.slice(0,6).map(m=>mrow(m)).join("")}</div>`:"")+(ri.length?`<h2>Ultimi risultati</h2><div class="card" style="padding:4px 12px">${ri.slice(0,6).map(m=>mrow(m)).join("")}</div>`:"")+(pr.length||ri.length?`<div style="text-align:center;margin-top:12px"><button class="rbtn" onclick="pubGo('partite')">Tutte le partite</button></div>`:"")})()}
       <p class="muted" style="font-size:13px;margin:16px 6px 0">Risultati e classifiche dai Comunicati Ufficiali LND Liguria, aggiornati ogni giorno.</p>`;
   }
   el.innerHTML=pubCSS+`<div class="lg">${body}</div>`+pubBar();
