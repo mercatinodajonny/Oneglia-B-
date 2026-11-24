@@ -529,7 +529,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-4";
+const BUILD="2026-11-24-5";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2087,8 +2087,7 @@ async function initDb(){
   SB=window.supabase.createClient(CONFIG.url,CONFIG.key,{auth:{persistSession:true,autoRefreshToken:true}});
   const {data:{session}}=await SB.auth.getSession();
   SB.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_OUT"){location.reload()}});
-  if(location.hash==="#pubblico"){showPublic();return}
-  if(!session){showLogin();return}
+  if(location.hash==="#pubblico"||!session){showPublic();return}
   await startSession(session);
 }
 async function startSession(session){
@@ -2100,11 +2099,11 @@ async function startSession(session){
 async function showPublic(){
   let el=$("#pub");if(!el){el=document.createElement("div");el.id="pub";document.body.appendChild(el)}
   el.classList.add("on");
-  const head=`<div class="fcbrand" style="justify-content:flex-start;margin:0 6px 18px"><img src="assets/footcore-mark.svg" alt="" width="30" height="30">foot<b>core</b></div>`;
+  const head=`<div style="display:flex;align-items:center;margin:0 6px 18px"><div class="fcbrand" style="justify-content:flex-start"><img src="assets/footcore-mark.svg" alt="" width="30" height="30"><span>Foot<b>Core</b></span></div><button class="btn sm" style="margin-left:auto" onclick="closePublic()">${S.session?"Torna all'app":"Accedi"}</button></div>`;
   el.innerHTML=`<div class="lg">${head}<p class="muted" style="margin:0 6px">Caricamento…</p></div>`;
   const tid=new URLSearchParams(location.search).get("squadra")||"oneglia-b";
   let d=null;try{if(!SB)SB=window.supabase.createClient(CONFIG.url,CONFIG.key);const r=await SB.rpc("footcore_pubblico",{t:tid});d=r.data}catch(e){}
-  const back=`<button class="btn p" style="width:100%;margin-top:26px" onclick="closePublic()">Sei della squadra? Accedi</button>`;
+  const back=`<button class="btn p" style="width:100%;margin-top:26px" onclick="closePublic()">${S.session?"Torna all'app":"Sei della squadra? Accedi"}</button>`;
   if(!d){el.innerHTML=`<div class="lg">${head}<div class="card muted">Pagina pubblica non disponibile per questa squadra.</div>${back}</div>`;return}
   const sq=d.squadra||{},nm=sq.nome||"",P=d.partite||[],oggi=new Date().toISOString().slice(0,10);
   const giocate=P.filter(m=>m.golFatti!=null&&m.golFatti!=="").sort((a,b)=>(b.data||"").localeCompare(a.data||""));
@@ -2125,7 +2124,7 @@ async function showPublic(){
    <p class="muted" style="font-size:13px;margin:12px 6px 0">Pagina pubblica: si vedono solo risultati, classifica, età, presenze e gol.</p>
    ${back}</div>`;
 }
-function closePublic(){const el=$("#pub");if(el)el.classList.remove("on");if(location.hash==="#pubblico")history.replaceState(null,"",location.pathname+location.search);if(!S.session)showLogin()}
+function closePublic(){const el=$("#pub");if(el)el.classList.remove("on");if(location.hash==="#pubblico")history.replaceState(null,"",location.pathname+location.search);if(!S.session){if(SB&&SB.auth)SB.auth.getSession().then(({data})=>data&&data.session?startSession(data.session):showLogin());else showLogin()}}
 // ---------- schermata di accesso
 function showLogin(mode){
   let el=$("#login");if(!el){el=document.createElement("div");el.id="login";document.body.appendChild(el)}
@@ -2141,7 +2140,7 @@ function showLogin(mode){
    <button class="btn" style="width:100%;margin-top:10px;background:none" id="lgReset">Password dimenticata?</button>
    <p class="small" id="lgMsg" style="text-align:center;min-height:20px;margin-top:10px"></p>`}
    <a class="btn" style="display:block;width:100%;margin-top:6px;text-align:center;text-decoration:none;box-sizing:border-box" href="#pubblico" onclick="setTimeout(()=>{hideLogin();showPublic()},0)">Risultati, classifica e rosa</a>
-   <div class="fcbrand" style="margin-top:28px"><img src="assets/footcore-mark.svg" alt="" width="26" height="26">foot<b>core</b></div></div>`;
+   <div class="fcbrand" style="margin-top:28px"><img src="assets/footcore-mark.svg" alt="" width="26" height="26"><span>Foot<b>Core</b></span></div></div>`;
   el.classList.add("on");
   const out=$("#lgOut");if(out){out.onclick=async()=>{await SB.auth.signOut()};return}
   let m="in";
