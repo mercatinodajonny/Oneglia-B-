@@ -449,6 +449,23 @@ html.v2 .dvb.on{animation:pop .32s var(--ease)}
 .mini .capm{left:calc(50% - 22px);width:15px;height:15px;font-size:9px}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
+/* live */
+.livebadge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.04em;color:#ff3b30;background:color-mix(in srgb,#ff3b30 12%,transparent);padding:3px 9px;border-radius:999px;white-space:nowrap}
+.nextm .livebadge{color:#fff;background:rgba(255,59,48,.9)}
+.livebadge i{width:7px;height:7px;border-radius:50%;background:currentColor;animation:lvp 1.4s ease-in-out infinite}
+@keyframes lvp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+@media (prefers-reduced-motion:reduce){.livebadge i{animation:none}}
+.lscore{font-size:34px!important;font-variant-numeric:tabular-nums}.lscore i{font-style:normal;opacity:.6;margin:0 6px}
+.livebtn{border:0;border-radius:999px;padding:8px 14px;font:inherit;font-size:14px;font-weight:700;background:#fff;color:#0c1f45;cursor:pointer;white-space:nowrap;transition:transform .15s}.livebtn:active{transform:scale(.95)}
+.livebtn.dark{background:#ff3b30;color:#fff}
+.lvbox{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.lvt{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;box-shadow:var(--shadow)}
+.lvt>span{font-weight:700;font-size:16px;line-height:1.2}
+.lvs{display:flex;align-items:center;gap:10px}.lvs b{font-size:30px;font-weight:800;min-width:30px;text-align:center;font-variant-numeric:tabular-nums}
+.stp{width:44px;height:44px;border-radius:50%;border:0;background:var(--fill);color:var(--text);font-size:24px;font-weight:600;cursor:pointer;transition:transform .12s}.stp:active{transform:scale(.9)}.stp.p{background:var(--tint);color:#fff}
+.lvseg{flex-wrap:wrap}.lvseg button{flex:1 1 30%}
+.lvtag,.pvtag{display:inline-block;font-size:10.5px;font-weight:800;padding:1px 6px;border-radius:6px}.lvtag{background:#ff3b30;color:#fff}.pvtag{background:var(--fill2);color:var(--muted)}
+
 /* area admin */
 .li.nochev::after{display:none!important}
 .dots{border:0;background:var(--fill);color:var(--muted);width:38px;height:30px;border-radius:999px;font-size:13px;letter-spacing:1px;font-weight:800;cursor:pointer;flex:none;transition:transform .15s,background .2s}.dots:active{transform:scale(.92);background:var(--fill2)}
@@ -506,7 +523,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-1";
+const BUILD="2026-11-24-2";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -604,9 +621,9 @@ function vHome(){
   // prossima partita
   const nextCard=nm?`<div class="nextm" data-lc="${esc(nm.avversario)}" onclick="openMatch('${nm.id}')">
      <div class="lab">Prossima partita${nm.giornata?" · "+esc(nm.giornata):""}</div>
-     ${vsRow(nm,`<b class="when">${daysTo(nm.data)===0?"Oggi":daysTo(nm.data)===1?"Domani":esc(fmtD(nm.data,1))}</b><span class="hr">${esc(nm.ora||"")}</span>`)}
+     ${vsRow(nm,isLive(nm)?`<b class="when lscore">${nm.casa?nm.live.gf:nm.live.gs}<i>–</i>${nm.casa?nm.live.gs:nm.live.gf}</b>${liveBadge(nm.live)}`:`<b class="when">${daysTo(nm.data)===0?"Oggi":daysTo(nm.data)===1?"Domani":esc(fmtD(nm.data,1))}</b><span class="hr">${esc(nm.ora||"")}</span>`)}
      <div class="meta">${nm.luogo?`<span>🏟️ ${esc(nm.luogo)}</span>`:""}${nm.ritrovo||nm.ritrovoOra?`<span>📍 Ritrovo ${esc([nm.ritrovoOra,nm.ritrovo].filter(Boolean).join(" · "))}</span>`:""}${nm.info?`<span>💬 ${esc(nm.info)}</span>`:""}</div>
-     <div class="foot"><span class="pill">${nm.convPubblici||S.canWrite?(nm.convocati||[]).length+" convocati":"Convocati in arrivo"}${nm.formPubblica?" · formazione pronta":""}</span></div>
+     <div class="foot"><span class="pill">${nm.convPubblici||S.canWrite?(nm.convocati||[]).length+" convocati":"Convocati in arrivo"}${nm.formPubblica?" · formazione pronta":""}</span>${S.canWrite&&daysTo(nm.data)<=0?`<button class="livebtn" onclick="event.stopPropagation();liveSheet('${nm.id}')">${isLive(nm)?"Aggiorna risultato":"Risultato live"}</button>`:""}</div>
    </div>`:"";
   const trCard=nt?`<div class="card trn" onclick="openTraining('${nt.id}')"><div class="sp"><span class="k">Prossimo allenamento</span><b>${daysTo(nt.data)===0?"Oggi":daysTo(nt.data)===1?"Domani":esc(fmtD(nt.data,1))}${nt.ora?" · "+esc(nt.ora):""}</b>${nt.luogo?`<span class="muted small">${esc(nt.luogo)}</span>`:""}</div>${ask("t",nt)}</div>`:"";
   // ultima partita (sfondo bianco)
@@ -679,8 +696,13 @@ function girDay(m,g,i,idx){
   const isUs=n=>n===TEAM||tkey(n)===tkey(TEAM);
   rs=rs.filter(r=>!isUs(r.casa)&&!isUs(r.ospite));
   if(!rs.length)return `<div class="gday" data-gd="${i}" ${i===idx?"":"hidden"}></div>`;
-  const w=(a,b)=>played&&+a>+b?" w":"";
-  return `<div class="gday" data-gd="${i}" ${i===idx?"":"hidden"}><h3>${g?"Giornata "+g:"Stessa giornata"} · altre partite</h3><div class="list glist">${rs.map(r=>`<div class="grow nochev" style="cursor:default"><span class="gn">${played?esc(fmtD(r.data||"").replace(/\s\d{4}$/,"").replace(/^\D+\s/,"")):esc((r.ora||"").replace(":","."))||"–"}<small>${played?"finale":esc(fmtD(r.data||"").replace(/\s\d{4}$/,""))}</small></span><span class="tt"><span class="tl${w(r.gc,r.go)}">${badge(r.casa,20)}<em>${esc(r.casa)}</em></span><span class="tl${w(r.go,r.gc)}">${badge(r.ospite,20)}<em>${esc(r.ospite)}</em></span></span>${played?`<span class="ss"><b class="${w(r.gc,r.go)}">${r.gc}</b><b class="${w(r.go,r.gc)}">${r.go}</b></span>`:`<span class="ss tm">VS</span>`}</div>`).join("")}</div>
+  const GL=(S.info.girlive&&S.info.girlive.items)||{};
+  const w=(a,b)=>a!=null&&+a>+b?" w":"";
+  const rowH=r=>{const gl=!played?GL[glKey(r.giornata,r.casa,r.ospite)]:null;const sc=played?r:gl;const tap=!played&&S.canWrite;
+    const left=played?`${esc(fmtD(r.data||"").replace(/\s\d{4}$/,"").replace(/^\D+\s/,""))}<small>finale</small>`:gl?`<span class="${gl.stato==="LIVE"?"lvtag":"pvtag"}">${gl.stato==="LIVE"?"LIVE":"Provv."}</span><small>${esc(fmtD(r.data||"").replace(/\s\d{4}$/,""))}</small>`:`${esc((r.ora||"").replace(":","."))||"–"}<small>${esc(fmtD(r.data||"").replace(/\s\d{4}$/,""))}</small>`;
+    return `<div class="grow nochev" ${tap?`onclick="girLiveSheet(${r.giornata},'${esc(r.casa).replace(/'/g,"\\'")}','${esc(r.ospite).replace(/'/g,"\\'")}')"`:`style="cursor:default"`}><span class="gn">${left}</span><span class="tt"><span class="tl${sc?w(sc.gc,sc.go):""}">${badge(r.casa,20)}<em>${esc(r.casa)}</em></span><span class="tl${sc?w(sc.go,sc.gc):""}">${badge(r.ospite,20)}<em>${esc(r.ospite)}</em></span></span>${sc?`<span class="ss"><b class="${w(sc.gc,sc.go)}">${sc.gc}</b><b class="${w(sc.go,sc.gc)}">${sc.go}</b></span>`:`<span class="ss tm">${tap?"+":"VS"}</span>`}</div>`};
+  return `<div class="gday" data-gd="${i}" ${i===idx?"":"hidden"}><h3>${g?"Giornata "+g:"Stessa giornata"} · altre partite</h3><div class="list glist">${rs.map(rowH).join("")}</div>
+  ${!played&&S.canWrite?`<p class="muted small" style="margin:6px 4px 0">Staff: tocca una partita per inserire il risultato provvisorio, anche durante la gara.</p>`:""}
   <p class="muted small" style="margin:6px 4px 0">Fonte: Comunicati Ufficiali LND Liguria${G.cu?" · ultimo n. "+esc(G.cu):""} · aggiornamento automatico</p></div>`;
 }
 function initGiornate(){const car=$("#gcar"),ch=$("#gchips");if(!car||!ch)return;
@@ -701,8 +723,8 @@ function vPartite(){
     if(S.gSel!=null&&all.some(m=>m.id===S.gSel))idx=all.findIndex(m=>m.id===S.gSel);
     const card=(m,i)=>{const pl=isPlayed(m);const home=m.casa?TEAM:m.avversario,away=m.casa?m.avversario:TEAM;const hs=m.casa?m.golFatti:m.golSubiti,as=m.casa?m.golSubiti:m.golFatti;const res=pl?(m.golFatti>m.golSubiti?"g":m.golFatti<m.golSubiti?"r":"a"):"";
       return `<div class="gcard" data-i="${i}" onclick="openMatch('${m.id}')"><div class="gh"><b>${gN(m)?"Giornata "+gN(m):esc(m.giornata||"Partita")}</b><span>${esc(fmtD(m.data,1))}</span></div>
-        <div class="gm"><div class="gt">${badge(home,56)}<span>${esc(home)}</span></div><div class="gc">${pl?`<b class="gs">${hs}<i>–</i>${as}</b><span>Finale</span>`:`<b class="gv">VS</b><span>${esc(m.ora||"Orario da definire")}</span>`}</div><div class="gt">${badge(away,56)}<span>${esc(away)}</span></div></div>
-        <div class="gf">${pl?`<span class="tag ${res}">${res==="g"?"Vittoria":res==="r"?"Sconfitta":"Pareggio"}</span><span class="lk">Report partita ›</span>`:`<span class="tag">${m.casa?"In casa":"In trasferta"}</span><span class="lk">Dettagli ›</span>`}</div></div>`};
+        <div class="gm"><div class="gt">${badge(home,56)}<span>${esc(home)}</span></div><div class="gc">${isLive(m)?`<b class="gs">${m.casa?m.live.gf:m.live.gs}<i>–</i>${m.casa?m.live.gs:m.live.gf}</b>${liveBadge(m.live)}`:pl?`<b class="gs">${hs}<i>–</i>${as}</b><span>Finale</span>`:`<b class="gv">VS</b><span>${esc(m.ora||"Orario da definire")}</span>`}</div><div class="gt">${badge(away,56)}<span>${esc(away)}</span></div></div>
+        <div class="gf">${S.canWrite&&!pl&&daysTo(m.data)<=0?`<button class="livebtn dark" onclick="event.stopPropagation();liveSheet('${m.id}')">${isLive(m)?"Aggiorna risultato":"Risultato live"}</button><span class="lk">Dettagli ›</span>`:pl?`<span class="tag ${res}">${res==="g"?"Vittoria":res==="r"?"Sconfitta":"Pareggio"}</span><span class="lk">Report partita ›</span>`:`<span class="tag">${m.casa?"In casa":"In trasferta"}</span><span class="lk">Dettagli ›</span>`}</div></div>`};
     const row=m=>{const pl=isPlayed(m);const home=m.casa?TEAM:m.avversario,away=m.casa?m.avversario:TEAM;const hs=m.casa?m.golFatti:m.golSubiti,as=m.casa?m.golSubiti:m.golFatti;const win=(a,b)=>pl&&+a>+b?" w":"";
       return `<div class="grow ${m.id===all[idx].id?"cur":""}" onclick="openMatch('${m.id}')"><span class="gn">G${gN(m)||"–"}<small>${esc(fmtD(m.data).replace(/\s\d{4}$/,""))}</small></span><span class="tt"><span class="tl${win(hs,as)}">${badge(home,20)}<em>${esc(home)}</em></span><span class="tl${win(as,hs)}">${badge(away,20)}<em>${esc(away)}</em></span></span>${pl?`<span class="ss"><b class="${win(hs,as)}">${hs}</b><b class="${win(as,hs)}">${as}</b></span>`:`<span class="ss tm">${esc(m.ora||"–")}</span>`}</div>`};
     setTimeout(initGiornate,0);
@@ -1831,6 +1853,57 @@ function playerActions(id){
   <div class="actions"><button class="btn" onclick="closeSheet()">Chiudi</button></div>`);
   document.querySelectorAll("#paSt [data-st]").forEach(b=>b.onclick=async()=>{const v=b.dataset.st;if(await save("players",id,{...clean(p),stato:v})){toast("Stato aggiornato");playerActions(id)}});
 }
+
+// ================= RISULTATO LIVE =================
+const LST={"":"Da iniziare","1T":"1° tempo","INT":"Intervallo","2T":"2° tempo","FIN":"Finale"};
+function liveMin(L){if(!L)return"";const now=Date.now();
+  if(L.stato==="1T"&&L.t1){const m=Math.floor((now-L.t1)/6e4)+1;return m>45?"45+"+(m-45)+"'":m+"'"}
+  if(L.stato==="2T"&&L.t2){const m=45+Math.floor((now-L.t2)/6e4)+1;return m>90?"90+"+(m-90)+"'":m+"'"}
+  return LST[L.stato]||""}
+const isLive=m=>m&&m.live&&m.live.stato&&m.live.stato!=="FIN";
+function liveBadge(L){return `<span class="livebadge"><i></i>LIVE · <span class="lmin" data-l='${esc(JSON.stringify({stato:L.stato,t1:L.t1,t2:L.t2}))}'>${liveMin(L)}</span></span>`}
+setInterval(()=>document.querySelectorAll(".lmin").forEach(e=>{try{e.textContent=liveMin(JSON.parse(e.dataset.l))}catch(_){}}),20000);
+function liveSheet(id){
+  const m=S.matches.find(x=>x.id===id);if(!m||!S.canWrite)return;
+  const L={stato:"",gf:0,gs:0,...(m.live||{})};
+  const home=m.casa?TEAM:m.avversario,away=m.casa?m.avversario:TEAM;
+  const hs=m.casa?L.gf:L.gs,as=m.casa?L.gs:L.gf;
+  const pool=(m.convocati||[]).length?S.players.filter(p=>m.convocati.includes(p.id)):S.players;
+  const ours=Object.entries(m.marcatori||{}).filter(([p,n])=>n>0).map(([p,n])=>{const pl=S.players.find(x=>x.id===p);return pl?esc(pl.cognome)+(n>1?" ×"+n:""):""}).filter(Boolean);
+  openSheet(`<div class="row"><div class="sp"><h2>Risultato live</h2><span class="muted small">${m.casa?"vs ":"@ "}${esc(m.avversario)} · lo vedono tutti in tempo reale</span></div>${isLive(m)?liveBadge(L):""}</div>
+   <div class="lvbox">
+    <div class="lvt">${badge(home,52)}<span>${esc(home)}</span><div class="lvs"><button class="stp" data-side="h" data-d="-1" aria-label="Togli gol">−</button><b>${hs}</b><button class="stp p" data-side="h" data-d="1" aria-label="Aggiungi gol">+</button></div></div>
+    <div class="lvt">${badge(away,52)}<span>${esc(away)}</span><div class="lvs"><button class="stp" data-side="a" data-d="-1" aria-label="Togli gol">−</button><b>${as}</b><button class="stp p" data-side="a" data-d="1" aria-label="Aggiungi gol">+</button></div></div>
+   </div>
+   <h3>Stato della partita</h3><div class="seg lvseg">${Object.entries(LST).map(([k,l])=>`<button class="${L.stato===k?"on":""}" data-st="${k}">${l}</button>`).join("")}</div>
+   <h3>Chi ha segnato per noi</h3><p class="muted small" style="margin:0 4px 8px">Facoltativo: tocca il marcatore dopo aver aggiunto il gol.</p>
+   <div class="chips">${pool.map(p=>`<button class="chip" data-sc="${p.id}">${esc(p.cognome)}</button>`).join("")}</div>
+   ${ours.length?`<p class="small" style="margin:10px 4px 0">Marcatori: <b>${ours.join(", ")}</b></p>`:""}
+   <div class="actions"><button class="btn" onclick="closeSheet()">Chiudi</button>${L.stato==="FIN"?`<button class="btn p" onclick="resultSheet('${id}')">Completa il report</button>`:""}</div>`,()=>liveSheet(id));
+  const put=async(ch,extra={})=>{const cur=S.matches.find(x=>x.id===id);const nl={...L,...ch,agg:Date.now()};
+    const fin=nl.stato==="FIN"?{golFatti:nl.gf,golSubiti:nl.gs}:{};
+    await save("matches",id,{...clean(cur),live:nl,...fin,...extra});liveSheet(id)};
+  document.querySelectorAll("#sheet [data-side]").forEach(b=>b.onclick=()=>{const us=(b.dataset.side==="h")===!!m.casa;const k=us?"gf":"gs";const v=Math.max(0,(+L[k]||0)+(+b.dataset.d));
+    const ch={[k]:v};if(!L.stato)Object.assign(ch,{stato:"1T",t1:Date.now()});put(ch)});
+  document.querySelectorAll("#sheet [data-st]").forEach(b=>b.onclick=()=>{const st=b.dataset.st;const ch={stato:st};if(st==="1T"&&!L.t1)ch.t1=Date.now();if(st==="2T"&&!L.t2)ch.t2=Date.now();
+    if(st==="FIN"&&!confirm("Confermi il risultato finale "+(m.casa?L.gf+"–"+L.gs:L.gs+"–"+L.gf)+"?"))return;put(ch)});
+  document.querySelectorAll("#sheet [data-sc]").forEach(b=>b.onclick=()=>{const cur=S.matches.find(x=>x.id===id);const mk={...(cur.marcatori||{})};mk[b.dataset.sc]=(+mk[b.dataset.sc]||0)+1;
+    const pl=S.players.find(x=>x.id===b.dataset.sc);const mn=parseInt(liveMin(L))||"";const cr=[...(cur.cronaca||[]),{min:mn,testo:"Gol di "+(pl?fullName(pl):"")}];toast("Gol di "+(pl?pl.cognome:""));put({},{marcatori:mk,cronaca:cr})});
+}
+// risultati provvisori delle altre partite del girone (inseriti dallo staff, sostituiti dal comunicato ufficiale)
+const glKey=(g,c,o)=>`${g}|${tkey(c)}|${tkey(o)}`;
+function girLiveSheet(g,c,o){
+  if(!S.canWrite)return;const k=glKey(g,c,o);const all=(S.info.girlive&&S.info.girlive.items)||{};const v={gc:0,go:0,stato:"LIVE",...(all[k]||{})};
+  openSheet(`<h2>Risultato provvisorio</h2><p class="muted small" style="margin:2px 0 12px">Giornata ${g} · lo vedono tutti. Quando esce il Comunicato Ufficiale viene sostituito da quello ufficiale.</p>
+   <div class="lvbox"><div class="lvt">${badge(c,48)}<span>${esc(c)}</span><div class="lvs"><button class="stp" data-k="gc" data-d="-1">−</button><b>${v.gc}</b><button class="stp p" data-k="gc" data-d="1">+</button></div></div>
+   <div class="lvt">${badge(o,48)}<span>${esc(o)}</span><div class="lvs"><button class="stp" data-k="go" data-d="-1">−</button><b>${v.go}</b><button class="stp p" data-k="go" data-d="1">+</button></div></div></div>
+   <h3>Stato</h3><div class="seg"><button class="${v.stato==="LIVE"?"on":""}" data-st="LIVE">In corso</button><button class="${v.stato==="FIN"?"on":""}" data-st="FIN">Finale</button></div>
+   <div class="actions"><button class="btn" id="glDel">${all[k]?"Cancella":"Chiudi"}</button><button class="btn p" onclick="closeSheet()">Fatto</button></div>`,()=>girLiveSheet(g,c,o));
+  const put=async nv=>{const cur=(S.info.girlive&&S.info.girlive.items)||{};const items={...cur};if(nv===null)delete items[k];else items[k]={...nv,ts:Date.now()};await save("info","girlive",{items});if(nv===null)closeSheet();else girLiveSheet(g,c,o)};
+  document.querySelectorAll("#sheet [data-k]").forEach(b=>b.onclick=()=>{const kk=b.dataset.k;put({...v,[kk]:Math.max(0,(+v[kk]||0)+(+b.dataset.d))})});
+  document.querySelectorAll("#sheet [data-st]").forEach(b=>b.onclick=()=>put({...v,stato:b.dataset.st}));
+  $("#glDel").onclick=()=>{if(all[k])put(null);else closeSheet()};
+}
 // ================= SALUTO DEL GIORNO =================
 const FRASI=["Come stai fisicamente oggi?","Che hai fatto di bello oggi?","Pronto per la prossima?","Gambe buone oggi?","Come va la settimana?","Ricordati di bere tanta acqua.","Una giornata alla volta.","Oggi si recupera o si spinge?","Dormito bene stanotte?","Testa alla prossima partita.","Com'è andata a lavoro?","Ogni allenamento conta.","Il gruppo prima di tutto.","Forza Oneglia!","Come ti senti dopo l'ultima?","Stretching fatto?","Oggi giornata da campioni.","Tutto a posto?","Un passo avanti ogni giorno.","Ci vediamo al campo."];
 function greetHTML(){
@@ -2077,7 +2150,7 @@ function webSaver(){return{save:async({filename,data})=>{
   const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);return{status:"saved"}}}}
 
 // expose for inline handlers
-Object.assign(window,{adminMatch,playerActions,vAdmin,logout,accSheet,myProfile,regoleSheet,whoAmI,multaSheet,quotaSheet,movSheet,debSheet,movDetail,injSheet,resultImage,newsSheet,delNews,formationSheet,fabAct,editClassifica,editSponsor,openPlayer,editPlayer,openStaff,editStaff,openTraining,editTraining,weekSheet,openMatch,editMatch,convSheet,resultSheet,closeSheet,go,setRole,render,renderKeep,S});
+Object.assign(window,{liveSheet,girLiveSheet,adminMatch,playerActions,vAdmin,logout,accSheet,myProfile,regoleSheet,whoAmI,multaSheet,quotaSheet,movSheet,debSheet,movDetail,injSheet,resultImage,newsSheet,delNews,formationSheet,fabAct,editClassifica,editSponsor,openPlayer,editPlayer,openStaff,editStaff,openTraining,editTraining,weekSheet,openMatch,editMatch,convSheet,resultSheet,closeSheet,go,setRole,render,renderKeep,S});
 if(/netlify\.app$/.test(location.hostname))document.body.classList.add("nf");
 route();
 initDb();
