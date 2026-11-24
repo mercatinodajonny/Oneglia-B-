@@ -529,8 +529,8 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-21";
-async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
+const BUILD="2026-11-24-22";
+async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="2026-11-24-22"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate()});
@@ -2159,7 +2159,9 @@ const pubCSS=`<style>
 #pub .cg{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;font-weight:800;font-size:14px;color:#157A3A;box-shadow:inset 0 0 0 2.5px #157A3A}#pub .cn{flex:1;min-width:0}#pub .cn b{display:block;font-size:16px}#pub .cn small{display:block;color:var(--muted);font-size:13px}
 #pub .mhero{padding:16px}#pub .mlab{font-size:12.5px;font-weight:700;color:var(--muted);text-align:center;letter-spacing:.02em}#pub .mvs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:14px 0 8px}#pub .mvs>div{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0}#pub .mvs b{font-size:14px;line-height:1.2}
 #pub .msc{font-size:38px;font-weight:800;letter-spacing:-.02em}#pub .msc i{font-style:normal;color:var(--muted);margin:0 6px}#pub .msc span{font-size:22px;color:var(--muted)}#pub .msc small{display:block;font-size:13px;font-weight:600;color:var(--muted);letter-spacing:0}#pub .mdate{text-align:center;color:var(--muted);font-size:14px}
-#pub .fteam{background:var(--card);border-radius:18px;padding:12px;margin-bottom:12px}#pub .fth{display:flex;align-items:center;gap:8px;margin-bottom:10px}#pub .fth b{flex:1;font-size:15px}
+#pub .fteam{background:var(--card);border-radius:18px;padding:12px;flex:0 0 100%;scroll-snap-align:start;box-sizing:border-box}
+#pub .fcar{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:6px}#pub .fcar::-webkit-scrollbar{display:none}
+#pub .fseg{display:flex;gap:4px;padding:3px;border-radius:12px;background:var(--fill);margin-bottom:10px}#pub .fseg button{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:9px;background:none;padding:8px 6px;font:inherit;font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer}#pub .fseg button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#pub .fseg button.on{background:var(--card);color:var(--text);box-shadow:0 2px 8px -2px rgba(0,0,0,.15)}#pub .fth{display:flex;align-items:center;gap:8px;margin-bottom:10px}#pub .fth b{flex:1;font-size:15px}
 #pub .fpitch{position:relative;aspect-ratio:68/62;border-radius:14px;background:repeating-linear-gradient(0deg,#2f8f4e 0 12%,#2a8447 12% 24%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
 #pub .fdot{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;border:2px dashed rgba(255,255,255,.75);display:grid;place-items:center;color:#fff;font-size:12px;font-weight:800}#pub .fdot.on{border:2px solid #fff;background:#0c1f45}#pub .fdot i{position:absolute;top:32px;font-style:normal;font-size:10.5px;font-weight:700;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 </style>`;
@@ -2203,7 +2205,7 @@ const campSort=(a,b)=>campLiv(a)-campLiv(b)||(/regionale|serie d/i.test(a.delega
 function pubCampSez(){const s=PUB_SEZ.find(x=>x.k===PUB.sez);return (PUB.camp||[]).filter(c=>s.k==="fem"?/femminil|femm\b/i.test(c.categoria):s.k==="c5"?/calcio a 5|futsal/i.test(c.categoria):s.re.test(c.categoria)&&!/femminil|femm\b|calcio a 5|futsal/i.test(c.categoria)).sort(campSort)}
 function pubMatchView(x){const m=x.m,c=x.c||{};const fatto=m.gc!=null;
   const pitchHalf=(nome,mine)=>{const sl=slotsFor("4-4-2");
-    return `<div class="fteam"><div class="fth">${sqBadge(nome,28)}<b>${esc(nome)}</b><span class="tag">${mine&&mine.modulo?esc(mine.modulo):"4-4-2"}</span></div>
+    return `<div class="fteam"><div class="fth" role="button" tabindex="0" onclick="PUB.match=null;PUB.id='${esc(c.id||"")}';PUB.sq=${esc(JSON.stringify(nome))};pubRender()" style="cursor:pointer">${sqBadge(nome,28)}<b>${esc(nome)} <span style="color:var(--muted);font-weight:600">›</span></b><span class="tag">${mine&&mine.modulo?esc(mine.modulo):"4-4-2"}</span></div>
       <div class="fpitch">${sl.map((p,i)=>{const pl=mine&&mine.slots&&mine.slots[i]?S.players.find(q=>q.id===mine.slots[i]):null;return `<span class="fdot ${pl?"on":""}" style="left:${p.x}%;top:${p.y}%">${pl?esc(pl.numero||sqIniz(fullName(pl))):""}<i>${pl?esc(pl.cognome):""}</i></span>`}).join("")}</div>
       ${mine&&mine.slots&&mine.slots.some(Boolean)?"":`<p class="muted" style="font-size:13px;margin:8px 2px 0">Formazione non ancora inserita dalla società.</p>`}</div>`};
   // la nostra formazione, se chi guarda è della squadra e il mister l'ha pubblicata
@@ -2215,10 +2217,14 @@ function pubMatchView(x){const m=x.m,c=x.c||{};const fatto=m.gc!=null;
     <div class="mvs"><div>${sqBadge(m.casa,64)}<b>${esc(m.casa)}</b></div><div class="msc">${fatto?`${m.gc}<i>–</i>${m.go}`:`<span>VS</span>`}<small>${fatto?"Finale":esc(m.ora||"Orario da definire")}</small></div><div>${sqBadge(m.ospite,64)}<b>${esc(m.ospite)}</b></div></div>
     <div class="mdate">${esc(fmtD(m.data||"",1))}</div></div>
     <h2>Formazioni</h2>
-    ${pitchHalf(m.casa,mio(m.casa)&&ourForm&&ourHome?ourForm:null)}${pitchHalf(m.ospite,mio(m.ospite)&&ourForm&&!ourHome?ourForm:null)}
+    <div class="fseg" role="tablist"><button class="on" data-fi="0" onclick="fScroll(0)">${sqBadge(m.casa,20)}<span>${esc(m.casa)}</span></button><button data-fi="1" onclick="fScroll(1)">${sqBadge(m.ospite,20)}<span>${esc(m.ospite)}</span></button></div>
+    <div class="fcar" id="fcar" onscroll="fSeg()">${pitchHalf(m.casa,mio(m.casa)&&ourForm&&ourHome?ourForm:null)}${pitchHalf(m.ospite,mio(m.ospite)&&ourForm&&!ourHome?ourForm:null)}</div>
+    <p class="muted" style="font-size:12.5px;text-align:center;margin:2px 0 0">Scorri per vedere l'altra squadra · tocca il nome per la sua pagina</p>
     <div class="card" style="padding:14px 16px;margin-top:12px"><b>Sei il mister o un dirigente?</b><p class="muted" style="margin:4px 0 10px;font-size:14px">Le formazioni le inserisce la società dalla sua area. Compaiono qui quando le rende pubbliche.</p>
     ${S.session||PUB.loggato?`<button class="cta" onclick="closePublic()">Apri la gestione della squadra</button>`:`<button class="cta" onclick="pubGo('entra')">Accedi o registra la società</button>`}</div>
     <p class="muted" style="font-size:13px;margin:16px 6px 0">Risultato e calendario: ${esc((c.dati&&c.dati.fonte)||"Comunicati Ufficiali LND")}.</p>`}
+function fScroll(i){const c=$("#fcar");if(c)c.scrollTo({left:i*c.clientWidth,behavior:"smooth"})}
+function fSeg(){const c=$("#fcar");if(!c)return;const i=Math.round(c.scrollLeft/c.clientWidth);document.querySelectorAll(".fseg button").forEach(b=>b.classList.toggle("on",+b.dataset.fi===i))}
 function pubRender(){
   const el=pubEl();el.scrollTop=0;const C=PUB.camp||[];let body="";PUB.mm=[];
   if(PUB.match!=null&&PUB.mmLast&&PUB.mmLast[PUB.match]){const x=PUB.mmLast[PUB.match];el.innerHTML=pubCSS+`<div class="lg">${pubMatchView(x)}</div>`+pubBar();return}
@@ -2231,6 +2237,7 @@ function pubRender(){
     if(PUB.sq){const mie=x=>x.casa===PUB.sq||x.ospite===PUB.sq;const pos=cl.find(r=>r.squadra.toLowerCase()===PUB.sq.toLowerCase());
       body=`<div class="ph"><button class="rbtn" onclick="pubBack()" aria-label="Indietro">‹</button>${sqBadge(PUB.sq,44)}<h1 style="font-size:24px">${esc(PUB.sq)}</h1>${starBtn(favIsSq(PUB.sq),`favSq(${esc(JSON.stringify(PUB.sq))},'${esc(c.id)}')`,"Squadra preferita")}</div><p class="sub">${esc(c.categoria)} · Girone ${esc(c.girone)}${pos?` · ${pos.pos}° posto, ${pos.pt} punti`:""}</p>${PUB.admin?`<label class="rbtn" style="display:inline-block;margin:0 4px 6px">${pubLogo(PUB.sq)?"Cambia logo":"Carica logo"}<input type="file" accept="image/*" style="display:none" onchange="pubCaricaLogo(this.files[0])"></label>`:""}
         ${P.filter(mie).length?`<h2>Prossime partite</h2><div class="card" style="padding:4px 12px">${P.filter(mie).map(m=>mrow(m,PUB.sq)).join("")}</div>`:""}
+        <h2>Rosa</h2>${(()=>{const isOn=/oneglia/i.test(PUB.sq)&&S.players&&S.players.length&&S.member;return isOn?`<div class="card" style="padding:4px 12px">${sortedPlayers().map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--line)"><b style="width:28px;color:var(--muted)">${esc(p.numero||"")}</b><span style="flex:1">${esc(fullName(p))}</span><small class="muted">${ROLE[p.ruolo]?ROLE[p.ruolo].s:""}</small></div>`).join("").replace("border-top:1px solid var(--line)","")}</div>`:`<div class="card muted" style="padding:14px 16px;font-size:14px">La rosa compare qui quando la società la inserisce in FootCore.</div>`})()}
         <h2>Risultati</h2><div class="card" style="padding:4px 12px">${R.filter(mie).length?R.filter(mie).slice().reverse().map(m=>mrow(m,PUB.sq)).join(""):`<p class="muted small" style="padding:10px 4px">Nessun risultato.</p>`}</div>`}
     else{const tb=(k,l)=>`<button class="${PUB.tab===k?"on":""}" onclick="PUB.tab='${k}';pubRender()">${l}</button>`;
       body=pubTop(esc(c.categoria)+"</h1>"+starBtn(favIsCamp(c.id),`favCamp('${esc(c.id)}')`,"Campionato preferito")+"<h1 hidden>",`Girone ${esc(c.girone)} · ${esc(c.stagione||"")} · ${/regionale|serie d/i.test(c.delegazione||"")?esc(c.delegazione):"Delegazione di "+esc(c.delegazione||"Imperia")}`,true)+
