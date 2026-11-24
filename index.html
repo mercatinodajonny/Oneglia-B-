@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>FootCore · Oneglia Sq. B</title>
+<title>Golazo · Il calcio di casa nostra</title>
 
 <script>(function(){try{var q=new URLSearchParams(location.search).get("nuovo");if(q==="1")localStorage.setItem("og_v2","1");if(q==="0")localStorage.removeItem("og_v2");if(localStorage.getItem("og_v2")==="1")document.documentElement.classList.add("v2")}catch(e){}})();</script>
 <style>
@@ -493,17 +493,17 @@ html.v2 .dvb.on{animation:pop .32s var(--ease)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=3">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=3">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=4">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=4">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="apple-mobile-web-app-title" content="Oneglia B">
+<meta name="apple-mobile-web-app-title" content="Golazo">
 <meta name="theme-color" content="#0b1d4d">
 </head>
 <body>
 <div class="wrap" id="app"></div>
 
 <nav class="bar" id="nav">
-  <a href="#pubblico" id="navfc" onclick="event.preventDefault();try{sessionStorage.removeItem('fc_app')}catch(e){}PUB.vista='account';showPublic()"><img src="assets/footcore-mark.svg" alt="" width="24" height="24" style="display:block">FootCore</a>
+  <a href="#pubblico" id="navfc" onclick="event.preventDefault();try{sessionStorage.removeItem('fc_app')}catch(e){}PUB.vista='account';showPublic()"><img src="assets/golazo-icona.svg" alt="" width="24" height="24" style="display:block">Golazo</a>
   <a href="#home" data-v="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
   <a href="#rosa" data-v="rosa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17.5 14c2.2.3 3.6 2 4 4.5"/></svg>Rosa</a>
   <a href="#partite" data-v="partite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/></svg>Partite</a>
@@ -530,7 +530,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-29";
+const BUILD="2026-11-24-30";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2097,8 +2097,8 @@ async function startSession(session){
   if(!S.member){showLogin("noaccount");return}
   await loadAll();
 }
-// ---------- pagina pubblica FootCore (senza account): solo dati pubblici, letti con footcore_pubblico
-// ---------- portale pubblico FootCore: campionati, risultati e classifiche per tutti, senza account
+// ---------- pagina pubblica Golazo (senza account): solo dati pubblici, letti con footcore_pubblico
+// ---------- portale pubblico Golazo: campionati, risultati e classifiche per tutti, senza account
 const PUB={camp:null,id:null,tab:"cl",q:"",sq:null,sez:"dil",vista:"partite",acc:null,reg:"Liguria",chi:"gio"};
 const REGIONI=["Abruzzo","Basilicata","Calabria","Campania","Emilia-Romagna","Friuli-Venezia Giulia","Lazio","Liguria","Lombardia","Marche","Molise","Piemonte","Puglia","Sardegna","Sicilia","Toscana","Trentino-Alto Adige","Umbria","Valle d'Aosta","Veneto"];
 const PUB_SEZ=[{k:"dil",l:"Dilettanti",re:/serie d|categoria|eccellenza|promozione|juniores|amatori|coppa liguria (prima|seconda|terza)/i},{k:"gio",l:"Giovanili",re:/allievi|giovanissimi|esordienti|pulcini|under|u1\d/i},{k:"l0",l:"Serie D",lv:[0]},{k:"l1",l:"Eccellenza",lv:[1]},{k:"l2",l:"Promozione",lv:[2]},{k:"l3",l:"Prima Categoria",lv:[3]},{k:"l4",l:"Seconda Categoria",lv:[4]},{k:"l5",l:"Terza Categoria",lv:[5]},{k:"l6",l:"Juniores",lv:[6]},{k:"l7",l:"Allievi",lv:[7]},{k:"l8",l:"Giovanissimi",lv:[8]},{k:"l9",l:"Esordienti e Pulcini",lv:[9]},{k:"c5",l:"Calcio a 5",re:/calcio a 5|futsal/i},{k:"fem",l:"Femminile",re:/femminil/i},{k:"l12",l:"Coppe",lv:[12]}];
@@ -2235,7 +2235,7 @@ async function pubRichiesta(){const v=id=>(($("#"+id)||{}).value||"").trim();con
   if(d.societa.length<2||!/^\S+@\S+\.\S+$/.test(d.email)){M("Scrivi almeno il nome della società e un'email valida");return}
   const g=$("#plGo");g.disabled=true;M("Invio in corso…");const {error}=await SB.from("richieste_societa").insert(d);g.disabled=false;
   if(error){M("Invio non riuscito, riprova tra poco");return}
-  PUB.lE=d.email;$(".plog").innerHTML=`<div class="lhero s"><span class="lico"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><small>Richiesta inviata</small><h1>Grazie, ${esc(d.referente||d.societa)}!</h1><p>Ti contattiamo a breve per attivare ${esc(d.societa)} su FootCore. Intanto puoi guardare risultati e classifiche.</p></div><button class="cta" onclick="pubGo('partite')">Vai alle partite</button>`}
+  PUB.lE=d.email;$(".plog").innerHTML=`<div class="lhero s"><span class="lico"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><small>Richiesta inviata</small><h1>Grazie, ${esc(d.referente||d.societa)}!</h1><p>Ti contattiamo a breve per attivare ${esc(d.societa)} su Golazo. Intanto puoi guardare risultati e classifiche.</p></div><button class="cta" onclick="pubGo('partite')">Vai alle partite</button>`}
 async function pubReset(){const email=(($("#plE")||{}).value||"").trim().toLowerCase();const m=$("#plMsg");if(!email){m.textContent="Scrivi prima la tua email";return}const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});m.textContent=error?"Non riuscito, riprova più tardi":"Ti ho mandato un'email per cambiare la password"}
 function pubGo(v){PUB.vista=v;PUB.id=null;PUB.sq=null;PUB.match=null;pubRender()}
 function pubBar(){const b=(k,l,ico)=>`<button class="${PUB.vista===k&&!PUB.id?"on":""}" onclick="pubGo('${k}')">${ico}${l}</button>`;const s=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -2243,10 +2243,10 @@ function pubBar(){const b=(k,l,ico)=>`<button class="${PUB.vista===k&&!PUB.id?"o
     const ic=io&&a?`<span class="pav">${sqBadge(a.team||a.club,26)}</span>`:io?`<span class="pav ini">${esc(sqIniz(PUB.email||"?"))}</span>`:s('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>');
     return `<button class="${on?"on":""}" onclick="pubGo('${io?"account":"entra"}')">${ic}${io?"La mia area":"Accedi"}</button>`})()}</nav>`}
 function pubAcct(){return "";const ini=(S.session||PUB.loggato)&&PUB.acc&&PUB.acc[0]&&PUB.acc[0].nome?sqIniz(PUB.acc[0].nome):"";return `<button class="acct" onclick="pubGo('account')" aria-label="Account">${S.session||PUB.loggato?(ini?`<b>${esc(ini)}</b>`:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`):`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`}</button>`}
-function pubBrand(){return `<div class="ph"><img src="assets/footcore-mark.svg" alt="" width="36" height="36"><h1>Foot<span style="color:var(--tint)">Core</span></h1>${pubAcct()}</div>`}
+function pubBrand(){return `<div class="ph"><h1 style="margin:0;line-height:0"><img src="assets/golazo-scritta.svg" alt="Golazo" style="height:38px;width:auto;display:block"></h1>${pubAcct()}</div>`}
 function campChip(){const L=PUB.reg==="Liguria"?(PUB.camp||[]):[];if(!L.length)return"";const cur=L.find(c=>c.id===PUB.campSel);return `<span class="regchip"><span>${cur?esc(cur.categoria+" "+cur.girone):"Tutti i campionati"}</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><select aria-label="Scegli il campionato" onchange="PUB.campSel=this.value||null;pubRender()"><option value="">Tutti i campionati</option>${L.map(c=>`<option value="${esc(c.id)}" ${c.id===PUB.campSel?"selected":""}>${esc(c.categoria)} · Girone ${esc(c.girone)}</option>`).join("")}</select></span>`}
 function regChip(){return `<span class="regchip"><span>${esc(PUB.reg)}</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><select aria-label="Scegli la regione" onchange="PUB.reg=this.value;pubRender()">${REGIONI.map(r=>`<option ${r===PUB.reg?"selected":""}>${r}</option>`).join("")}</select></span>`}
-function pubTop(t,sub,back){return `<div class="ph">${back?`<button class="rbtn" onclick="pubBack()" aria-label="Indietro">‹</button>`:`<img src="assets/footcore-mark.svg" alt="" width="34" height="34">`}<h1>${t}</h1>${back?"":pubAcct()}</div>${sub?`<p class="sub">${sub}</p>`:""}`}
+function pubTop(t,sub,back){return `<div class="ph">${back?`<button class="rbtn" onclick="pubBack()" aria-label="Indietro">‹</button>`:`<img src="assets/golazo-icona.svg" alt="" width="34" height="34">`}<h1>${t}</h1>${back?"":pubAcct()}</div>${sub?`<p class="sub">${sub}</p>`:""}`}
 function mrow(m,evid,c){const fatto=m.gc!=null;PUB.mm=PUB.mm||[];const mi=PUB.mm.push({m,c:c||m.cat||(PUB.camp||[]).find(x=>x.id===PUB.id)})-1;const t=(n,r)=>`<div class="t${r?" r":""}" style="${evid===n?"color:var(--tint)":""}">${r?`<span class="n">${esc(n)}</span>${sqBadge(n,26)}`:`${sqBadge(n,26)}<span class="n">${esc(n)}</span>`}</div>`;
   return `<div class="mrow" role="button" tabindex="0" onclick="PUB.match=${mi};pubRender()" style="cursor:pointer">${t(m.casa)}<div class="sc">${fatto?`${m.gc} - ${m.go}`:esc(m.ora||"–")}<small>${esc(fmtD(m.data).replace(/ \d{4}$/,""))}</small></div>${t(m.ospite,1)}</div>`}
 // ordine come nella piramide del calcio: prima i campionati più alti
@@ -2291,7 +2291,7 @@ function pubRender(){
     if(PUB.sq){const mie=x=>x.casa===PUB.sq||x.ospite===PUB.sq;const pos=cl.find(r=>r.squadra.toLowerCase()===PUB.sq.toLowerCase());
       body=`<div class="ph"><button class="rbtn" onclick="pubBack()" aria-label="Indietro">‹</button>${sqBadge(PUB.sq,44)}<h1 style="font-size:24px">${esc(PUB.sq)}</h1>${starBtn(favIsSq(PUB.sq),`favSq(${esc(JSON.stringify(PUB.sq))},'${esc(c.id)}')`,"Squadra preferita")}</div><p class="sub">${esc(c.categoria)} · Girone ${esc(c.girone)}${pos?` · ${pos.pos}° posto, ${pos.pt} punti`:""}</p>${PUB.admin?`<label class="rbtn" style="display:inline-block;margin:0 4px 6px">${pubLogo(PUB.sq)?"Cambia logo":"Carica logo"}<input type="file" accept="image/*" style="display:none" onchange="pubCaricaLogo(this.files[0])"></label>`:""}
         ${P.filter(mie).length?`<h2>Prossime partite</h2><div class="card" style="padding:4px 12px">${P.filter(mie).map(m=>mrow(m,PUB.sq)).join("")}</div>`:""}
-        <h2>Rosa</h2>${(()=>{const isOn=/oneglia/i.test(PUB.sq)&&S.players&&S.players.length&&S.member;return isOn?`<div class="card" style="padding:4px 12px">${sortedPlayers().map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--line)"><b style="width:28px;color:var(--muted)">${esc(p.numero||"")}</b><span style="flex:1">${esc(fullName(p))}</span><small class="muted">${ROLE[p.ruolo]?ROLE[p.ruolo].s:""}</small></div>`).join("").replace("border-top:1px solid var(--line)","")}</div>`:`<div class="card muted" style="padding:14px 16px;font-size:14px">La rosa compare qui quando la società la inserisce in FootCore.</div>`})()}
+        <h2>Rosa</h2>${(()=>{const isOn=/oneglia/i.test(PUB.sq)&&S.players&&S.players.length&&S.member;return isOn?`<div class="card" style="padding:4px 12px">${sortedPlayers().map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--line)"><b style="width:28px;color:var(--muted)">${esc(p.numero||"")}</b><span style="flex:1">${esc(fullName(p))}</span><small class="muted">${ROLE[p.ruolo]?ROLE[p.ruolo].s:""}</small></div>`).join("").replace("border-top:1px solid var(--line)","")}</div>`:`<div class="card muted" style="padding:14px 16px;font-size:14px">La rosa compare qui quando la società la inserisce in Golazo.</div>`})()}
         <h2>Risultati</h2><div class="card" style="padding:4px 12px">${R.filter(mie).length?R.filter(mie).slice().reverse().map(m=>mrow(m,PUB.sq)).join(""):`<p class="muted small" style="padding:10px 4px">Nessun risultato.</p>`}</div>`}
     else{const tb=(k,l)=>`<button class="${PUB.tab===k?"on":""}" onclick="PUB.tab='${k}';pubRender()">${l}</button>`;
       body=pubTop(esc(c.categoria)+"</h1>"+starBtn(favIsCamp(c.id),`favCamp('${esc(c.id)}')`,"Campionato preferito")+"<h1 hidden>",`Girone ${esc(c.girone)} · ${esc(c.stagione||"")} · ${/regionale|serie d/i.test(c.delegazione||"")?esc(c.delegazione):"Delegazione di "+esc(c.delegazione||"Imperia")}`,true)+
@@ -2326,7 +2326,7 @@ function pubRender(){
     const soc=PUB.chi==="soc",up=PUB.lm==="up";
     const icP='<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>';
     const icS='<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>';
-    const hero=`<div class="lhero ${soc?"s":"g"}"><span class="lico">${soc?icS:icP}</span><small>${soc?"Area società":"Area giocatore"}</small><h1>${soc?(up?"Porta la tua società su FootCore":"Gestisci la tua società"):(up?"Attiva il tuo profilo":"Bentornato in campo")}</h1><p>${soc?(up?"Compila i dati: ti contattiamo per attivare la società. La prova è gratuita.":"Per presidenti, segretari, dirigenti e allenatori."):(up?"Usa l'email che hai dato alla tua società e scegli una password.":"Entra con l'email che hai dato alla tua società.")}</p></div>`;
+    const hero=`<div class="lhero ${soc?"s":"g"}"><span class="lico">${soc?icS:icP}</span><small>${soc?"Area società":"Area giocatore"}</small><h1>${soc?(up?"Porta la tua società su Golazo":"Gestisci la tua società"):(up?"Attiva il tuo profilo":"Bentornato in campo")}</h1><p>${soc?(up?"Compila i dati: ti contattiamo per attivare la società. La prova è gratuita.":"Per presidenti, segretari, dirigenti e allenatori."):(up?"Usa l'email che hai dato alla tua società e scegli una password.":"Entra con l'email che hai dato alla tua società.")}</p></div>`;
     const seg=`<div class="pseg"><button class="${up?"":"on"}" onclick="PUB.lm='in';pubRender()">Accedi</button><button class="${up?"on":""}" onclick="PUB.lm='up';pubRender()">${soc?"Registra la società":"Primo accesso"}</button></div>`;
     const f=(id,l,t,ph,ac,v)=>`<label class="pf"><span>${l}</span><input id="${id}" type="${t}" ${ac?`autocomplete="${ac}"`:""} placeholder="${ph}" value="${esc(v||"")}"></label>`;
     const form=soc&&up?`${f("rsS","Nome della società","text","Es. ASD Oneglia Calcio","organization")}${f("rsC","Città","text","Es. Imperia","address-level2")}${f("rsN","Il tuo nome e cognome","text","Nome e cognome","name")}
@@ -2363,11 +2363,11 @@ function pubRender(){
     const soc=[card(0,"Tutte le squadre in un posto","Dalla prima squadra ai pulcini: rose, staff, allenamenti e convocazioni sotto controllo da un'unica app.",["Rose e staff per ogni categoria","Presenze agli allenamenti","Convocazioni e formazioni da condividere"]),
       card(0,"Segreteria senza carta","Iscrizioni, consensi e certificati medici con le scadenze in evidenza. Niente più faldoni e fogli volanti.",["Avviso prima che un certificato scada","Iscrizioni e consensi online","Documenti sempre a portata di mano"]),
       card(0,"Quote e cassa in ordine","Sai sempre chi ha pagato e chi no. Ricevute, entrate e uscite pronte per il rendiconto di fine stagione.",["Quote e rate per ogni tesserato","Ricevute automatiche","Entrate e uscite della stagione"]),
-      card(0,"La vetrina della società","Logo, risultati, classifica e rosa visibili a tutti su FootCore. Tifosi, genitori e sponsor vi trovano subito.",["Pagina pubblica gratuita","Risultati aggiornati in automatico","Solo prestazioni ed età, i dati privati restano vostri"])];
+      card(0,"La vetrina della società","Logo, risultati, classifica e rosa visibili a tutti su Golazo. Tifosi, genitori e sponsor vi trovano subito.",["Pagina pubblica gratuita","Risultati aggiornati in automatico","Solo prestazioni ed età, i dati privati restano vostri"])];
     const L=PUB.chi==="gio"?gio:soc;
     const bar=(w,c)=>`<div style="height:6px;border-radius:3px;background:${c||"#c9d6cd"};width:${w}%"></div>`;
     const mock=`<div class="mock2" aria-hidden="true">
-      <div class="lap2"><div class="scr"><div class="lsb"><div class="lgo"><img src="assets/footcore-mark.svg" alt="" width="14" height="14"><b>FootCore</b></div>${["Panoramica","Squadre","Rosa","Allenamenti","Segreteria","Quote"].map((t,i)=>`<span class="${i==0?"on":""}">${t}</span>`).join("")}</div>
+      <div class="lap2"><div class="scr"><div class="lsb"><div class="lgo"><img src="assets/golazo-icona.svg" alt="" width="14" height="14"><b>Golazo</b></div>${["Panoramica","Squadre","Rosa","Allenamenti","Segreteria","Quote"].map((t,i)=>`<span class="${i==0?"on":""}">${t}</span>`).join("")}</div>
         <div class="main"><b class="tt">Buongiorno, Alessio</b><div class="kp">${[["128","Tesserati","#157A3A"],["6","Certificati in scadenza","#C8202B"],["14","Squadre","#0D1B3D"]].map(([v,l,c])=>`<div><b style="color:${c}">${v}</b><small>${l}</small></div>`).join("")}</div>
         <div class="rw"><div class="tb"><small class="h">Prossime partite</small>${[["Oneglia","San Filippo","Dom 14:30"],["Juniores","Taggia","Sab 16:00"],["Allievi","Sanremese","Dom 10:30"]].map(([a,b,t])=>`<div><span>${a} – ${b}</span><small>${t}</small></div>`).join("")}</div>
         <div class="ch"><small class="h">Presenze</small><div class="br">${[62,80,71,90,84].map(h=>`<i style="height:${h}%"></i>`).join("")}</div></div></div></div></div><div class="base"></div></div>
@@ -2378,7 +2378,7 @@ function pubRender(){
       <div class="plan hl"><b style="font-size:18px">Professionale</b><span class="tag2">Gratis in prova</span><ul><li>Tutte le categorie della società</li><li>Segreteria: iscrizioni, consensi, certificati</li><li>Comunicazioni a giocatori e genitori</li></ul></div>
       <div class="plan"><b style="font-size:18px">Completo</b><span class="tag2">Gratis in prova</span><ul><li>Tutto il Professionale</li><li>Quote, ricevute, prima nota e rendiconti</li><li>Contratti, collaboratori e report</li></ul></div>
       <p class="muted" style="font-size:13px;margin:6px 4px 0">Durante la fase di prova tutte le funzioni sono gratuite. I prezzi saranno comunicati prima del lancio.</p>`;
-    body=pubTop("Entra in FootCore","Scegli come vuoi entrare")+
+    body=pubTop("Entra in Golazo","Scegli come vuoi entrare")+
       `<div class="pill2" role="tablist"><button role="tab" class="${PUB.chi==="gio"?"on":""}" onclick="PUB.chi='gio';pubRender()">Giocatore</button><button role="tab" class="${PUB.chi==="soc"?"on":""}" onclick="PUB.chi='soc';pubRender()">Società</button></div>
       <div class="car" id="ecar" onscroll="const c=this,i=Math.round(c.scrollLeft/(c.firstElementChild.offsetWidth+12));document.querySelectorAll('#pub .pdots i').forEach((d,k)=>d.classList.toggle('on',k===i))">${L.join("")}</div><div class="pdots">${L.map((_,k)=>`<i class="${k?"":"on"}"></i>`).join("")}</div>
       ${PUB.chi==="gio"?`<button class="cta" onclick="pubGo('login')">Accedi</button><p class="muted" style="font-size:14px;text-align:center;margin:12px 6px 0">Prima volta? Chiedi alla tua società di aggiungerti con la tua email, poi scegli "Primo accesso".</p>`
@@ -2411,7 +2411,7 @@ function showLogin(mode){
    <button class="btn" style="width:100%;margin-top:10px;background:none" id="lgReset">Password dimenticata?</button>
    <p class="small" id="lgMsg" style="text-align:center;min-height:20px;margin-top:10px"></p>`}
    <a class="btn" style="display:block;width:100%;margin-top:6px;text-align:center;text-decoration:none;box-sizing:border-box" href="#pubblico" onclick="setTimeout(()=>{hideLogin();showPublic()},0)">Campionati, risultati e classifiche</a>
-   <div class="fcbrand" style="margin-top:28px"><img src="assets/footcore-mark.svg" alt="" width="26" height="26"><span>Foot<b>Core</b></span></div></div>`;
+   <div class="fcbrand" style="margin-top:28px"><img src="assets/golazo-scritta.svg" alt="Golazo" style="height:24px;width:auto"></div></div>`;
   el.classList.add("on");
   const out=$("#lgOut");if(out){out.onclick=async()=>{await SB.auth.signOut()};return}
   let m="in";
