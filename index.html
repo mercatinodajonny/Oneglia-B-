@@ -529,7 +529,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-24-13";
+const BUILD="2026-11-24-20";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2100,7 +2100,7 @@ async function startSession(session){
 // ---------- portale pubblico FootCore: campionati, risultati e classifiche per tutti, senza account
 const PUB={camp:null,id:null,tab:"cl",q:"",sq:null,sez:"dil",vista:"partite",acc:null,reg:"Liguria",chi:"gio"};
 const REGIONI=["Abruzzo","Basilicata","Calabria","Campania","Emilia-Romagna","Friuli-Venezia Giulia","Lazio","Liguria","Lombardia","Marche","Molise","Piemonte","Puglia","Sardegna","Sicilia","Toscana","Trentino-Alto Adige","Umbria","Valle d'Aosta","Veneto"];
-const PUB_SEZ=[{k:"dil",l:"Dilettanti",re:/categoria|eccellenza|promozione|juniores|amatori/i},{k:"gio",l:"Giovanili",re:/allievi|giovanissimi|esordienti|pulcini|under|u1\d/i},{k:"c5",l:"Calcio a 5",re:/calcio a 5|futsal/i},{k:"fem",l:"Femminile",re:/femminil/i}];
+const PUB_SEZ=[{k:"dil",l:"Dilettanti",re:/serie d|categoria|eccellenza|promozione|juniores|amatori/i},{k:"gio",l:"Giovanili",re:/allievi|giovanissimi|esordienti|pulcini|under|u1\d/i},{k:"c5",l:"Calcio a 5",re:/calcio a 5|futsal/i},{k:"fem",l:"Femminile",re:/femminil/i}];
 // stemma generato: iniziali su un cerchio colorato (il logo vero lo carica la società)
 function sqIniz(n){const w=String(n||"").replace(/[^A-Za-zÀ-ÿ0-9' ]/g," ").split(/\s+/).filter(x=>x&&!/^(asd|a|s|d|ssd|srl|calcio|sq|b|fc|ac|us|polisportiva|sport|academy|\d+)$/i.test(x));return ((w[0]||n||"?")[0]+((w[1]||"")[0]||"")).toUpperCase()}
 function sqColor(n){let h=0;for(const c of String(n||""))h=(h*31+c.charCodeAt(0))%360;return h}
@@ -2184,20 +2184,24 @@ function regChip(){return `<span class="regchip"><span>${esc(PUB.reg)}</span><sv
 function pubTop(t,sub,back){return `<div class="ph">${back?`<button class="rbtn" onclick="pubBack()" aria-label="Indietro">‹</button>`:`<img src="assets/footcore-mark.svg" alt="" width="34" height="34">`}<h1>${t}</h1>${back?"":pubAcct()}</div>${sub?`<p class="sub">${sub}</p>`:""}`}
 function mrow(m,evid){const fatto=m.gc!=null;const t=(n,r)=>`<div class="t${r?" r":""}" style="${evid===n?"color:var(--tint)":""}">${r?`<span class="n">${esc(n)}</span>${sqBadge(n,26)}`:`${sqBadge(n,26)}<span class="n">${esc(n)}</span>`}</div>`;
   return `<div class="mrow">${t(m.casa)}<div class="sc">${fatto?`${m.gc} - ${m.go}`:esc(m.ora||"–")}<small>${esc(fmtD(m.data).replace(/ \d{4}$/,""))}</small></div>${t(m.ospite,1)}</div>`}
-function pubCampSez(){const s=PUB_SEZ.find(x=>x.k===PUB.sez);return (PUB.camp||[]).filter(c=>s.re.test(c.categoria))}
+// ordine come nella piramide del calcio: prima i campionati più alti
+const CAMP_LIV=[/serie d/i,/^eccellenza/i,/^promozione/i,/prima categoria/i,/seconda categoria/i,/terza categoria/i,/juniores/i,/under 1[79]|allievi/i,/under 1[56]|giovanissimi/i,/under 1[34]|esordienti/i,/pulcini/i,/femminil/i,/coppa|torneo/i];
+const delBreve=c=>{const d=c.delegazione||"Imperia";return /serie d/i.test(d)?"Interregionale":/regionale/i.test(d)?"Regionale":d};
+const campLiv=c=>{const i=CAMP_LIV.findIndex(r=>r.test(c.categoria));return i<0?50:i};
+function pubCampSez(){const s=PUB_SEZ.find(x=>x.k===PUB.sez);return (PUB.camp||[]).filter(c=>s.re.test(c.categoria)).sort((a,b)=>campLiv(a)-campLiv(b)||String(a.delegazione||"").localeCompare(String(b.delegazione||""))||String(a.categoria).localeCompare(String(b.categoria))||String(a.girone).localeCompare(String(b.girone)))}
 function pubRender(){
   const el=pubEl();el.scrollTop=0;const C=PUB.camp||[];let body="";
   const tabs=`<div class="tabs" role="tablist">${PUB_SEZ.map(s=>`<button role="tab" class="${PUB.sez===s.k?"on":""}" onclick="PUB.sez='${s.k}';pubRender()">${s.l}</button>`).join("")}</div>`;
   if(PUB.id){
     const c=C.find(x=>x.id===PUB.id);if(!c){PUB.id=null;return pubRender()}
     const d=c.dati||{},cl=(d.classifica||{}).righe||[],R=d.risultati||[],P=d.programma||[];
-    const perG=(arr,desc)=>{const g={};arr.forEach(m=>(g[m.giornata||0]=g[m.giornata||0]||[]).push(m));return Object.keys(g).map(Number).sort((a,b)=>desc?b-a:a-b).map(k=>`<h2 style="font-size:16px">${k?k+"ª giornata":"Altre gare"}</h2><div class="card" style="padding:4px 12px">${g[k].map(m=>mrow(m)).join("")}</div>`).join("")};
+    const perG=(arr,desc)=>{const g={};arr.forEach(m=>(g[m.giornata||0]=g[m.giornata||0]||[]).push(m));return Object.keys(g).map(Number).sort((a,b)=>desc?b-a:a-b).map(k=>`<h2 style="font-size:16px">${k?(k>100?(k-100)+"ª giornata · ritorno":k+"ª giornata"):"Altre gare"}</h2><div class="card" style="padding:4px 12px">${g[k].map(m=>mrow(m)).join("")}</div>`).join("")};
     if(PUB.sq){const mie=x=>x.casa===PUB.sq||x.ospite===PUB.sq;const pos=cl.find(r=>r.squadra.toLowerCase()===PUB.sq.toLowerCase());
       body=`<div class="ph"><button class="rbtn" onclick="pubBack()" aria-label="Indietro">‹</button>${sqBadge(PUB.sq,44)}<h1 style="font-size:24px">${esc(PUB.sq)}</h1>${starBtn(favIsSq(PUB.sq),`favSq(${esc(JSON.stringify(PUB.sq))},'${esc(c.id)}')`,"Squadra preferita")}</div><p class="sub">${esc(c.categoria)} · Girone ${esc(c.girone)}${pos?` · ${pos.pos}° posto, ${pos.pt} punti`:""}</p>${PUB.admin?`<label class="rbtn" style="display:inline-block;margin:0 4px 6px">${pubLogo(PUB.sq)?"Cambia logo":"Carica logo"}<input type="file" accept="image/*" style="display:none" onchange="pubCaricaLogo(this.files[0])"></label>`:""}
         ${P.filter(mie).length?`<h2>Prossime partite</h2><div class="card" style="padding:4px 12px">${P.filter(mie).map(m=>mrow(m,PUB.sq)).join("")}</div>`:""}
         <h2>Risultati</h2><div class="card" style="padding:4px 12px">${R.filter(mie).length?R.filter(mie).slice().reverse().map(m=>mrow(m,PUB.sq)).join(""):`<p class="muted small" style="padding:10px 4px">Nessun risultato.</p>`}</div>`}
     else{const tb=(k,l)=>`<button class="${PUB.tab===k?"on":""}" onclick="PUB.tab='${k}';pubRender()">${l}</button>`;
-      body=pubTop(esc(c.categoria)+"</h1>"+starBtn(favIsCamp(c.id),`favCamp('${esc(c.id)}')`,"Campionato preferito")+"<h1 hidden>",`Girone ${esc(c.girone)} · ${esc(c.stagione||"")} · Delegazione di ${esc(c.delegazione||"Imperia")}`,true)+
+      body=pubTop(esc(c.categoria)+"</h1>"+starBtn(favIsCamp(c.id),`favCamp('${esc(c.id)}')`,"Campionato preferito")+"<h1 hidden>",`Girone ${esc(c.girone)} · ${esc(c.stagione||"")} · ${/regionale|serie d/i.test(c.delegazione||"")?esc(c.delegazione):"Delegazione di "+esc(c.delegazione||"Imperia")}`,true)+
        `<div class="tabs">${tb("cl","Classifica")}${tb("ris","Risultati")}${tb("prog","Calendario")}</div>`+
        (PUB.tab==="cl"?(cl.length?`<div class="card" style="padding:6px 8px"><table class="cl"><tr><th style="text-align:left">#  Squadra</th><th>PT</th><th>G</th><th>V</th><th>N</th><th>P</th><th>DR</th></tr>${cl.map(r=>`<tr style="cursor:pointer" onclick="PUB.sq=${esc(JSON.stringify(r.squadra))};pubRender()"><td class="tm"><span style="display:flex;align-items:center;gap:8px">${r.pos}. ${sqBadge(r.squadra,24)}<span>${esc(r.squadra)}</span></span></td><td class="pt">${r.pt}</td><td>${r.g}</td><td>${r.v}</td><td>${r.n}</td><td>${r.p}</td><td>${r.dr}</td></tr>`).join("")}</table></div><p class="muted" style="font-size:13px;margin:8px 6px 0">Tocca una squadra per vedere le sue partite.</p>`:`<div class="card muted" style="padding:16px">Classifica non ancora pubblicata.</div>`)
         :PUB.tab==="ris"?(R.length?perG(R,true):`<div class="card muted" style="padding:16px">Nessun risultato.</div>`)
@@ -2250,11 +2254,11 @@ function pubRender(){
   } else {
     const L=PUB.reg==="Liguria"?pubCampSez():[];
     const oggi=new Date().toISOString().slice(0,10);
-    body=pubBrand()+regChip()+`<p class="sub">Scegli categoria e girone${PUB.reg==="Liguria"?" · Delegazione di Imperia":""}</p>${tabs}
+    body=pubBrand()+regChip()+`<p class="sub">Scegli categoria e girone${PUB.reg==="Liguria"?" · Serie D, regionali e tutte le delegazioni":""}</p>${tabs}
       ${PUB.reg!=="Liguria"?`<div class="card" style="padding:18px"><b>${esc(PUB.reg)}: in arrivo</b><p class="muted" style="margin:6px 0 0">Stiamo aggiungendo i campionati di questa regione. Per ora trovi la Liguria.</p></div>`:L.length?L.map(c=>{const r=c.dati.risultati||[],cl=(c.dati.classifica||{}).righe||[];const ult=r.length?Math.max(...r.map(x=>x.giornata||0)):0;const prox=(c.dati.programma||[]).filter(m=>(m.data||"")>=oggi).length;
-        return `<button class="cc" onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()">${campBadge(c)}<div><b>${esc(c.categoria)}</b><small>Girone ${esc(c.girone)}${cl.length?` · ${cl.length} squadre`:""}${ult?` · ${ult}ª giornata giocata`:""}${prox?` · ${prox} gare in programma`:""}</small></div><span class="chev">›</span></button>`}).join("")
-        :`<div class="card" style="padding:18px"><b>In arrivo</b><p class="muted" style="margin:6px 0 0">Stiamo aggiungendo questi campionati. Per ora trovi Dilettanti e Giovanili della Delegazione di Imperia.</p></div>`}
-      <p class="muted" style="font-size:13px;margin:16px 6px 0">Risultati e classifiche dai Comunicati Ufficiali LND Liguria, aggiornati ogni giorno.</p>`;
+        return `<button class="cc" onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()">${campBadge(c)}<div><b>${esc(c.categoria)}</b><small>${esc(delBreve(c))} · Girone ${esc(c.girone)}${cl.length?` · ${cl.length} squadre`:""}${ult?` · ${ult>100?(ult-100)+"ª di ritorno":ult+"ª giornata"} giocata`:""}${prox?` · ${prox} gare in programma`:""}</small></div><span class="chev">›</span></button>`}).join("")
+        :`<div class="card" style="padding:18px"><b>In arrivo</b><p class="muted" style="margin:6px 0 0">Stiamo aggiungendo questi campionati. Per ora trovi Dilettanti e Giovanili della Liguria.</p></div>`}
+      <p class="muted" style="font-size:13px;margin:16px 6px 0">Risultati e classifiche dai Comunicati Ufficiali LND (Liguria e Serie D), aggiornati ogni giorno.</p>`;
   }
   el.innerHTML=pubCSS+`<div class="lg">${body}</div>`+pubBar();
 }
