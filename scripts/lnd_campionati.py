@@ -103,6 +103,7 @@ def leggi_classifiche(txt):
 
 def titolo_squadra(s):
     s = " ".join(w[:1].upper() + w[1:].lower() for w in s.replace("’", "'").split())
+    s = re.sub(r"\bA\.s\.d\.?", "A.S.D.", s)
     return re.sub(r"\b(Asd|A\.S\.D\.|Ssd|Sq\.B|Sq\. B)\b", lambda m: {"Asd": "ASD", "A.S.D.": "A.S.D.", "Ssd": "SSD"}.get(m.group(1), "Sq. B"), s)
 
 def main():
