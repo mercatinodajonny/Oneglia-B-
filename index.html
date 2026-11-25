@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-25-14";
+const BUILD="2026-11-25-15";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -705,6 +705,42 @@ function vHome(){
 }
 
 
+
+// ================= ACCOUNT PERSONALE =================
+function accProf(){if(PUB.prof===undefined){PUB.prof=null;setTimeout(async()=>{try{const r=await SB.from("profili").select("*").maybeSingle();PUB.prof=r.data||{}}catch(e){PUB.prof={}}pubRender()},0)}return PUB.prof||{}}
+function accFotoSrc(){const pr=accProf();if(pr.foto)return pr.foto;const pid=(PUB.acc||[]).map(a=>a.pid).find(Boolean);const pl=pid&&(S.players||[]).find(x=>x.id===pid);return pl&&typeof pl.foto==="string"&&pl.foto.startsWith("data:image/")?pl.foto:""}
+function accNome(fb){const pr=accProf();return [pr.nome,pr.cognome].filter(Boolean).join(" ")||fb||(PUB.acc||[]).map(a=>a.nome).find(Boolean)||"Il tuo account"}
+function accAv(sz){const f=accFotoSrc(),n=accNome();const ini=n.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase();return f?`<img class="accav" src="${f}" alt="" style="width:${sz}px;height:${sz}px">`:`<span class="accav ini" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.36)}px">${esc(ini||"?")}</span>`}
+function accBanner(fb){return `<button class="accban" onclick="PUB.delStep=0;pubGo('impostazioni')">${accAv(64)}<span class="abt"><b>${esc(accNome(fb))}</b><small>${esc(PUB.email||"")}</small><small class="abs">Account, dati personali e sicurezza</small></span><span class="chev" aria-hidden="true">›</span></button>`}
+function accView(){const pr=accProf();const n=accNome();const parts=n==="Il tuo account"?["",""]:[pr.nome||n.split(" ")[0]||"",pr.cognome||n.split(" ").slice(1).join(" ")];
+  const f=(id,l,ty,v,ph,ac)=>`<label class="arow2"><span>${l}</span><input id="${id}" type="${ty}" value="${esc(v||"")}" placeholder="${ph||""}" ${ac?`autocomplete="${ac}"`:""}></label>`;
+  return `<div class="ph"><button class="rbtn" onclick="pubGo('account')" aria-label="Indietro">‹</button><h1>Account</h1></div>
+  <div class="acchead">${accAv(96)}<b>${esc(n)}</b><small>${esc(PUB.email||"")}</small><button class="accfoto" onclick="accFoto()">${accFotoSrc()?"Cambia foto":"Aggiungi foto"}</button>${pr.foto?`<button class="accfoto x" onclick="accFotoVia()">Togli foto</button>`:""}</div>
+  <h2>Dati personali</h2><div class="agrp">${f("acN","Nome","text",parts[0],"Nome","given-name")}${f("acC","Cognome","text",parts[1],"Cognome","family-name")}${f("acD","Data di nascita","date",pr.nascita||"","","bday")}</div>
+  <button class="cta" onclick="accSalva()">Salva i dati personali</button>
+  <p class="anote">Questi dati sono tuoi e privati: li vedi solo tu. La tua scheda da giocatore (numero, ruolo, statistiche) la gestisce la società.</p>
+  <h2>Email</h2><div class="agrp">${f("acE","Email","email",PUB.email||"","nome@esempio.it","email")}</div>
+  <button class="cta sec" onclick="accEmail()">Cambia email</button>
+  <p class="anote">Ti mandiamo un link di conferma al nuovo indirizzo. Finché non lo confermi resta valida l'email attuale; dopo, le tue squadre restano collegate al nuovo indirizzo.</p>
+  <h2>Password</h2><div class="agrp">${f("acP","Nuova","password","","Almeno 8 caratteri","new-password")}${f("acP2","Ripeti","password","","Ripeti la password","new-password")}</div>
+  <button class="cta sec" onclick="accPwd()">Cambia password</button>
+  <h2>Elimina account</h2>
+  ${PUB.delStep?`<div class="adel"><b>Vuoi davvero eliminare l'account?</b><p>Perdi l'accesso a tutte le tue squadre e i tuoi dati personali vengono cancellati. Non si può annullare. Le statistiche registrate dalla società restano alla società.</p><label class="arow2"><span>Scrivi ELIMINA</span><input id="acX" type="text" autocomplete="off" placeholder="ELIMINA"></label><div class="adbtn"><button class="cta sec" onclick="PUB.delStep=0;pubRender()">Annulla</button><button class="cta red" onclick="accElimina()">Elimina</button></div></div>`:`<button class="maout" style="margin-top:4px" onclick="PUB.delStep=1;pubRender()">Elimina il mio account</button>`}
+  <button class="maout" style="color:var(--text)" onclick="logout()">Esci dall'account</button>`}
+async function accUserId(){const {data}=await SB.auth.getUser();return data&&data.user&&data.user.id}
+async function accSave(obj){const uid=await accUserId();if(!uid){toast("Accedi di nuovo");return false}const r=await SB.from("profili").upsert({user_id:uid,...obj,updated_at:new Date().toISOString()});if(r.error){toast("Non salvato: riprova");return false}PUB.prof={...(PUB.prof||{}),...obj};return true}
+async function accSalva(){const v=id=>(document.getElementById(id)||{}).value||"";const nome=v("acN").trim(),cognome=v("acC").trim(),nascita=v("acD")||null;
+  if(!nome||!cognome){toast("Scrivi nome e cognome");return}if(nascita&&(nascita>new Date().toISOString().slice(0,10)||nascita<"1920-01-01")){toast("Controlla la data di nascita");return}
+  if(await accSave({nome,cognome,nascita})){toast("Dati salvati");pubRender()}}
+function accFoto(){pickPhoto(async d=>{if(d.length>190000){toast("Foto troppo grande");return}if(await accSave({foto:d})){toast("Foto aggiornata");pubRender()}})}
+async function accFotoVia(){if(await accSave({foto:null})){toast("Foto tolta");pubRender()}}
+async function accEmail(){const e=((document.getElementById("acE")||{}).value||"").trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){toast("Email non valida");return}if(e===(PUB.email||"").toLowerCase()){toast("È già la tua email");return}
+  const r=await SB.auth.updateUser({email:e});if(r.error){toast(/already|registered/i.test(r.error.message)?"Email già usata da un altro account":"Non riuscito: riprova");return}toast("Controlla la posta: ti abbiamo mandato il link di conferma")}
+async function accPwd(){const a=(document.getElementById("acP")||{}).value||"",b=(document.getElementById("acP2")||{}).value||"";if(a.length<8){toast("Almeno 8 caratteri");return}if(a!==b){toast("Le due password non coincidono");return}
+  const r=await SB.auth.updateUser({password:a});if(r.error){toast("Non riuscito: riprova");return}document.getElementById("acP").value="";document.getElementById("acP2").value="";toast("Password cambiata")}
+async function accElimina(){const x=((document.getElementById("acX")||{}).value||"").trim().toUpperCase();if(x!=="ELIMINA"){toast("Scrivi ELIMINA per confermare");return}
+  const r=await SB.rpc("elimina_account");if(r.error){toast(/proprietario/.test(r.error.message)?"Sei proprietario di una società: prima passa la proprietà a un'altra persona":"Non riuscito: riprova");return}
+  toast("Account eliminato");try{localStorage.removeItem("og_acc");sessionStorage.removeItem("fc_app")}catch(e){}await SB.auth.signOut();location.replace(location.pathname)}
 // ================= LA MIA AREA · GIOCATORE (dentro Golazo) =================
 async function mioLoad(){try{const {data}=await SB.auth.getSession();if(!data||!data.session)return;S.session=data.session;await loadMember();await loadAll()}catch(e){}}
 function mioView(a){
@@ -2309,7 +2345,12 @@ const pubCSS=`<style>
 #pub .tabs{display:flex;gap:4px;overflow-x:auto;margin:0 -14px 14px;padding:0 14px;scrollbar-width:none}#pub .tabs::-webkit-scrollbar{display:none}
 #pub .tabs button{flex:none;border:0;background:none;color:var(--muted);font-size:16px;font-weight:600;padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer}
 #pub .tabs button.on{color:var(--tint);border-bottom-color:var(--tint)}
-/*MA*/#pub button.mcard{display:block;width:100%;border:0;text-align:left;font:inherit;color:var(--text);cursor:pointer}#pub .mgo{display:block;margin-top:12px;font-weight:700;font-size:14px;color:var(--tint);border:0;background:none;padding:0;font-family:inherit;cursor:pointer}
+/*MA*/#pub .accban{display:flex;align-items:center;gap:14px;width:100%;border:0;background:var(--card);border-radius:24px;padding:16px;margin:6px 0 4px;box-shadow:var(--shadow);font:inherit;color:var(--text);text-align:left;cursor:pointer;transition:transform .12s ease}#pub .accban:active{transform:scale(.98)}#pub .abt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}#pub .abt b{font-size:21px;line-height:1.2}#pub .abt small{color:var(--muted);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#pub .abt .abs{color:var(--tint);font-weight:600;font-size:13px;margin-top:2px}#pub .accban .chev{color:var(--muted);font-size:24px}
+#pub .accav{border-radius:50%;object-fit:cover;flex:none;display:block}#pub .accav.ini{display:grid;place-items:center;background:linear-gradient(135deg,#1B2B57,#157A3A);color:#fff;font-weight:800}
+#pub .acchead{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;margin:6px 0 4px}#pub .acchead b{font-size:22px;margin-top:8px}#pub .acchead small{color:var(--muted);font-size:14px}#pub .accfoto{border:0;background:none;color:var(--tint);font:inherit;font-weight:700;font-size:15px;padding:6px 12px;cursor:pointer}#pub .accfoto.x{color:var(--muted);font-weight:600;padding-top:0}
+#pub .agrp{background:var(--card);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}#pub .arow2{display:flex;align-items:center;gap:12px;padding:4px 16px;min-height:52px;border-bottom:1px solid var(--line)}#pub .agrp .arow2:last-child{border-bottom:0}#pub .arow2 span{flex:none;width:118px;font-size:15px;font-weight:600}#pub .arow2 input{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:16px;color:var(--text);padding:12px 0;outline:none;text-align:right}
+#pub .anote{margin:10px 6px 0;font-size:13px;color:var(--muted);line-height:1.4}#pub .adel{background:#fdecec;border:2px solid #d70015;border-radius:20px;padding:14px}#pub .adel b{color:#d70015;font-size:17px}#pub .adel p{margin:6px 0 10px;font-size:14px;color:#5c0a12;line-height:1.4}#pub .adel .arow2{background:#fff;border-radius:14px;border:0}#pub .adbtn{display:flex;gap:10px}#pub .adbtn .cta{flex:1}#pub .cta.red{background:#d70015}
+#pub button.mcard{display:block;width:100%;border:0;text-align:left;font:inherit;color:var(--text);cursor:pointer}#pub .mgo{display:block;margin-top:12px;font-weight:700;font-size:14px;color:var(--tint);border:0;background:none;padding:0;font-family:inherit;cursor:pointer}
 #pub .mnext{position:relative;overflow:hidden}#pub .mnext .mk,#pub .mnext .mmid small,#pub .mnext .mmeta{color:inherit;opacity:.85}#pub .mnext .mgo{color:inherit}#pub .mnext em{color:inherit}
 #pub .mmenu{display:flex;flex-direction:column;gap:10px}#pub .mmenu button{display:flex;align-items:center;gap:14px;width:100%;border:0;background:var(--card);border-radius:22px;padding:14px 16px;box-shadow:var(--shadow);font:inherit;color:var(--text);text-align:left;cursor:pointer}#pub .mic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;flex:none}#pub .mic svg{width:24px;height:24px}#pub .mic.cal{background:#E6F4EA;color:#157A3A}#pub .mic.cla{background:#FFF4DB;color:#b37400}#pub .mic.rosa{background:#E8ECF6;color:#1B2B57}#pub .mic.all{background:#fdecec;color:#c4001a}#pub .mtl{flex:1;min-width:0;display:flex;flex-direction:column}#pub .mtl b{font-size:17px}#pub .mtl small{color:var(--muted);font-size:13.5px}#pub .mmenu .chev{color:var(--muted);font-size:24px}
 #pub .mlist{padding:4px 14px}#pub .mlr{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:var(--text);text-align:left;padding:11px 0;border-bottom:1px solid var(--line);cursor:pointer}#pub .mlist>.mlr:last-of-type{border-bottom:0}#pub div.mlr{cursor:default}#pub .mlr .av{width:40px;height:40px;font-size:15px}#pub .mrd{display:flex;flex-direction:column;min-width:84px}#pub .mrd b{font-size:14px}#pub .mrd small,#pub .mrn small{color:var(--muted);font-size:13px}#pub .mrn{flex:1;min-width:0;display:flex;flex-direction:column;font-size:15px}#pub .mrn b{font-size:15px}
@@ -2492,7 +2533,7 @@ async function pubRichiesta(){const v=id=>(($("#"+id)||{}).value||"").trim();con
 async function pubReset(){const email=(($("#plE")||{}).value||"").trim().toLowerCase();const m=$("#plMsg");if(!email){m.textContent="Scrivi prima la tua email";return}const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});m.textContent=error?"Non riuscito, riprova più tardi":"Ti ho mandato un'email per cambiare la password"}
 function pubGo(v){if(v==="account"){PUB.scegli=false;PUB.mioV=null}PUB.vista=v;PUB.id=null;PUB.sq=null;PUB.match=null;pubRender()}
 function pubBar(){const b=(k,l,ico)=>`<button class="${PUB.vista===k&&!PUB.id?"on":""}" onclick="pubGo('${k}')">${ico}${l}</button>`;const s=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
-  return `<nav class="pbar">${b("partite","Home",s('<path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/>'))}${b("home","Campionati",s('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>'))}${b("cerca","Cerca",s('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'))}${(()=>{const io=S.session||PUB.loggato;const a=(PUB.acc||[])[0];const on=["account","entra","login"].includes(PUB.vista)&&!PUB.id;
+  return `<nav class="pbar">${b("partite","Home",s('<path d="M4 10.5L12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/>'))}${b("home","Campionati",s('<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>'))}${b("cerca","Cerca",s('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'))}${(()=>{const io=S.session||PUB.loggato;const a=(PUB.acc||[])[0];const on=["account","entra","login","impostazioni"].includes(PUB.vista)&&!PUB.id;
     const ic=io&&a?`<span class="pav">${sqBadge(a.team||a.club,26)}</span>`:io?`<span class="pav ini">${esc(sqIniz(PUB.email||"?"))}</span>`:s('<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>');
     return `<button class="${on?"on":""}" onclick="pubGo('${io?"account":"entra"}')">${ic}${io?"La mia area":"Accedi"}</button>`})()}</nav>`}
 function pubAcct(){return "";const ini=(S.session||PUB.loggato)&&PUB.acc&&PUB.acc[0]&&PUB.acc[0].nome?sqIniz(PUB.acc[0].nome):"";return `<button class="acct" onclick="pubGo('account')" aria-label="Account">${S.session||PUB.loggato?(ini?`<b>${esc(ini)}</b>`:`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`):`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`}</button>`}
@@ -2750,6 +2791,8 @@ function pubRender(){
     }
   } else if(PUB.vista==="admin"){body=admView();
   } else if(PUB.vista==="adminSoc"){body=admSocView();
+  } else if(PUB.vista==="impostazioni"){
+    if(!S.session&&!PUB.loggato){PUB.vista="entra";return pubRender()}body=accView();
   } else if(PUB.vista==="account"){
     if(!S.session&&!PUB.loggato){PUB.vista="entra";return pubRender()}
     if(!PUB.acc){body=pubTop("La mia area","")+`<p class="sub">Caricamento…</p>`;setTimeout(async()=>{try{const r=await SB.rpc("my_access");PUB.acc=r.data||[]}catch(e){PUB.acc=[]}pubRender()},0)}
@@ -2762,7 +2805,7 @@ function pubRender(){
       const card=({a,i})=>{const g=GIOC_RUOLI.includes(a.ruolo);return `<button class="marole" onclick="entraCome(${i})">${sqBadge(a.team||a.club,52)}<div class="mtx"><span class="mpill ${g?"g":"s"}">${esc(R[a.ruolo]||a.ruolo)}</span><b>${esc(a.team||a.club)}</b><small>${esc(D[a.ruolo]||a.club)}</small></div>${attivo===accKey(a)?`<span class="mon">Ultimo usato</span>`:""}<span class="chev" aria-hidden="true">›</span></button>`};
       const nRich=(PUB.rich||[]).filter(r=>r.stato==="nuova").length;
       if(PUB.admin&&!PUB.rich)setTimeout(async()=>{const r=await SB.from("richieste_societa").select("*").order("creato",{ascending:false});PUB.rich=r.data||[];pubRender()},0);
-      body=gAcc?mioView(gAcc):pubTop("La mia area","")+`<div class="maprof"><span class="mav">${esc(ini)}</span><div><b>${esc(nome||"Il tuo account")}</b><small>${esc(PUB.email||"")}</small></div></div>
+      body=gAcc?mioView(gAcc):pubTop("La mia area","")+accBanner(nome)+`
         ${PUB.acc.length?`<h2>Entra come</h2>${PUB.acc.length>1?`<p class="mahint">Scegli con quale ruolo entrare.</p>`:""}${L.map(card).join("")}`:`<div class="card muted" style="padding:16px;margin-top:14px">Il tuo account non è ancora collegato a una squadra. Chiedi alla tua società di aggiungerti con questa email.</div>`}
         ${PUB.vet===undefined?(setTimeout(async()=>{try{const r=await SB.rpc("mie_vetrine");PUB.vet=r.data||[]}catch(e){PUB.vet=[]}pubRender()},0),""):(PUB.vet||[]).filter(v=>v.piano!=="gratis").length?`<h2>La tua pagina pubblica</h2>${PUB.vet.filter(v=>v.piano!=="gratis").map(v=>`<button class="marole" onclick="PUB.ak='${esc(v.chiave)}';PUB.an=${esc(JSON.stringify(v.nome))};PUB.vista='adminSoc';pubRender()">${sqBadge(v.nome,52)}<div class="mtx"><span class="mpill s">Vetrina</span><b>${esc(v.nome)}</b><small>${esc(PIANI[v.piano])}${v.scadenza?" · fino al "+esc(fmtD(v.scadenza)):""}</small></div><span class="chev" aria-hidden="true">›</span></button>`).join("")}`:""}
         ${PUB.admin?`<h2>Golazo</h2><button class="marole adm" onclick="pubGo('admin')"><img src="assets/golazo-icona.svg" alt="" width="52" height="52" style="border-radius:14px"><div class="mtx"><span class="mpill a">Proprietario della piattaforma</span><b>Admin Pro</b><small>Società, abbonamenti e richieste</small></div>${nRich?`<span class="mbadge">${nRich}</span>`:""}<span class="chev" aria-hidden="true">›</span></button>`:""}
@@ -2882,7 +2925,7 @@ function entraCome(i){const a=(PUB.acc||[])[i];if(!a)return;const k=accKey(a);
   try{localStorage.setItem("og_acc",k);localStorage.setItem("og_club",a.club_id);if(a.team_id)localStorage.setItem("og_team",a.team_id);sessionStorage.setItem("fc_app","1")}catch(e){}
   if(S.session&&S.accKey===k&&S.loaded.players){closePublic();location.hash="home";route();return}
   history.replaceState(null,"",location.pathname+location.search);location.reload()}
-async function logout(){try{PUB.ad=null;PUB.vet=undefined;PUB.admin=false;PUB.loggato=false}catch(e){}try{sessionStorage.removeItem("fc_app");localStorage.removeItem("og_acc")}catch(e){}if(SB)await SB.auth.signOut();else location.reload()}
+async function logout(){try{PUB.prof=undefined;PUB.ad=null;PUB.vet=undefined;PUB.admin=false;PUB.loggato=false}catch(e){}try{sessionStorage.removeItem("fc_app");localStorage.removeItem("og_acc")}catch(e){}if(SB)await SB.auth.signOut();else location.reload()}
 
 // ---------- gestione account (staff)
 function vAccount(){
