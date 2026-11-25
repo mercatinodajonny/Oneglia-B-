@@ -569,7 +569,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-25-06";
+const BUILD="2026-11-25-07";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2175,6 +2175,10 @@ const pubCSS=`<style>
 #pub .seg{background:var(--card)}#pub .seg button{color:var(--muted)}#pub .seg button.on{background:var(--fill);color:var(--text)}
 #pub .f input{background:var(--card);color:var(--text);border-color:var(--fill)}#pub .f label{color:var(--muted)}
 #pub .lggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}#pub .lggrid button{border:0;background:var(--card);border-radius:18px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;font:inherit;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;min-width:0}#pub .lggrid span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pub .agrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 4px}#pub .astat{background:var(--card);border-radius:18px;padding:14px 16px;text-align:left}#pub .astat b{display:block;font-size:24px;letter-spacing:-.02em}#pub .astat small{color:var(--muted);font-size:13px}
+#pub .arow{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:10px 2px;border-top:1px solid var(--line);font:inherit;color:var(--text);text-align:left;cursor:pointer}#pub .card>.arow:first-child{border-top:0}#pub .arow>span:not(.achip):not(.chev){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}#pub .arow small{color:var(--muted);font-size:13px;white-space:nowrap}
+#pub .arow .chev{flex:none;margin-left:2px}#pub .achip{flex:none;font-size:11.5px;font-weight:700;border-radius:99px;padding:3px 8px;background:var(--fill);color:var(--muted)}#pub .achip.vetrina{background:#E8F0FF;color:#1D4ED8}#pub .achip.completa{background:#EAF4EE;color:#157A3A}#pub .achip.ok{background:#EAF4EE;color:#157A3A}#pub .achip.bad{background:#FFE9E9;color:#C8102E}
+#pub .aform{padding:16px}#pub .aform>b{display:block;margin-bottom:10px}#pub .a2{display:grid;grid-template-columns:1fr 1fr;gap:10px}#pub .a3{display:grid;grid-template-columns:.8fr 1.2fr 1fr;gap:10px}#pub .pf textarea{width:100%;box-sizing:border-box;border:0;border-radius:16px;background:var(--card);padding:14px 16px;font:inherit;font-size:16px;color:var(--text);box-shadow:inset 0 0 0 1px var(--line);resize:vertical}#pub .aform .pf input,#pub .aform .pf select,#pub .aform .pf textarea{background:var(--bg,#f2f2f7);box-shadow:none;font-size:16px;padding:13px 14px}
 #pub .hempty{text-align:center;background:var(--card);border-radius:28px;padding:30px 22px 22px;margin-top:14px}#pub .hempty .hico{width:72px;height:72px;border-radius:50%;background:#FFF4DB;color:#ff9f0a;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}#pub .hempty h2{margin:0 0 6px;font-size:22px}#pub .hempty p{margin:0 0 18px;color:var(--muted);font-size:15.5px;line-height:1.45}#pub .hempty .cta{margin-bottom:10px}#pub .hempty small{display:block;color:var(--muted);font-size:13px;margin-top:4px}
 #pub .zrow{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0 10px}#pub .zrow::-webkit-scrollbar{display:none}#pub .zchip{flex:none;display:flex;align-items:center;gap:6px;border:0;border-radius:99px;background:var(--fill);color:var(--text);font:inherit;font-size:14.5px;font-weight:700;padding:9px 14px;cursor:pointer}#pub .zchip.on{background:var(--tint);color:#fff}#pub .zchip.loc{background:var(--card);color:var(--tint);box-shadow:inset 0 0 0 1.5px var(--tint)}
 #pub .plog{max-width:420px;margin:0 auto;padding-top:8px;text-align:center}
@@ -2358,6 +2362,76 @@ function campVicini(zn){const z=ZONE.find(x=>x.n===zn);if(!z)return[];const C=PU
     const gir=[...new Set(C.filter(k=>k.categoria===c.categoria&&/regionale/i.test(k.delegazione||"")).map(k=>k.girone))].sort();
     if(gir.length<=1){out.push(c);return}const want=gir[Math.min(gir.length-1,Math.floor(z.i*gir.length/4))];if(c.girone===want)out.push(c)});
   return out.sort(campSort)}
+const RUOLI_P={P:"Portiere",D:"Difensore",C:"Centrocampista",A:"Attaccante"};
+const PIANI={gratis:"Gratis",vetrina:"Vetrina",completa:"Gestione completa"};
+const STATI={attivo:"Attivo",prova:"In prova",da_pagare:"Da pagare",scaduto:"Scaduto"};
+function admErr(e){toast(e&&e.message?"Errore: "+e.message:"Errore, riprova")}
+async function admLoad(force){if(PUB.ad&&!force)return;const [a,b]=await Promise.all([SB.from("societa_gestite").select("*"),SB.from("pagamenti").select("*").order("data",{ascending:false})]);if(a.error||b.error){admErr(a.error||b.error);PUB.ad={sg:{},pag:[]};return}PUB.ad={sg:{},pag:b.data||[]};(a.data||[]).forEach(x=>PUB.ad.sg[x.chiave]=x)}
+async function roseLoad(k,force){PUB.rose=PUB.rose||{};if(PUB.rose[k]&&!force)return PUB.rose[k];const r=await SB.from("rose_pubbliche").select("*").eq("chiave",k).order("ordine").order("numero");PUB.rose[k]=r.data||[];return PUB.rose[k]}
+function admScaduta(x){return x&&(x.stato==="scaduto"||x.stato==="da_pagare"||(x.scadenza&&x.scadenza<new Date().toISOString().slice(0,10)&&x.piano!=="gratis"))}
+function admChip(x){if(!x||x.piano==="gratis")return `<span class="achip">Gratis</span>`;const bad=admScaduta(x);return `<span class="achip ${x.piano}">${x.piano==="completa"?"Completa":PIANI[x.piano]}</span><span class="achip ${bad?"bad":"ok"}">${bad?(x.stato==="scaduto"?"Scaduto":"Da pagare"):STATI[x.stato]||"Attivo"}</span>`}
+function admView(){
+  if(!PUB.admin){PUB.vista="account";return pubRender()}
+  if(!PUB.ad){setTimeout(async()=>{await admLoad();pubRender()},0);return pubTop("Admin Pro","",true)+`<p class="sub">Caricamento…</p>`}
+  const sg=PUB.ad.sg,anno=new Date().getFullYear()+"",oggi=new Date().toISOString().slice(0,10),fra30=new Date(Date.now()+30*864e5).toISOString().slice(0,10);
+  const L=Object.values(sg),inc=PUB.ad.pag.filter(p=>(p.data||"").startsWith(anno)).reduce((s,p)=>s+Number(p.importo||0),0);
+  const nV=L.filter(x=>x.piano==="vetrina").length,nC=L.filter(x=>x.piano==="completa").length,nD=L.filter(admScaduta).length;
+  const prossime=L.filter(x=>x.piano!=="gratis"&&x.scadenza&&x.scadenza>=oggi&&x.scadenza<=fra30).sort((a,b)=>a.scadenza.localeCompare(b.scadenza));
+  const f=PUB.adF||"tutte",q=(PUB.adQ||"").trim().toLowerCase();
+  let T=allTeams().map(n=>({n,k:tkey(n),x:sg[tkey(n)]}));Object.values(sg).forEach(x=>{if(!T.some(t=>t.k===x.chiave))T.push({n:x.nome,k:x.chiave,x})});
+  T=T.filter(t=>(!q||t.n.toLowerCase().includes(q))&&(f==="tutte"||(f==="paganti"&&t.x&&t.x.piano!=="gratis")||(f==="dapagare"&&admScaduta(t.x))||(f==="gratis"&&(!t.x||t.x.piano==="gratis"))));
+  T.sort((a,b)=>(b.x&&b.x.piano!=="gratis"?1:0)-(a.x&&a.x.piano!=="gratis"?1:0)||a.n.localeCompare(b.n));
+  const st=(v,l,c)=>`<div class="astat"><b style="${c?"color:"+c:""}">${v}</b><small>${l}</small></div>`;
+  return pubTop("Admin Pro","Società, piani, rose e pagamenti",true)+
+   `<div class="agrid">${st(nV,"Vetrina")}${st(nC,"Gestione completa")}${st(inc.toLocaleString("it-IT",{style:"currency",currency:"EUR"}),"Incassato "+anno,"var(--tint)")}${st(nD,"Da pagare o scadute",nD?"#d70015":"")}</div>
+   ${prossime.length?`<h2>Scadenze nei prossimi 30 giorni</h2><div class="card" style="padding:4px 12px">${prossime.map(x=>`<button class="arow" onclick="PUB.ak='${esc(x.chiave)}';PUB.an=${esc(JSON.stringify(x.nome))};PUB.vista='adminSoc';pubRender()">${sqBadge(x.nome,32)}<span>${esc(x.nome)}</span><small>${esc(fmtD(x.scadenza))}</small></button>`).join("")}</div>`:""}
+   <h2>Società</h2><div class="f" style="margin-bottom:8px"><input id="adQ" type="search" placeholder="Cerca una squadra" value="${esc(PUB.adQ||"")}" oninput="PUB.adQ=this.value;pubRender();const i=$('#adQ');i.focus();i.setSelectionRange(i.value.length,i.value.length)"></div>
+   <div class="zrow">${[["tutte","Tutte"],["paganti","Paganti"],["dapagare","Da pagare"],["gratis","Gratis"]].map(([k,l])=>`<button class="zchip ${f===k?"on":""}" onclick="PUB.adF='${k}';pubRender()">${l}</button>`).join("")}</div>
+   <div class="card" style="padding:4px 12px">${T.slice(0,PUB.adAll?999:60).map(t=>`<button class="arow" onclick="PUB.ak='${esc(t.k)}';PUB.an=${esc(JSON.stringify(t.n))};PUB.vista='adminSoc';pubRender()">${sqBadge(t.n,32)}<span>${esc(t.n)}</span>${admChip(t.x)}<span class="chev">›</span></button>`).join("")||`<p class="muted" style="padding:12px 4px">Nessuna società.</p>`}</div>
+   ${T.length>60&&!PUB.adAll?`<button class="plink" style="display:block;margin:0 auto" onclick="PUB.adAll=1;pubRender()">Mostra tutte (${T.length})</button>`:""}
+   ${PUB.ad.pag.length?`<h2>Ultimi pagamenti</h2><div class="card" style="padding:4px 12px">${PUB.ad.pag.slice(0,10).map(p=>`<div class="arow" style="cursor:default"><span>${esc((sg[p.chiave]||{}).nome||p.chiave)}</span><small>${esc(fmtD(p.data))}</small><b>${Number(p.importo).toLocaleString("it-IT",{style:"currency",currency:"EUR"})}</b></div>`).join("")}</div>`:""}`}
+function admSocView(){
+  const k=PUB.ak,n=PUB.an||k,adm=PUB.admin;const vet=(PUB.vet||[]).some(v=>v.chiave===k);if(!adm&&!vet){PUB.vista="account";return pubRender()}
+  if(adm&&!PUB.ad){setTimeout(async()=>{await admLoad();pubRender()},0);return pubTop(esc(n),"",true)+`<p class="sub">Caricamento…</p>`}
+  if(!PUB.rose||!PUB.rose[k]){setTimeout(async()=>{await roseLoad(k);pubRender()},0)}
+  const x=(adm?PUB.ad.sg[k]:(PUB.vet||[]).find(v=>v.chiave===k))||{piano:"gratis",stato:"attivo"},R=(PUB.rose||{})[k]||[];
+  const pag=adm?PUB.ad.pag.filter(p=>p.chiave===k):[],tot=pag.reduce((s,p)=>s+Number(p.importo||0),0);
+  const sel=(id,o,v)=>`<select id="${id}">${Object.entries(o).map(([a,b])=>`<option value="${a}" ${a===v?"selected":""}>${b}</option>`).join("")}</select>`;
+  const camp=(PUB.camp||[]).find(c=>JSON.stringify(c.dati||{}).includes(JSON.stringify(n)));
+  return `<div class="ph"><button class="rbtn" onclick="PUB.vista='${adm?"admin":"account"}';pubRender()" aria-label="Indietro">‹</button>${sqBadge(n,44)}<h1 style="font-size:23px">${esc(n)}</h1></div>
+   ${adm?`<div style="margin:-2px 2px 6px">${admChip(PUB.ad.sg[k])}</div>`:`<p class="sub">Qui aggiorni il logo e la rosa che tutti vedono su Golazo.</p>`}
+   ${adm?`<h2>Piano e contatti</h2><div class="card aform">
+     <label class="pf"><span>Piano</span>${sel("aP",PIANI,x.piano)}</label>
+     <div class="a2"><label class="pf"><span>Stato</span>${sel("aS",STATI,x.stato)}</label><label class="pf"><span>Scadenza</span><input id="aD" type="date" value="${esc(x.scadenza||"")}"></label></div>
+     <label class="pf"><span>Referente</span><input id="aR" value="${esc(x.referente||"")}" placeholder="Nome e cognome"></label>
+     <label class="pf"><span>Email del referente</span><input id="aE" type="email" value="${esc(x.email_referente||"")}" placeholder="Con questa email entra in Golazo"></label>
+     <label class="pf"><span>Telefono</span><input id="aT" type="tel" value="${esc(x.telefono||"")}"></label>
+     <label class="pf"><span>Note</span><textarea id="aN" rows="2">${esc(x.note||"")}</textarea></label>
+     <p class="muted" style="font-size:13px;margin:0 2px 10px">Con Vetrina o Gestione completa, il referente entra con la sua email e può cambiare logo e rosa finché il piano è attivo.</p>
+     <button class="cta" onclick="admSalva()">Salva</button></div>`:""}
+   <h2>Logo</h2><div class="card aform" style="display:flex;align-items:center;gap:14px">${sqBadge(n,64)}<label class="cta sec" style="flex:1;text-align:center;margin:0">${pubLogo(n)?"Cambia logo":"Carica logo"}<input type="file" accept="image/*" style="display:none" onchange="admLogo(this.files[0])"></label></div>
+   <h2>Rosa pubblica <small class="muted" style="font-weight:600">${R.length} giocatori</small></h2><div class="card" style="padding:4px 12px">${R.map(p=>`<div class="arow" style="cursor:default"><b style="width:26px;color:var(--muted)">${p.numero??""}</b><span>${esc([p.nome,p.cognome].filter(Boolean).join(" "))}</span><small>${esc(RUOLI_P[p.ruolo]||"")}${p.anno_nascita?" · "+p.anno_nascita:""}</small><button class="rbtn" aria-label="Togli" onclick="admDelGioc('${p.id}')">×</button></div>`).join("")||`<p class="muted" style="padding:12px 4px;margin:0">Nessun giocatore inserito.</p>`}</div>
+   <div class="card aform" style="margin-top:10px"><b>Aggiungi giocatore</b>
+     <div class="a2"><label class="pf"><span>Nome</span><input id="gN"></label><label class="pf"><span>Cognome</span><input id="gC"></label></div>
+     <div class="a3"><label class="pf"><span>Numero</span><input id="gNum" type="number" inputmode="numeric" min="1" max="99"></label><label class="pf"><span>Ruolo</span>${sel("gR",{"":"—",...RUOLI_P},"")}</label><label class="pf"><span>Anno</span><input id="gA" type="number" inputmode="numeric" placeholder="2001"></label></div>
+     <button class="cta" onclick="admAddGioc()">Aggiungi alla rosa</button></div>
+   ${adm?`<h2>Pagamenti <small class="muted" style="font-weight:600">${tot.toLocaleString("it-IT",{style:"currency",currency:"EUR"})} in totale</small></h2><div class="card" style="padding:4px 12px">${pag.map(p=>`<div class="arow" style="cursor:default"><span>${esc(fmtD(p.data))}${p.metodo?" · "+esc(p.metodo):""}${p.note?`<small style="display:block">${esc(p.note)}</small>`:""}</span><b>${Number(p.importo).toLocaleString("it-IT",{style:"currency",currency:"EUR"})}</b><button class="rbtn" aria-label="Elimina" onclick="admDelPag('${p.id}')">×</button></div>`).join("")||`<p class="muted" style="padding:12px 4px;margin:0">Nessun pagamento registrato.</p>`}</div>
+   <div class="card aform" style="margin-top:10px"><b>Registra un pagamento</b>
+     <div class="a2"><label class="pf"><span>Importo €</span><input id="pI" type="number" inputmode="decimal" step="0.01" min="0"></label><label class="pf"><span>Data</span><input id="pD" type="date" value="${new Date().toISOString().slice(0,10)}"></label></div>
+     <label class="pf"><span>Metodo</span>${sel("pM",{Contanti:"Contanti",Bonifico:"Bonifico",PayPal:"PayPal",Satispay:"Satispay",Altro:"Altro"},"Bonifico")}</label>
+     <label class="pf"><span>Note</span><input id="pNo" placeholder="Es. abbonamento 2026/27"></label>
+     <button class="cta" onclick="admAddPag()">Registra pagamento</button></div>`:""}
+   ${camp?`<button class="cta sec" style="margin-top:16px" onclick="PUB.id='${esc(camp.id)}';PUB.sq=${esc(JSON.stringify(n))};pubRender()">Vedi la pagina pubblica</button>`:""}`}
+async function admSalva(){const v=id=>($("#"+id)||{}).value||"";const row={chiave:PUB.ak,nome:PUB.an,piano:v("aP"),stato:v("aS"),scadenza:v("aD")||null,referente:v("aR").trim()||null,email_referente:v("aE").trim().toLowerCase()||null,telefono:v("aT").trim()||null,note:v("aN").trim()||null,updated_at:new Date().toISOString()};
+  const {error}=await SB.from("societa_gestite").upsert(row);if(error)return admErr(error);PUB.ad.sg[row.chiave]=row;toast("Salvato");pubRender()}
+async function admLogo(f){if(!f)return;toast("Preparo il logo…");try{const img=await logoPrep(f);if(img.length>390000){toast("Immagine troppo grande");return}const {error}=await SB.from("loghi").upsert({chiave:PUB.ak,nome:PUB.an,img,updated_at:new Date().toISOString()});if(error)return admErr(error);PUB.loghi[PUB.ak]=img;toast("Logo salvato");pubRender()}catch(e){admErr(e)}}
+async function admAddGioc(){const v=id=>(($("#"+id)||{}).value||"").trim();if(!v("gN")){toast("Scrivi almeno il nome");return}const row={chiave:PUB.ak,nome:v("gN"),cognome:v("gC")||null,numero:v("gNum")?+v("gNum"):null,ruolo:v("gR")||null,anno_nascita:v("gA")?+v("gA"):null};
+  const {data,error}=await SB.from("rose_pubbliche").insert(row).select().single();if(error)return admErr(error);(PUB.rose[PUB.ak]=PUB.rose[PUB.ak]||[]).push(data);toast("Giocatore aggiunto");pubRender();setTimeout(()=>{const g=$("#gN");if(g)g.focus()},50)}
+async function admDelGioc(id){if(!confirm("Togliere questo giocatore dalla rosa?"))return;const {error}=await SB.from("rose_pubbliche").delete().eq("id",id);if(error)return admErr(error);PUB.rose[PUB.ak]=(PUB.rose[PUB.ak]||[]).filter(p=>p.id!==id);pubRender()}
+async function admAddPag(){const v=id=>(($("#"+id)||{}).value||"").trim();const imp=parseFloat(v("pI").replace(",","."));if(!(imp>=0)){toast("Scrivi l'importo");return}const row={chiave:PUB.ak,importo:imp,data:v("pD")||new Date().toISOString().slice(0,10),metodo:v("pM")||null,note:v("pNo")||null};
+  const {data,error}=await SB.from("pagamenti").insert(row).select().single();if(error)return admErr(error);PUB.ad.pag.unshift(data);if(!PUB.ad.sg[PUB.ak]){const r={chiave:PUB.ak,nome:PUB.an,piano:"vetrina",stato:"attivo"};const e2=await SB.from("societa_gestite").upsert(r);if(!e2.error)PUB.ad.sg[PUB.ak]=r}toast("Pagamento registrato");pubRender()}
+async function admDelPag(id){if(!confirm("Eliminare questo pagamento?"))return;const {error}=await SB.from("pagamenti").delete().eq("id",id);if(error)return admErr(error);PUB.ad.pag=PUB.ad.pag.filter(p=>p.id!==id);pubRender()}
+
 function pubRender(){
   const el=pubEl();el.scrollTop=0;const C=PUB.camp||[];let body="";PUB.mm=[];
   if(PUB.match!=null&&PUB.mmLast&&PUB.mmLast[PUB.match]){const x=PUB.mmLast[PUB.match];el.innerHTML=pubCSS+`<div class="lg">${pubMatchView(x)}</div>`+pubBar();return}
@@ -2370,7 +2444,7 @@ function pubRender(){
     if(PUB.sq){const mie=x=>x.casa===PUB.sq||x.ospite===PUB.sq;const pos=cl.find(r=>r.squadra.toLowerCase()===PUB.sq.toLowerCase());
       body=`<div class="ph"><button class="rbtn" onclick="pubBack()" aria-label="Indietro">‹</button>${sqBadge(PUB.sq,44)}<h1 style="font-size:24px">${esc(PUB.sq)}</h1>${starBtn(favIsSq(PUB.sq),`favSq(${esc(JSON.stringify(PUB.sq))},'${esc(c.id)}')`,"Squadra preferita")}</div><p class="sub">${esc(c.categoria)} · Girone ${esc(c.girone)}${pos?` · ${pos.pos}° posto, ${pos.pt} punti`:""}</p>${PUB.admin?`<label class="rbtn" style="display:inline-block;margin:0 4px 6px">${pubLogo(PUB.sq)?"Cambia logo":"Carica logo"}<input type="file" accept="image/*" style="display:none" onchange="pubCaricaLogo(this.files[0])"></label>`:""}
         ${P.filter(mie).length?`<h2>Prossime partite</h2><div class="card" style="padding:4px 12px">${P.filter(mie).map(m=>mrow(m,PUB.sq)).join("")}</div>`:""}
-        <h2>Rosa</h2>${(()=>{const isOn=/oneglia/i.test(PUB.sq)&&S.players&&S.players.length&&S.member;return isOn?`<div class="card" style="padding:4px 12px">${sortedPlayers().map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--line)"><b style="width:28px;color:var(--muted)">${esc(p.numero||"")}</b><span style="flex:1">${esc(fullName(p))}</span><small class="muted">${ROLE[p.ruolo]?ROLE[p.ruolo].s:""}</small></div>`).join("").replace("border-top:1px solid var(--line)","")}</div>`:`<div class="card muted" style="padding:14px 16px;font-size:14px">La rosa compare qui quando la società la inserisce in Golazo.</div>`})()}
+        <h2>Rosa</h2>${(()=>{const rk=tkey(PUB.sq);if(!PUB.rose||!PUB.rose[rk]){setTimeout(async()=>{await roseLoad(rk);if(PUB.sq&&tkey(PUB.sq)===rk)pubRender()},0)}const RP=(PUB.rose||{})[rk]||[];if(RP.length)return `<div class="card" style="padding:4px 12px">${RP.map(p=>`<div class="arow" style="cursor:default"><b style="width:26px;color:var(--muted)">${p.numero??""}</b><span>${esc([p.nome,p.cognome].filter(Boolean).join(" "))}</span><small>${esc(RUOLI_P[p.ruolo]||"")}${p.anno_nascita?" · "+(new Date().getFullYear()-p.anno_nascita)+" anni":""}</small></div>`).join("")}</div>`;const isOn=/oneglia/i.test(PUB.sq)&&S.players&&S.players.length&&S.member;return isOn?`<div class="card" style="padding:4px 12px">${sortedPlayers().map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--line)"><b style="width:28px;color:var(--muted)">${esc(p.numero||"")}</b><span style="flex:1">${esc(fullName(p))}</span><small class="muted">${ROLE[p.ruolo]?ROLE[p.ruolo].s:""}</small></div>`).join("").replace("border-top:1px solid var(--line)","")}</div>`:`<div class="card muted" style="padding:14px 16px;font-size:14px">La rosa compare qui quando la società la inserisce in Golazo.</div>`})()}
         <h2>Risultati</h2><div class="card" style="padding:4px 12px">${R.filter(mie).length?R.filter(mie).slice().reverse().map(m=>mrow(m,PUB.sq)).join(""):`<p class="muted small" style="padding:10px 4px">Nessun risultato.</p>`}</div>`}
     else{const tb=(k,l)=>`<button class="${PUB.tab===k?"on":""}" onclick="PUB.tab='${k}';pubRender()">${l}</button>`;
       body=pubTop(esc(c.categoria)+"</h1>"+starBtn(favIsCamp(c.id),`favCamp('${esc(c.id)}')`,"Campionato preferito")+"<h1 hidden>",`Girone ${esc(c.girone)} · ${esc(c.stagione||"")} · ${/nazionale/i.test(c.delegazione||"")?"Campionato nazionale":/regionale|serie d/i.test(c.delegazione||"")?esc(c.delegazione):"Delegazione di "+esc(c.delegazione||"Imperia")}`,true)+
@@ -2412,6 +2486,8 @@ function pubRender(){
         ${z?(vic.length?`<div class="card camplist">${vic.slice(0,PUB.vicAll?99:6).map(c=>`<button class="crow" onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()">${campBadge(c,34)}<span class="cn"><b>${esc(c.categoria)}</b><small>${esc(delBreve(c))} · Girone ${esc(c.girone)}</small></span>${favIsCamp(c.id)?`<span style="color:#ff9f0a">★</span>`:""}<span class="chev">›</span></button>`).join("")}</div>${vic.length>6&&!PUB.vicAll?`<button class="plink" style="display:block;margin:0 auto" onclick="PUB.vicAll=1;pubRender()">Vedi tutti i ${vic.length} campionati della zona</button>`:""}`:`<div class="card muted" style="padding:16px">Nessun campionato trovato per questa zona.</div>`):`<p class="sub" style="margin-top:2px">Scegli la tua zona o usa la posizione: ti suggeriamo i campionati da seguire.</p>`}
         <h2>Tutte le partite</h2><div>${regChip()}${campChip()}</div>${PUB.campSel?"":tabs}<h2 style="font-size:17px">In programma</h2>${prossime.length?pubGrp(prossime.slice(0,40)):`<div class="card muted" style="padding:16px">Nessuna partita in programma.</div>`}<h2 style="font-size:17px">Ultimi risultati</h2>${ultime.length?pubGrp(ultime):`<div class="card muted" style="padding:16px">Nessun risultato.</div>`}`;
     }
+  } else if(PUB.vista==="admin"){body=admView();
+  } else if(PUB.vista==="adminSoc"){body=admSocView();
   } else if(PUB.vista==="account"){
     if(!S.session&&!PUB.loggato){PUB.vista="entra";return pubRender()}
     if(!PUB.acc){body=pubTop("La mia area","")+`<p class="sub">Caricamento…</p>`;setTimeout(async()=>{try{const r=await SB.rpc("my_access");PUB.acc=r.data||[]}catch(e){PUB.acc=[]}pubRender()},0)}
@@ -2419,6 +2495,8 @@ function pubRender(){
       const nome=(PUB.acc.find(a=>a.nome)||{}).nome||"";
       body=pubTop("La mia area","")+`<div class="cc" style="cursor:default">${sqBadge(nome||"?",48)}<div><b>${esc(nome||"Account")}</b><small>${esc((PUB.email||""))}</small></div></div>
         <h2>Dove giochi e i tuoi ruoli</h2>${PUB.acc.length?PUB.acc.map(a=>`<button class="cc" onclick="closePublic()">${sqBadge(a.team||a.club,40)}<div><b>${esc(a.team||a.club)}</b><small>${esc(a.club)} · ${esc(R[a.ruolo]||a.ruolo)}</small></div><span class="chev">›</span></button>`).join(""):`<div class="card muted" style="padding:16px">Il tuo account non è ancora collegato a una squadra. Chiedi alla tua società di aggiungerti con questa email.</div>`}
+        ${PUB.admin?`<button class="cta" style="margin-top:16px;background:#1B2B57" onclick="pubGo('admin')">Apri Admin Pro</button>`:""}
+        ${PUB.vet===undefined?(setTimeout(async()=>{try{const r=await SB.rpc("mie_vetrine");PUB.vet=r.data||[]}catch(e){PUB.vet=[]}pubRender()},0),""):(PUB.vet||[]).filter(v=>v.piano!=="gratis").length?`<h2>La tua pagina pubblica</h2>${PUB.vet.filter(v=>v.piano!=="gratis").map(v=>`<button class="cc" onclick="PUB.ak='${esc(v.chiave)}';PUB.an=${esc(JSON.stringify(v.nome))};PUB.vista='adminSoc';pubRender()">${sqBadge(v.nome,40)}<div><b>${esc(v.nome)}</b><small>${esc(PIANI[v.piano])}${v.scadenza?" · fino al "+esc(fmtD(v.scadenza)):""}</small></div><span class="chev">›</span></button>`).join("")}`:""}
         ${PUB.admin?(PUB.rich?`<h2>Richieste delle società</h2>${PUB.rich.length?PUB.rich.map(r=>`<div class="card" style="padding:14px 16px;margin-bottom:8px"><b>${esc(r.societa)}</b>${r.citta?` · ${esc(r.citta)}`:""}<br><small class="muted">${esc([r.referente,r.ruolo].filter(Boolean).join(", "))}</small><br><a href="mailto:${esc(r.email)}">${esc(r.email)}</a>${r.telefono?` · <a href="tel:${esc(r.telefono)}">${esc(r.telefono)}</a>`:""}</div>`).join(""):`<div class="card muted" style="padding:14px 16px">Nessuna richiesta per ora.</div>`}`:(setTimeout(async()=>{const r=await SB.from("richieste_societa").select("*").order("creato",{ascending:false});PUB.rich=r.data||[];pubRender()},0),"")):""}${PUB.acc.length?`<button class="cta" onclick="closePublic()">Apri la gestione della squadra</button>`:""}<button class="cta sec" onclick="logout()">Esci</button>`}
   } else if(PUB.vista==="login"){
     const soc=PUB.chi==="soc",up=PUB.lm==="up";
@@ -2525,7 +2603,7 @@ function showLogin(mode){
   $("#lgReset").onclick=async()=>{const email=val("lgE").toLowerCase();if(!email){msg("Scrivi prima la tua email");return}const {error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});msg(error?"Non riuscito, riprova più tardi":"Ti ho mandato un'email per cambiare la password")};
 }
 function hideLogin(){const el=$("#login");if(el)el.classList.remove("on")}
-async function logout(){try{sessionStorage.removeItem("fc_app")}catch(e){}if(SB)await SB.auth.signOut();else location.reload()}
+async function logout(){try{PUB.ad=null;PUB.vet=undefined;PUB.admin=false;PUB.loggato=false}catch(e){}try{sessionStorage.removeItem("fc_app")}catch(e){}if(SB)await SB.auth.signOut();else location.reload()}
 
 // ---------- gestione account (staff)
 function vAccount(){
