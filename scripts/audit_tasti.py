@@ -59,4 +59,4 @@ async def main():
         for r in report:
             if r[0]!="_tot":print(r)
         print("errori totali",len(errs));await b.close()
-asyncio.run(main())
+if __name__=="__main__":asyncio.run(main())
