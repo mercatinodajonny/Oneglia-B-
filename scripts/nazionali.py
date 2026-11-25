@@ -36,11 +36,12 @@ def espn(lega, categoria, sid):
     a = stagione_oggi()
     st = json.loads(get(f"https://site.api.espn.com/apis/v2/sports/soccer/{lega}/standings"))
     ent = st["children"][0]["standings"]["entries"]
-    loghi, colori, righe = {}, {}, []
+    loghi, colori, righe, ids = {}, {}, [], {}
     for e in ent:
         t = e["team"]; n = t["displayName"]
         s = {x["name"]: x.get("value") for x in e["stats"]}
         if t.get("logos"): loghi[n] = t["logos"][0]["href"]
+        ids[n] = t["id"]
         righe.append({"squadra": n, "pt": int(s.get("points") or 0), "g": int(s.get("gamesPlayed") or 0),
                       "v": int(s.get("wins") or 0), "n": int(s.get("ties") or 0), "p": int(s.get("losses") or 0),
                       "gf": int(s.get("pointsFor") or 0), "gs": int(s.get("pointsAgainst") or 0),
@@ -66,8 +67,9 @@ def espn(lega, categoria, sid):
             tm = x["team"]
             if tm.get("logo"): loghi.setdefault(tm["displayName"], tm["logo"])
             if tm.get("color"): colori[tm["displayName"]] = "#" + tm["color"]
+            ids.setdefault(tm["displayName"], tm["id"])
         t = dt.datetime.fromisoformat(e["date"].replace("Z", "+00:00")).astimezone(ROMA)
-        m = {"data": t.strftime("%Y-%m-%d"), "ora": t.strftime("%H:%M"), "casa": h["team"]["displayName"], "ospite": o["team"]["displayName"]}
+        m = {"data": t.strftime("%Y-%m-%d"), "ora": t.strftime("%H:%M"), "casa": h["team"]["displayName"], "ospite": o["team"]["displayName"], "eid": e["id"]}
         stt = c["status"]["type"]
         if stt.get("completed"):
             m["gc"], m["go"] = int(h.get("score") or 0), int(o.get("score") or 0)
@@ -86,7 +88,7 @@ def espn(lega, categoria, sid):
     return {"id": sid, "categoria": categoria, "girone": "Unico", "delegazione": "Nazionale",
             "stagione": f"{a}/{a + 1}", "aggiornato": dt.date.today().isoformat(),
             "dati": {"classifica": {"righe": righe}, "risultati": ris, "programma": prog,
-                     "loghi": loghi, "colori": colori, "fonte": "ESPN (dati pubblici)"}}
+                     "loghi": loghi, "colori": colori, "espn": ids, "lega": lega, "fonte": "ESPN (dati pubblici)"}}
 
 
 # ------------------------------------------------------- Wikipedia (Serie C)
