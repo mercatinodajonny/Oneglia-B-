@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-25-15";
+const BUILD="2026-11-26-01";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -746,7 +746,7 @@ async function mioLoad(){try{const {data}=await SB.auth.getSession();if(!data||!
 function mioView(a){
   const k=accKey(a),team=a.team||a.club;
   const top=pubBrand()+`<h1 class="ptit">La mia area</h1>
-    <div class="mtop"><span class="mteam">${sqBadge(team,24)}<b>${esc(team)}</b></span>${(PUB.acc||[]).length>1?`<button class="mchg" onclick="PUB.scegli=true;window.scrollTo(0,0);pubRender()">Cambia ruolo</button>`:""}</div>`;
+    <div class="mtop"><span class="mteam">${sqBadge(team,24)}<b>${esc(team)}</b></span><span class="mtr2">${(PUB.acc||[]).length>1?`<button class="mchg" onclick="PUB.scegli=true;window.scrollTo(0,0);pubRender()">Cambia ruolo</button>`:""}<button class="maccb" onclick="pubGo('impostazioni')" aria-label="Il tuo account">${accAv(38)}</button></span></div>`;
   if(S.accKey!==k||!S.loaded.players||!S.loaded.matches||!S.loaded.trainings){if(!PUB.mioL){PUB.mioL=1;mioLoad().finally(()=>{PUB.mioL=0;pubRender()})}return top+`<div class="mcard"><p class="sub" style="margin:0">Carico la tua squadra…</p></div>`}
   const p=meP();
   if(!p)return top+`<div class="mcard"><b>${esc(a.nome||PUB.email||"")}</b><p class="sub" style="margin:6px 0 0">Il tuo account non è ancora collegato a una scheda giocatore: chiedi alla tua società di collegarlo.</p></div>`;
@@ -2345,7 +2345,8 @@ const pubCSS=`<style>
 #pub .tabs{display:flex;gap:4px;overflow-x:auto;margin:0 -14px 14px;padding:0 14px;scrollbar-width:none}#pub .tabs::-webkit-scrollbar{display:none}
 #pub .tabs button{flex:none;border:0;background:none;color:var(--muted);font-size:16px;font-weight:600;padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer}
 #pub .tabs button.on{color:var(--tint);border-bottom-color:var(--tint)}
-/*MA*/#pub .accban{display:flex;align-items:center;gap:14px;width:100%;border:0;background:var(--card);border-radius:24px;padding:16px;margin:6px 0 4px;box-shadow:var(--shadow);font:inherit;color:var(--text);text-align:left;cursor:pointer;transition:transform .12s ease}#pub .accban:active{transform:scale(.98)}#pub .abt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}#pub .abt b{font-size:21px;line-height:1.2}#pub .abt small{color:var(--muted);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#pub .abt .abs{color:var(--tint);font-weight:600;font-size:13px;margin-top:2px}#pub .accban .chev{color:var(--muted);font-size:24px}
+/*MA*/#pub .mtr2{display:flex;align-items:center;gap:8px}#pub .maccb{border:0;background:none;padding:0;border-radius:50%;cursor:pointer;line-height:0}
+#pub .accban{display:flex;align-items:center;gap:14px;width:100%;border:0;background:var(--card);border-radius:24px;padding:16px;margin:6px 0 4px;box-shadow:var(--shadow);font:inherit;color:var(--text);text-align:left;cursor:pointer;transition:transform .12s ease}#pub .accban:active{transform:scale(.98)}#pub .abt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}#pub .abt b{font-size:21px;line-height:1.2}#pub .abt small{color:var(--muted);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#pub .abt .abs{color:var(--tint);font-weight:600;font-size:13px;margin-top:2px}#pub .accban .chev{color:var(--muted);font-size:24px}
 #pub .accav{border-radius:50%;object-fit:cover;flex:none;display:block}#pub .accav.ini{display:grid;place-items:center;background:linear-gradient(135deg,#1B2B57,#157A3A);color:#fff;font-weight:800}
 #pub .acchead{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;margin:6px 0 4px}#pub .acchead b{font-size:22px;margin-top:8px}#pub .acchead small{color:var(--muted);font-size:14px}#pub .accfoto{border:0;background:none;color:var(--tint);font:inherit;font-weight:700;font-size:15px;padding:6px 12px;cursor:pointer}#pub .accfoto.x{color:var(--muted);font-weight:600;padding-top:0}
 #pub .agrp{background:var(--card);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}#pub .arow2{display:flex;align-items:center;gap:12px;padding:4px 16px;min-height:52px;border-bottom:1px solid var(--line)}#pub .agrp .arow2:last-child{border-bottom:0}#pub .arow2 span{flex:none;width:118px;font-size:15px;font-weight:600}#pub .arow2 input{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:16px;color:var(--text);padding:12px 0;outline:none;text-align:right}
