@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-26-05";
+const BUILD="2026-11-26-06";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2869,8 +2869,15 @@ function espnMatchSection(m,c){const lega=(c.dati||{}).lega;if(!m.eid||!lega)ret
       ${t.ok?(prev?`<div class="fpwrap"><span class="fstamp">Non ufficiale</span>${t.html}</div>`:t.html):`<div class="fwarn" style="margin:0 0 6px"><b>Modulo non confermato</b><p>La fonte non indica un modulo completo per questa squadra: mostriamo solo l'elenco dei giocatori.</p></div>`}
       <div class="flist"><div><h4>Titolari</h4><ol>${t.ord.map(p=>fRiga(p,uff)).join("")}</ol></div><div><h4>${prev?"Panchina":"In panchina"}</h4>${t.bench.length?`<ol>${t.bench.map(p=>fRiga(p,uff)).join("")}</ol>`:`<p class="muted" style="font-size:13px;margin:4px 0">Non disponibile</p>`}</div></div></div>`}).join("")}</div>`+evHTML}
 
-function pubRender(){
-  const el=pubEl();el.scrollTop=0;const C=PUB.camp||[];let body="";PUB.mm=[];
+function pubScrKey(){return [PUB.vista,PUB.id,PUB.sq,PUB.match,PUB.sez,PUB.tab,PUB.tt,PUB.scegli].join("|")}
+function pubRender(){const el=pubEl(),k0=PUB._sk,y0=el.scrollTop;PUB._sc=PUB._sc||{};if(k0!=null)PUB._sc[k0]=y0;
+  _pubRender.apply(this,arguments);const k=pubScrKey();PUB._sk=k;
+  // stessa schermata (es. apro un gruppo o arriva un aggiornamento live): resto dove sono.
+  // torno alla Home: riprendo dal punto in cui l'avevo lasciata. Altrimenti parto dall'alto.
+  const home=PUB.vista==="partite"&&!PUB.id&&PUB.match==null;
+  el.scrollTop=k===k0?y0:(home&&PUB._sc[k]!=null?PUB._sc[k]:0)}
+function _pubRender(){
+  const el=pubEl();const C=PUB.camp||[];let body="";PUB.mm=[];
   if(PUB.match!=null&&PUB.mmLast&&PUB.mmLast[PUB.match]){const x=PUB.mmLast[PUB.match];el.innerHTML=pubCSS+`<div class="lg">${pubMatchView(x)}</div>`+pubBar();return}
   PUB.match=null;
   const tabs=`<div class="tabs" role="tablist">${PUB_SEZ.filter(s=>{if(s.k==="dil")return true;const o=PUB.sez;PUB.sez=s.k;const n=pubCampSez().length;PUB.sez=o;return n>0}).map(s=>`<button role="tab" class="${PUB.sez===s.k?"on":""}" onclick="PUB.sez='${s.k}';pubRender()">${s.l}</button>`).join("")}</div>`;
