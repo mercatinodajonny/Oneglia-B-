@@ -1,0 +1,27 @@
+name: Aggiorna notizie
+
+on:
+  schedule:
+    # ogni ora, al minuto 13
+    - cron: "13 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scarica titoli e link dai feed RSS
+        run: python3 scripts/notizie.py
+      - name: Pubblica
+        run: |
+          git config user.name "Golazo bot"
+          git config user.email "golazo-bot@users.noreply.github.com"
+          git add data/notizie.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Notizie aggiornate"
+          git pull --rebase origin main && git push
