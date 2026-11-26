@@ -1,16 +1,29 @@
 {
-"aggiornato": "2026-11-26T15:22+00:00",
-"nota": "Titoli e link dai feed RSS pubblici delle testate. Gli articoli restano sui loro siti.",
+"aggiornato": "2026-11-26T15:29+00:00",
+"nota": "Titoli, link e immagini di anteprima pubblicati dalle testate per la condivisione. Gli articoli e le foto restano sui loro siti.",
 "notizie": [
 {
-"t": "Calcio: Sassuolo, Bowie-Esposito testa a testa per una maglia da titolare",
+"t": "Cagliari: Pisacane recupera Mina, Adopo e Mendy per il Milan",
+"f": "ANSA",
+"z": "Italia",
+"u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/cagliari-pisacane-recupera-mina-adopo-e-mendy-per-il-milan_e790d5bb-f711-433d-bb8a-f40ffff405a8.html",
+"d": "2026-11-26T15:24:58+00:00",
+"sq": [
+"Cagliari"
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/10/27/12700db37169044f75ba3c2ea67a9dcf.jpg"
+},
+{
+"t": "Serie A: Sassuolo-Napoli in campo domenica alle 15 DIRETTA",
 "f": "ANSA",
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/calcio-sassuolo-bowie-esposito-testa-a-testa-per-una-maglia-da-titolare_fe1a706c-c6f5-4cc6-96df-95c331eeca3c.html",
-"d": "2026-11-26T15:11:51+00:00",
+"d": "2026-11-26T15:16:59+00:00",
 "sq": [
-"Sassuolo"
-]
+"Sassuolo",
+"Napoli"
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/10/16/349907fe968b37e24cb36d8f75629726.jpg"
 },
 {
 "t": "Serie A: Frosinone-Parma in campo sabato alle 15 DIRETTA",
@@ -21,7 +34,8 @@
 "sq": [
 "Frosinone",
 "Parma"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/9/12/8aa053c455bb3f214ed7d691ad19343c.jpg"
 },
 {
 "t": "Serie A: Venezia-Bologna in campo venerdì alle 20.45 DIRETTA",
@@ -32,7 +46,8 @@
 "sq": [
 "Venezia",
 "Bologna"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/22/e5a67c35a2481bf43aac1c0178398d62.jpg"
 },
 {
 "t": "Arbitri Serie A: Chiffi dirige Torino-Lazio",
@@ -43,7 +58,8 @@
 "sq": [
 "Torino",
 "Lazio"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/9/20/bd0b01e20780adc6f7838e75d216b571.jpg"
 },
 {
 "t": "Finale, Belvedere si gode il momento: “Questa squadra ha potenzialità enormi”",
@@ -51,7 +67,8 @@
 "z": "Savona",
 "u": "https://www.ivg.it/2026/11/finale-belvedere-si-gode-il-momento-questa-squadra-ha-potenzialita-enormi/",
 "d": "2026-11-26T13:20:09+00:00",
-"sq": []
+"sq": [],
+"img": ""
 },
 {
 "t": "Rocchetta, cambio in panchina: arriva Paolo Aime",
@@ -61,7 +78,8 @@
 "d": "2026-11-26T12:45:42+00:00",
 "sq": [
 "Rocchetta Calcio"
-]
+],
+"img": ""
 },
 {
 "t": "La Panini sbarca in Serie C: due giornate nel segno delle figurine",
@@ -69,7 +87,8 @@
 "z": "La Spezia",
 "u": "https://www.cittadellaspezia.com/2026/11/26/la-panini-sbarca-in-serie-c-due-giornate-nel-segno-delle-figurine-683281/",
 "d": "2026-11-26T12:07:55+00:00",
-"sq": []
+"sq": [],
+"img": "https://cdn.cittadellaspezia.com/photogallery_new/images/2026/10/generico-ottobre-2026-495328.jpg"
 },
 {
 "t": "Andora. Boccone amaro per Ghigliazza contro il Q&V: \"Battuti da una squdra forte, ma in casa servono prestazioni di alto livello\"",
@@ -79,7 +98,8 @@
 "d": "2026-11-26T12:00:20+00:00",
 "sq": [
 "Andora 1966"
-]
+],
+"img": "https://www.svsport.it/fileadmin/archivio/svsport/calcio_andora_ghigliazza_2024-25.jpg"
 },
 {
 "t": "Euro 2032: Malagò 'decisi incontri periodici per la cinquina degli stadi'",
@@ -87,7 +107,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/euro-2032-malago-decisi-incontri-periodici-per-la-cinquina-degli-stadi_55cd81ab-fd46-4500-a4dc-4459fff4f306.html",
 "d": "2026-11-26T11:27:51+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/10/6/8a99d4a4b4b90ff0c6f8802170a830ca.jpg"
 },
 {
 "t": "Vado. Arrivano la Panini Weeks in Serie C",
@@ -97,7 +118,8 @@
 "d": "2026-11-26T11:14:15+00:00",
 "sq": [
 "Vado"
-]
+],
+"img": "https://www.svsport.it/fileadmin/archivio/svsport/2026/11/calcio_serie_c_panini_weeks.png"
 },
 {
 "t": "Calcio: Malagò 'Abodi di parola, recuperato l'1% della mutualità'",
@@ -105,7 +127,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/calcio-malago-abodi-di-parola-recuperato-l1-della-mutualita_3e53c09f-bca0-476c-a21a-07fbc48ddbec.html",
 "d": "2026-11-26T11:13:23+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/6/25/5a79f0db144f9969c58a791eeb8b88b7.jpg"
 },
 {
 "t": "Calcio: la Juve celebra 30 anni dell'Intercontinentale vinta a Tokyo",
@@ -113,7 +136,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/calcio-la-juve-celebra-30-anni-dellintercontinentale-vinta-a-tokyo_8a64c8d7-c7d6-4763-ae5c-e88fb6327a8c.html",
 "d": "2026-11-26T10:28:38+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/22/a50b21929bffee21b99e227ccc27649a.jpg"
 },
 {
 "t": "Figc: Buonfiglio 'vivo le elezioni da spettatore, ma acque ora calme'",
@@ -121,7 +145,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/figc-buonfiglio-vivo-le-elezioni-da-spettatore-ma-acque-ora-calme_e60b281d-b3b3-4b63-a02f-9e1edf560db1.html",
 "d": "2026-11-26T10:27:10+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/10/6/3f9f0a4255b4ac2050ac08f850bdfd51.jpg"
 },
 {
 "t": "Coppa Italia di Serie D, gli Highlights di Aurora Pro Patria – Sanremese 2-2 (4-3 d.c.r.)",
@@ -131,7 +156,8 @@
 "d": "2026-11-26T10:16:55+00:00",
 "sq": [
 "Sanremese Calcio"
-]
+],
+"img": "https://calcioflashponente.it/wp-content/uploads/2026/11/926684593_1150553121280489_1383299734356112089_n.jpeg"
 },
 {
 "t": "Seconda Categoria A, il Real Santo Stefano si rinforza: torna Federico Dito",
@@ -141,7 +167,8 @@
 "d": "2026-11-26T10:08:22+00:00",
 "sq": [
 "Real Santo Stefano Calcio"
-]
+],
+"img": "https://calcioflashponente.it/wp-content/uploads/2026/11/WhatsApp-Image-2026-11-26-at-11.01.56.jpeg"
 },
 {
 "t": "Winter Season Camporosso, la Pro Seborga vince 6-2 con la tripletta di Bianco. Loris Pelosini Man of the Match Elettricom Mattia Baruzzo",
@@ -151,7 +178,8 @@
 "d": "2026-11-26T09:58:20+00:00",
 "sq": [
 "Camporosso"
-]
+],
+"img": "https://calcioflashponente.it/wp-content/uploads/2026/11/WhatsApp-Image-2026-11-26-at-10.52.49.jpeg"
 },
 {
 "t": "Prima Categoria A, gli Highlights di Argentina Taggia Levà-Veloce 1-0",
@@ -161,7 +189,8 @@
 "d": "2026-11-26T09:45:36+00:00",
 "sq": [
 "Veloce 1910"
-]
+],
+"img": "https://calcioflashponente.it/wp-content/uploads/2026/11/foto-sintex-33.jpg"
 },
 {
 "t": "Elezioni Figc: Malagò 'mai stato in rimonta in questa partita'",
@@ -169,7 +198,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/elezioni-figc-malago-mai-stato-in-rimonta-in-questa-partita_e1e2f617-f87b-4958-b07a-7a27ea9d2895.html",
 "d": "2026-11-26T09:37:18+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/10/6/608ee4e036f092a8dabea2c44df6ee42.jpg"
 },
 {
 "t": "Under 14 Provinciali, gli Highlights di Sanremese-Junior Soccer 5-1",
@@ -180,7 +210,8 @@
 "sq": [
 "Junior Soccer",
 "Sanremese Calcio"
-]
+],
+"img": "https://calcioflashponente.it/wp-content/uploads/2026/11/foto-intex.jpg"
 },
 {
 "t": "Conference League: Borac Banja Luka-Atalanta in campo giovedì alle 21 DIRETTA",
@@ -190,7 +221,8 @@
 "d": "2026-11-26T09:14:58+00:00",
 "sq": [
 "Atalanta"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/25/1804b581ef7b8c962e76a0ecce779dbc.jpg"
 },
 {
 "t": "Europa League: Juventus-Omonia in campo alle 21 DIRETTA",
@@ -200,7 +232,8 @@
 "d": "2026-11-26T09:13:24+00:00",
 "sq": [
 "Juventus"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/25/7355d5b521401bcf48361d77db19ec74.jpg"
 },
 {
 "t": "Europa League: Olympiacos-Milan in campo alle 18.45 DIRETTA",
@@ -208,7 +241,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/europa-league-olympiacos-milan-in-campo-alle-18.45-diretta_33d004e6-854b-4e78-b6b5-71c30d90edb2.html",
 "d": "2026-11-26T09:12:55+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/25/8426a3b4caa867dda87a5bee0af74003.jpg"
 },
 {
 "t": "Champions: Gasperini, 'molto felice, non ci siamo snaturati davanti ai più forti'",
@@ -216,7 +250,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/champions-gasperini-molto-felice-non-ci-siamo-snaturati-davanti-ai-piu-forti_2ca6720c-22a9-4ce9-8417-7634306282d0.html",
 "d": "2026-11-25T23:08:35+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/25/12675bae8bd7f9eba81dcc903e199b0e.jpg"
 },
 {
 "t": "Champions: Chivu, 'stasera l'Inter è stata brava in tutto'",
@@ -224,7 +259,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/25/champions-chivu-stasera-linter-e-stata-brava-in-tutto_c7270de8-dcad-4cf9-9f2c-43fda0afbfe7.html",
 "d": "2026-11-25T22:52:38+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/25/82f50e200dc012bf0a65df40701b4d15.jpg"
 },
 {
 "t": "Champions: l'Inter batte lo Stoccarda, la Roma pareggia col Psg",
@@ -232,7 +268,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/25/champions-linter-batte-lo-stoccarda-la-roma-pareggia-col-psg_fc440be7-2d3f-4bfa-8ff2-271c307f48de.html",
 "d": "2026-11-25T21:57:05+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/25/ed26bd46bf9e38fe96b230170427c7bc.jpg"
 },
 {
 "t": "Violenza donne: gesto sensibilizzazione del presidente di Lega B a Mantova",
@@ -242,7 +279,8 @@
 "d": "2026-11-25T20:03:22+00:00",
 "sq": [
 "Mantova"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/25/9d0d72ed477f1b97787e794e11786c99.jpg"
 },
 {
 "t": "Europa League: Amorim, Olympiacos forte ma nessuno stadio è più difficile di San Siro",
@@ -250,7 +288,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/25/europa-league-amorim-olympiacos-forte-ma-nessuno-stadio-e-piu-difficile-di-san_cfb36419-9931-450c-b17e-ece41a592c55.html",
 "d": "2026-11-25T19:20:17+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/22/8fdd36b71729d9925062c872e995c035.jpg"
 },
 {
 "t": "Europa League: Amorim 'dobbiamo solo vincere, se non lo facessimo…'",
@@ -258,7 +297,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/25/europa-league-amorim-dobbiamo-solo-vincere-se-non-lo-facessimo_d83e0bc4-56fa-498f-9a7e-707a51492933.html",
 "d": "2026-11-25T19:09:28+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/22/d7b618d781fbb92a3fa67acb9c6fcd72.jpg"
 },
 {
 "t": "Conference League: Sarri, 'niente presunzione o prendiamo una lezione'",
@@ -266,7 +306,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/25/conference-league-sarri-niente-presunzione-o-prendiamo-una-lezione_b0790968-7069-4be6-b4fa-afed20868a0e.html",
 "d": "2026-11-25T18:27:55+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/22/379fbebeda04dd26bcc27460731db28b.jpg"
 },
 {
 "t": "Dionigi nuovo tecnico del Vicenza",
@@ -276,7 +317,8 @@
 "d": "2026-11-25T17:48:02+00:00",
 "sq": [
 "Vicenza"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2012/12/13/502bc3ad206d72f773f63bb56a68df09.jpg"
 },
 {
 "t": "Finale. Si avvicina il mercato per il ds Belvedere: \"Pronti a cogliere l'occasione in accordo con staff e società\" (VIDEO)",
@@ -284,7 +326,8 @@
 "z": "Savona",
 "u": "https://www.svsport.it/2026/11/25/leggi-notizia/argomenti/calcio-1/articolo/calcio-finale-si-avvicina-il-mercato-per-il-ds-belvedere-pronti-a-cogliere-loccasione-in-accor.html",
 "d": "2026-11-25T17:15:13+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.svsport.it/fileadmin/archivio/svsport/2026/08/calcio_finale_belvedere_agosto_2026.jpg"
 },
 {
 "t": "Coppa Italia di Serie D: Sanremese eliminata ai rigori dalla Pro Patria, Ganz firma la rimonta ma fallisce il penalty decisivo",
@@ -294,7 +337,8 @@
 "d": "2026-11-25T17:13:51+00:00",
 "sq": [
 "Sanremese Calcio"
-]
+],
+"img": "https://www.svsport.it/fileadmin/archivio/sanremonews/2026/11/Rigore_Ganz_a_Busto_25Nov2026.jpg"
 },
 {
 "t": "Ospedaletti, mister Luccisano:”Una scommessa sui giovani, crediamo in quello che stiamo facendo”",
@@ -304,7 +348,8 @@
 "d": "2026-11-25T15:56:31+00:00",
 "sq": [
 "Ospedaletti Calcio"
-]
+],
+"img": "https://calcioflashponente.it/wp-content/uploads/2026/10/Fabio-Luccisano-scaled.png"
 },
 {
 "t": "Europa League: allenatore Olympiacos, 'contro il Milan è vita o morte'",
@@ -312,7 +357,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/25/europa-league-allenatore-olympiacos-contro-il-milan-e-vita-o-morte_1daf2565-eeeb-4506-a540-f4010760f228.html",
 "d": "2026-11-25T15:29:44+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/8/4/e0c2516b08e6fd370c8c920486d762ce.jpg"
 },
 {
 "t": "La confessione di Guardiola, \"che vergogna dire no all'Italia\"",
@@ -320,7 +366,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/25/calcio-guardiola-che-vergona-dire-no-allitalia_acd79220-8669-42d6-b6e3-ed66c4ee7a84.html",
 "d": "2026-11-25T15:11:28+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/10/16/147b5d5b2223d4c1c8d0cc98519b160f.jpg"
 },
 {
 "t": "Europa League: Spalletti, 'ci arriviamo bene, allenamenti vengono meglio'",
@@ -328,7 +375,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/25/europa-league-spalletti-ci-arriviamo-bene-allenamenti-vengono-meglio_10bf23e6-5f2a-498d-8670-23909d81f978.html",
 "d": "2026-11-25T14:33:14+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/4/dd474fc8b34c1a909e587c2c3c0ac0f7.jpg"
 },
 {
 "t": "Torino: allenamento a porte aperte per i 120 anni del club",
@@ -338,7 +386,8 @@
 "d": "2026-11-25T14:18:18+00:00",
 "sq": [
 "Torino"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/10/23/1d75e8e77b0bef30ae5f976bb531e28a.jpg"
 },
 {
 "t": "Virtus Don Bosco. Tomasi regala tre punti contro la Carcarese Under 21 (GLI HIGHLIGHTS)",
@@ -348,8 +397,9 @@
 "d": "2026-11-25T11:15:58+00:00",
 "sq": [
 "Virtus Don Bosco",
-"Carcarese Sq.b"
-]
+"Carcarese"
+],
+"img": "https://www.svsport.it/fileadmin/archivio/svsport/2026/11/clacio_virtus_don_bosco_-_carcarese_novembre_2026.jpg"
 },
 {
 "t": "Finale. Alessi incorona la prova contro la Sestrese: \"Prestazione da stropicciarsi gli occhi\"",
@@ -357,7 +407,8 @@
 "z": "Savona",
 "u": "https://www.svsport.it/2026/11/25/leggi-notizia/argomenti/calcio-1/articolo/calcio-finale-alessi-incorona-la-prova-contro-la-sestrese-prestazione-da-stropicciarsi-gli-occh.html",
 "d": "2026-11-25T10:33:11+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.svsport.it/fileadmin/archivio/svsport/2026/11/calcio_finale_alessi_novembre_2026.jpg"
 },
 {
 "t": "Allegri: \"partita importante, punto utile per la qualificazione\"",
@@ -365,7 +416,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/allegri-partita-importante-punto-utile-per-la-qualificazione_f57f4d94-40ec-448f-a491-9215cef72fa6.html",
 "d": "2026-11-24T22:28:53+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/24/87a65bb61a502e206b6509ff9aa2931a.jpg"
 },
 {
 "t": "Impresa Napoli in Champions, ferma il City e sfiora la vittoria",
@@ -375,7 +427,8 @@
 "d": "2026-11-24T22:20:19+00:00",
 "sq": [
 "Napoli"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/24/714cd04efe4a3940f6f0d494e2ccae1e.jpg"
 },
 {
 "t": "Champions: al Como stavolta basta un gol con l'Aek, prosegue sogno ottavi",
@@ -385,7 +438,8 @@
 "d": "2026-11-24T22:15:22+00:00",
 "sq": [
 "Como"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/24/a80cb80ee29c1c145e1887b66dd63840.jpg"
 },
 {
 "t": "Champions: Napoli prova di carattere a Manchester, e' 2-2 col City",
@@ -395,7 +449,8 @@
 "d": "2026-11-24T22:04:34+00:00",
 "sq": [
 "Napoli"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/24/76794ce003882e4abc51f3cc88a3179d.jpg"
 },
 {
 "t": "Champions: Como-AEK Atene 1-0",
@@ -405,7 +460,8 @@
 "d": "2026-11-24T21:56:38+00:00",
 "sq": [
 "Como"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/24/825711d5186f269b4ce33429f58fcf4b.jpg"
 },
 {
 "t": "Sinner festeggia in Finlandia compleanno padre, \"grazie per essere qui con me\" +RPT+",
@@ -413,7 +469,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/sinner-festeggia-in-finlandia-compleanno-padre-grazie-per-essere-qui-con_bd5e9237-d7e9-438d-a61b-edc65662267f.html",
 "d": "2026-11-24T20:58:58+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/15/629b581dcefca465df4bab37ca11effd.jpg"
 },
 {
 "t": "Champions: Como; Suwarso 'non abbiamo soldi per gennaio, non arriva attaccante'",
@@ -423,7 +480,8 @@
 "d": "2026-11-24T19:58:35+00:00",
 "sq": [
 "Como"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/10/27/5f5ddc37ce168657247b356460d0acb9.jpg"
 },
 {
 "t": "Sinner festeggia in Finlandia complimento del padre, \"grazie per essere qui con me\"",
@@ -431,7 +489,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/sinner-festeggia-in-finlandia-complimento-del-padre-grazie-per-essere-qui_aa03f6dc-10d6-49a5-9871-dada2ac0c1c4.html",
 "d": "2026-11-24T19:55:26+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/15/629b581dcefca465df4bab37ca11effd.jpg"
 },
 {
 "t": "Calcio: Dybala 'spero di chiudere la carriera a Roma'",
@@ -439,7 +498,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/calcio-dybala-spero-di-chiudere-la-carriera-a-roma_ea019902-e7be-427e-8126-ec483ca6022f.html",
 "d": "2026-11-24T19:37:58+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/24/1a12b63288c03cc96b356b07b754b2d0.jpg"
 },
 {
 "t": "Champions: Gasperini 'bello giocare con i più forti, vogliamo prestazione di livello'",
@@ -447,7 +507,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/champions-gasperini-bello-giocare-con-i-piu-forti-vogliamo-prestazione-di-livello_16a9e752-176a-406c-b867-ede665102ccd.html",
 "d": "2026-11-24T19:29:45+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/24/5f51a6f36eae13fa887585aa34a28976.jpg"
 },
 {
 "t": "Promozione A, lo straordinario poker di Ernand Sfinjari contro il Ventimiglia: 11 gol in 10 giornate",
@@ -455,7 +516,8 @@
 "z": "Imperia",
 "u": "https://calcioflashponente.it/promozione-a-lo-straordinario-poker-di-ernand-sfinjari-contro-il-ventimiglia-11-gol-in-10-giornate/",
 "d": "2026-11-24T18:35:52+00:00",
-"sq": []
+"sq": [],
+"img": "https://calcioflashponente.it/wp-content/uploads/2026/11/WhatsApp-Image-2026-11-24-at-19.35.21.jpeg"
 },
 {
 "t": "Cagliari: Trepy, 'non era la mia ora. Adesso voglio aiutare il Cagliari'",
@@ -465,7 +527,8 @@
 "d": "2026-11-24T17:54:58+00:00",
 "sq": [
 "Cagliari"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/8/17/26c6a90a0911d7df71e43a274cd1b454.jpg"
 },
 {
 "t": "Accolto il ricorso, il Tas riassegna la Coppa d'Africa al Senegal",
@@ -473,7 +536,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/accolto-il-ricorso-il-tas-riassegna-la-coppa-dafrica-al-senegal_fb549a4f-f3b1-4aca-83c1-99c2f080b74b.html",
 "d": "2026-11-24T17:18:08+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/1/18/49adf9b5a89fa7e3e1960c73306f302a.jpg"
 },
 {
 "t": "Calcio: Locatelli, 'vivo uno dei momenti più difficili in carriera'",
@@ -481,7 +545,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/calcio-locatelli-vivo-uno-dei-momenti-piu-difficili-in-carriera_94acaf80-0502-42ec-8191-04f53f82553e.html",
 "d": "2026-11-24T17:16:52+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/8/29/5d77e440fea1017fd3286216be10b7af.jpg"
 },
 {
 "t": "Museo del Grande Torino, Regione e Comune confermano l'impegno sui fondi",
@@ -491,7 +556,8 @@
 "d": "2026-11-24T15:37:00+00:00",
 "sq": [
 "Torino"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/5/4/6a86ac157c4dd5a2c717c710876251f3.jpg"
 },
 {
 "t": "Archiviato il caso delle bussate alla sala Var, scelta per evitare errori",
@@ -499,7 +565,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/archiviato-il-caso-delle-bussate-alla-sala-var-scelta-per-evitare_4306f218-e5a9-45af-b1c4-13fb9a3cdbd8.html",
 "d": "2026-11-24T14:44:35+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/10/1/eef5304228a2db787725d573799d324c.jpg"
 },
 {
 "t": "Champions: Chivu, tutti gli attaccanti sono a disposizione",
@@ -507,7 +574,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/champions-chivu-tutti-gli-attaccanti-sono-a-disposizione_1491f5b5-bd11-4872-a2ae-4c00a9383548.html",
 "d": "2026-11-24T13:48:28+00:00",
-"sq": []
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/22/cf3df2f4edb6dd1659006345ec0496b9.jpg"
 },
 {
 "t": "Stadio Grande Torino, il Comune stabilisce il pubblico interesse",
@@ -517,7 +585,8 @@
 "d": "2026-11-24T13:08:14+00:00",
 "sq": [
 "Torino"
-]
+],
+"img": "https://www.ansa.it/webimages/img_1280x720/2024/11/24/eb4a3b23bf1c99261cdac163886264ff.jpg"
 },
 {
 "t": "Under 15 Provinciali, Virtus Sanremese a punteggio pieno. Mister Taddei:”Sta tornando il sorriso e la voglia di farsi notare”",
@@ -527,7 +596,8 @@
 "d": "2026-11-24T13:07:06+00:00",
 "sq": [
 "Virtus Sanremese Calcio"
-]
+],
+"img": "https://calcioflashponente.it/wp-content/uploads/2026/11/Taddei-1024x683.png"
 },
 {
 "t": "Champions: Luis Enrique 'Roma squadra senza paura, vincere sarà difficile'",
@@ -535,17 +605,8 @@
 "z": "Italia",
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/champions-luis-enrique-roma-squadra-senza-paura-vincere-sara-difficile_6f397ac2-7b1f-42af-86db-9361715cf3a5.html",
 "d": "2026-11-24T13:06:01+00:00",
-"sq": []
-},
-{
-"t": "Udinese, migliorano le condizioni di Pozzo dopo la polmonite",
-"f": "ANSA",
-"z": "Italia",
-"u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/24/udinese-migliorano-le-condizioni-di-pozzo-dopo-la-polmonite_8507454a-b3ec-4813-bdd5-d86baa0bf487.html",
-"d": "2026-11-24T11:05:20+00:00",
-"sq": [
-"Udinese"
-]
+"sq": [],
+"img": "https://www.ansa.it/webimages/img_1280x720/2026/11/24/1579fc7b15a1d9bb4a2ec97e84a7d5e9.jpg"
 }
 ]
 }

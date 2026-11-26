@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """Raccoglie le ultime notizie di calcio dai feed RSS pubblici delle testate.
 
-Per ogni notizia salva solo titolo, fonte, data e link all'articolo originale
-(niente testo né foto dell'articolo: restano della testata).
+Per ogni notizia salva titolo, fonte, data, link all'articolo originale e
+l'indirizzo dell'immagine di anteprima che la testata stessa pubblica per la
+condivisione (og:image / immagine del feed). L'immagine non viene copiata:
+l'app la mostra dal sito della testata, con la fonte e il link all'articolo.
 Riconosce le squadre citate nel titolo, così l'app mostra prima le notizie
 delle squadre preferite e usa lo stemma della squadra come immagine.
 
 Uscita: data/notizie.json
 """
-import json, re, sys, unicodedata, urllib.request, email.utils, datetime as dt
+import json, re, sys, concurrent.futures as cf, unicodedata, urllib.request, email.utils, datetime as dt
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
@@ -76,6 +78,29 @@ def trova_squadre(titolo, brevi):
     return trovate[:3]
 
 
+def img_feed(it):
+    for tag in ("{http://search.yahoo.com/mrss/}content", "{http://search.yahoo.com/mrss/}thumbnail", "enclosure"):
+        for e in it.findall(tag):
+            u = e.get("url") or ""
+            if u.startswith("http") and (e.get("type", "image").startswith("image") or re.search(r"\.(jpe?g|png|webp)", u, re.I)):
+                return u
+    return ""
+
+
+def og_image(url):
+    try:
+        req = urllib.request.Request(url, headers=UA)
+        html = urllib.request.urlopen(req, timeout=10).read(250000).decode("utf-8", "ignore")
+        m = re.search(r'<meta[^>]+property=["\']og:image(?::secure_url)?["\'][^>]+content=["\']([^"\']+)', html) or \
+            re.search(r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image', html)
+        u = (m.group(1) if m else "").replace("&amp;", "&").strip()
+        if u.startswith("//"):
+            u = "https:" + u
+        return u if u.startswith("https://") else ""
+    except Exception:
+        return ""
+
+
 def data_iso(s):
     try:
         return email.utils.parsedate_to_datetime(s).astimezone(dt.timezone.utc).isoformat()
@@ -112,13 +137,22 @@ def main():
                 continue  # altri sport su svsport ("Savona Rugby | ...")
             visti.add(link)
             out.append({"t": titolo[:160], "f": nome, "z": zona, "u": link,
-                        "d": data_iso(it.findtext("pubDate") or ""), "sq": sq})
+                        "d": data_iso(it.findtext("pubDate") or ""), "sq": sq, "img": img_feed(it)})
     out.sort(key=lambda x: x["d"], reverse=True)
+    out = out[:60]
+    senza = [x for x in out if not x["img"]]
+    with cf.ThreadPoolExecutor(8) as ex:
+        for x, u in zip(senza, ex.map(lambda x: og_image(x["u"]), senza)):
+            x["img"] = u
+    # immagini generiche del sito (logo della testata) non servono
+    for x in out:
+        if re.search(r"(logo|default|placeholder|share-?image|og-?default)", x["img"], re.I):
+            x["img"] = ""
     res = {"aggiornato": dt.datetime.now(dt.timezone.utc).isoformat(timespec="minutes"),
-           "nota": "Titoli e link dai feed RSS pubblici delle testate. Gli articoli restano sui loro siti.",
+           "nota": "Titoli, link e immagini di anteprima pubblicati dalle testate per la condivisione. Gli articoli e le foto restano sui loro siti.",
            "notizie": out[:60]}
     (ROOT / "data" / "notizie.json").write_text(json.dumps(res, ensure_ascii=False, indent=0))
-    print(len(out), "notizie;", sum(1 for x in out if x["sq"]), "con squadre riconosciute")
+    print(len(out), "notizie;", sum(1 for x in out if x["img"]), "con foto;", sum(1 for x in out if x["sq"]), "con squadre riconosciute")
 
 
 if __name__ == "__main__":
