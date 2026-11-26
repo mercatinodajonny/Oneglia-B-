@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-26-06";
+const BUILD="2026-11-26-07";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2428,14 +2428,25 @@ function nomeBreve(n){if(!n)return n;const SP={"Internazionale":"Inter","Hellas 
   const L=/^(?:calcio|associazione calcio|associazione sportiva(?: dilettantistica)?|a\.?\s?s\.?\s?d\.?|s\.?s\.?d\.?|u\.?\s?s\.?(?:\s?d\.?)?|a\.?\s?c\.?|a\.?\s?s\.?|f\.?\s?c\.?|g\.?\s?s\.?|polisportiva|pol\.)\s+/i;
   for(let i=0;i<3;i++){const t=s.replace(L,"");if(t===s||t.length<3)break;s=t}
   if(/^[a-zà-ü]{5,}calcio$/i.test(s))s=s.replace(/calcio$/i,"");
-  s=s.replace(/\s{2,}/g," ").trim();return (s.length>=3?s:String(n).trim())+sq}
+  s=s.replace(/\s{2,}/g," ").trim();const out=(s.length>=3?s:String(n).trim())+sq;return nomeGiusto(out)}
+// nomi scritti male nei dati LND: li correggo per la visualizzazione (le chiavi dei loghi restano quelle originali)
+const NOMI_OK={"A.n.p.i.sport E.casassa":"ANPI Sport E. Casassa","A.n.p.i. Sport E. Casassa":"ANPI Sport E. Casassa","A.n.p.i. Sport E. Casassa U21":"ANPI Sport E. Casassa U21","A.n.p.i. Sport E. C Asassa U21":"ANPI Sport E. Casassa U21",
+ "Andrea D Oria":"Andrea Doria","Atletico Ceparana 202sq.b":"Atletico Ceparana Sq. B","Bergeggi-golfo Dellisola":"Bergeggi Golfo dell'Isola","Bordighera Sant'ampelio":"Bordighera Sant'Ampelio",
+ "Bru.borg.lux":"BruBorg Lux","C.e.p.":"CEP","C.u.l.m.v.":"CULMV","Ca De Rissi Sg":"Ca' de Rissi SG","Ca De Rissi Sg U21":"Ca' de Rissi SG U21","Citta Di Cogoleto":"Città di Cogoleto",
+ "Citta Giardino Marassi":"Città Giardino Marassi","Genoa Cricket And F.c.spa":"Genoa","Genoa Cricket And F.csq.b":"Genoa Sq. B","Genoa Cricket And Sq. B":"Genoa Sq. B","Genova Beach Soccer Ssdar":"Genova Beach Soccer",
+ "Golfoparadisoproreccoc.a.":"Golfo Paradiso Pro Recco","Quiliano&valleggia":"Quiliano & Valleggia","Nolese R.g.":"Nolese","Priaruggia Vecchio Cast.":"Priaruggia Vecchio Castagna","Psm Rapallo":"PSM Rapallo",
+ "Rabona Via Dellacciaio":"Rabona Via dell'Acciaio","Ricco Le Rondini":"Riccò Le Rondini","Serra Ricco":"Serra Riccò","Sestrese Bor.":"Sestrese Borzoli","Polis. Pieve Ligure":"Pieve Ligure","Associazione Ma.c.s.":"MACS",
+ "Centro Pol. Sant Eusebio":"Sant'Eusebio","Sant Olcese":"Sant'Olcese","Campomorone Sant Olcese":"Campomorone Sant'Olcese","Femminile Superba":"Superba Femminile","Popolare Spezia":"Calcio Popolare Spezia",
+ "Cdm Futsal":"CDM Futsal","Anpi Marassi Quezzi":"ANPI Marassi Quezzi","Genoa Cfg":"Genoa Femminile","S. Siro Nervi":"San Siro Nervi"};
+function nomeGiusto(s){return NOMI_OK[s]||s}
 function normNomi(){PUB.alias=PUB.alias||{};const A=PUB.alias,nb=n=>{const b=nomeBreve(n);if(b!==n&&!A[b])A[b]=n;return b};
   (PUB.camp||[]).forEach(c=>{const d=c.dati||{};((d.classifica||{}).righe||[]).forEach(r=>r.squadra=nb(r.squadra));(d.risultati||[]).concat(d.programma||[]).forEach(m=>{m.casa=nb(m.casa);m.ospite=nb(m.ospite)});
     ["loghi","colori","espn"].forEach(k=>{if(d[k]){const o={};Object.entries(d[k]).forEach(([a,v])=>o[nb(a)]=v);d[k]=o}})});
   try{const f=favGet();if(f.sq){f.sq=f.sq.map(x=>({...x,n:nomeBreve(x.n)}));favSet(f)}}catch(e){}}
 function keyOf(n){return tkey((PUB.alias||{})[n]||n)}
 
-function pubLogo(n){const k=tkey(n);if(!k)return"";const L=PUB.loghi||{};const ka=keyOf(n);if(L[ka])return L[ka];if(L[k])return L[k];const hit=Object.keys(L).find(x=>x.length>5&&(x.includes(k)||k.includes(x)));return hit?L[hit]:logoFor(n)}
+const LOGO_ALIAS=[[/^genoacricket/,"genoa"],[/^vadoacademy/,"vado"],[/^atleticoceparana/,"atleticoceparana2025"]];
+function pubLogo(n){const k=tkey(n);if(!k)return"";const L=PUB.loghi||{};const al=LOGO_ALIAS.find(a=>a[0].test(k));if(al&&L[al[1]])return L[al[1]];const ka=keyOf(n);if(L[ka])return L[ka];if(L[k])return L[k];const hit=Object.keys(L).find(x=>x.length>5&&(x.includes(k)||k.includes(x)));return hit?L[hit]:logoFor(n)}
 function sqBadge(n,sz){sz=sz||34;const lg=pubLogo(n);if(lg)return `<img src="${lg}" alt="" style="flex:none;width:${sz}px;height:${sz}px;object-fit:contain">`;const h=sqColor(n);return `<span aria-hidden="true" style="flex:none;width:${sz}px;height:${sz}px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.round(sz*.38)}px;letter-spacing:-.02em;color:#fff;background:hsl(${h} 55% 38%);box-shadow:inset 0 0 0 2px hsl(${h} 55% 52%)">${esc(sqIniz(n))}</span>`}
 function campBadge(c,sz){sz=sz||40;const lg=/^serie a$/i.test(c.categoria)?"serie-a":/^serie b$/i.test(c.categoria)?"serie-b":/^serie c$/i.test(c.categoria)?"serie-c":/^serie d/i.test(c.categoria)?"serie-d":/^eccellenza$/i.test(c.categoria)?"eccellenza":/^promozione$/i.test(c.categoria)?"promozione":/^prima categoria/i.test(c.categoria)?"prima":/^seconda categoria/i.test(c.categoria)?"seconda":/^terza categoria/i.test(c.categoria)?"terza":"";if(lg)return `<span aria-hidden="true" style="flex:none;width:${sz}px;height:${sz}px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line,#e5e5ea)"><img src="assets/leghe/${lg}.png" alt="" style="width:72%;height:72%;object-fit:contain"></span>`;const t=/seconda/i.test(c.categoria)?"2ª":/prima/i.test(c.categoria)?"1ª":/terza/i.test(c.categoria)?"3ª":(c.categoria.match(/U\d\d/i)||[c.categoria.slice(0,2)])[0].toUpperCase();return `<span aria-hidden="true" style="flex:none;width:${sz}px;height:${sz}px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.round(sz*.34)}px;background:#fff;color:#157A3A;box-shadow:inset 0 0 0 3px #157A3A">${esc(t)}</span>`}
 const pubCSS=`<style>.csch{padding:0;overflow:hidden}.csch figure{margin:0}.csch img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:var(--line)}
