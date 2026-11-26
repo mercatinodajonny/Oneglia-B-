@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-26-11";
+const BUILD="2026-11-26-12";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -788,6 +788,7 @@ function homePreferiti(tutte){
   const C=PUB.camp||[];const f=favGet();const mie=new Set((f.sq||[]).map(x=>x.c+"|"+x.n));const oggi=isoAdd(0);const mieIn=c=>m=>mie.has(c.id+"|"+m.casa)||mie.has(c.id+"|"+m.ospite);
   // giorni: ieri → +5, più il giorno scelto se fuori
   const giorniCon=new Set(tutte.map(m=>m.data));
+  if(!tutte.length)C.forEach(c=>[...((c.dati||{}).risultati||[]),...((c.dati||{}).programma||[])].forEach(m=>{if(m.data)giorniCon.add(m.data)}));
   if(!PUB.hDayMan)PUB.hDay=giorniCon.has(oggi)?oggi:[...giorniCon].filter(d=>d>oggi&&d<=isoAdd(14)).sort()[0]||oggi;
   const giorni=[-1,0,1,2,3,4,5].map(isoAdd);if(!giorni.includes(PUB.hDay))giorni.push(PUB.hDay);giorni.sort();
   const D=PUB.hDay;
@@ -826,8 +827,9 @@ function homePreferiti(tutte){
         :ul?`<span class="hbk">Ultima</span><span class="hbm">${sqBadge(vs(ul),18)}<span>${esc(ul.casa)} ${ul.gc??""}-${ul.go??""} ${esc(ul.ospite)}</span></span><span class="hbd">${esc(fmtD(ul.data))}</span>`:`<span class="hbd">${esc(c.categoria)}</span>`;
       return `<button class="hban" style="background:${th.bg};color:${th.fg}" onclick="PUB.id='${esc(x.c)}';PUB.sq=${esc(JSON.stringify(x.n))};PUB.tt='pan';pubRender()"><span class="hbt">${sqBadge(x.n,46)}<span class="hbn"><b>${esc(x.n)}</b><small>${esc(c.categoria)}${pos?" · "+pos.pos+"°":""}</small></span></span><span class="hbr">${riga}</span></button>`}).join("");
   const banC=cs.map(c=>{const r=(((c.dati||{}).classifica||{}).righe||[])[0];return `<button class="hban hbc" onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()"><span class="hbt">${campBadge(c,46)}<span class="hbn"><b>${esc(c.categoria)}</b><small>${c.girone&&!/unico/i.test(c.girone)?"Girone "+esc(c.girone):"Campionato"}</small></span></span><span class="hbr">${r?`<span class="hbk">In testa</span><span class="hbm">${sqBadge(r.squadra,18)}<span>${esc(r.squadra)} · ${r.pt} pt</span></span>`:`<span class="hbd">Classifica e calendario</span>`}</span></button>`}).join("");
-  const banner=(sq.length||cs.length)?`<div class="hbans" aria-label="Le tue squadre">${ban}${banC}<button class="hban hbadd" onclick="PUB.onb=true;pubRender()" aria-label="Aggiungi squadre"><span class="hplus">+</span><b>Aggiungi</b></button></div>`:"";
-  return pubBrand()+banner+homeNotizie(f)+strip+tue+tutteHTML}
+  const banner=(sq.length||cs.length)?`<div class="hbans" aria-label="Le tue squadre">${ban}${banC}<button class="hban hbadd" onclick="PUB.onb=true;pubRender()" aria-label="Aggiungi squadre"><span class="hplus">+</span><b>Aggiungi</b></button></div>`
+    :`<button class="hban hbinv" onclick="PUB.onb=true;pubRender()"><span class="hbt"><span class="hplus">+</span><span class="hbn"><b>Scegli le tue squadre</b><small>Le loro partite e notizie arriveranno qui</small></span></span><span class="hbr"><span class="hbd">${PUB.loggato||S.session?"Le ritrovi su tutti i tuoi dispositivi":"Accedi per ritrovarle su tutti i dispositivi"}</span></span></button>`;
+  return pubBrand()+banner+homeNotizie(f)+strip+((sq.length||cs.length)?tue:"")+tutteHTML}
 function fa(iso){const s=(Date.now()-Date.parse(iso))/1000;if(!(s>=0))return"";if(s<3600)return Math.max(1,Math.round(s/60))+" min fa";if(s<86400)return Math.round(s/3600)+" h fa";const g=Math.round(s/86400);return g===1?"ieri":g+" giorni fa"}
 function homeNotizie(f){const N=((PUB.news||{}).notizie)||[];if(!N.length)return"";
   const mie=new Set((f.sq||[]).map(x=>keyOf(x.n)));const mia=x=>(x.sq||[]).some(n=>mie.has(tkey(n))||mie.has(keyOf(nomeBreve(n))));
@@ -2405,7 +2407,7 @@ async function initDb(){
   if(!window.supabase||CONFIG.url.startsWith("INCOLLA")){S.offline=true;S.canWrite=true;S.isManager=true;S.role="admin";S.member={email:"prova@locale",ruolo:"admin",nome:"Prova"};S.members=S.members||[];markAll();render();return}
   SB=window.supabase.createClient(CONFIG.url,CONFIG.key,{auth:{persistSession:true,autoRefreshToken:true}});
   const {data:{session}}=await SB.auth.getSession();
-  SB.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_OUT"){location.reload()}});
+  SB.auth.onAuthStateChange((ev,s)=>{if(ev==="SIGNED_OUT"){location.reload()}if(ev==="SIGNED_IN"||ev==="INITIAL_SESSION")setTimeout(favPull,0)});
   let inApp=false;try{inApp=sessionStorage.getItem("fc_app")==="1"}catch(e){}
   if(location.hash==="#pubblico"||!session||!inApp){showPublic();return}
   await startSession(session);
@@ -2472,7 +2474,8 @@ const LOGO_ALIAS=[[/^genoacricket/,"genoa"],[/^vadoacademy/,"vado"],[/^atleticoc
 function pubLogo(n){const k=tkey(n);if(!k)return"";const L=PUB.loghi||{};const al=LOGO_ALIAS.find(a=>a[0].test(k));if(al&&L[al[1]])return L[al[1]];const ka=keyOf(n);if(L[ka])return L[ka];if(L[k])return L[k];const hit=Object.keys(L).find(x=>x.length>5&&(x.includes(k)||k.includes(x)));return hit?L[hit]:logoFor(n)}
 function sqBadge(n,sz){sz=sz||34;const lg=pubLogo(n);if(lg)return `<img src="${lg}" alt="" style="flex:none;width:${sz}px;height:${sz}px;object-fit:contain">`;const h=sqColor(n);return `<span aria-hidden="true" style="flex:none;width:${sz}px;height:${sz}px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.round(sz*.38)}px;letter-spacing:-.02em;color:#fff;background:hsl(${h} 55% 38%);box-shadow:inset 0 0 0 2px hsl(${h} 55% 52%)">${esc(sqIniz(n))}</span>`}
 function campBadge(c,sz){sz=sz||40;const lg=/^serie a$/i.test(c.categoria)?"serie-a":/^serie b$/i.test(c.categoria)?"serie-b":/^serie c$/i.test(c.categoria)?"serie-c":/^serie d/i.test(c.categoria)?"serie-d":/^eccellenza$/i.test(c.categoria)?"eccellenza":/^promozione$/i.test(c.categoria)?"promozione":/^prima categoria/i.test(c.categoria)?"prima":/^seconda categoria/i.test(c.categoria)?"seconda":/^terza categoria/i.test(c.categoria)?"terza":"";if(lg)return `<span aria-hidden="true" style="flex:none;width:${sz}px;height:${sz}px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line,#e5e5ea)"><img src="assets/leghe/${lg}.png" alt="" style="width:72%;height:72%;object-fit:contain"></span>`;const t=/seconda/i.test(c.categoria)?"2ª":/prima/i.test(c.categoria)?"1ª":/terza/i.test(c.categoria)?"3ª":(c.categoria.match(/U\d\d/i)||[c.categoria.slice(0,2)])[0].toUpperCase();return `<span aria-hidden="true" style="flex:none;width:${sz}px;height:${sz}px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.round(sz*.34)}px;background:#fff;color:#157A3A;box-shadow:inset 0 0 0 3px #157A3A">${esc(t)}</span>`}
-const pubCSS=`<style>#pub .hnpos{display:flex;align-items:center;justify-content:center}#pub .hnpos img{width:64px!important;height:64px!important;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}#pub .hnews+.hsrc{margin-bottom:14px}#pub .hnsrc{font-size:22px;font-weight:800;letter-spacing:-.01em;opacity:.9}
+const pubCSS=`<style>#pub .hban.hbinv{width:100%;max-width:none;min-height:0;margin:4px 0 14px;background:linear-gradient(145deg,#1a7f37,#0f5a26);color:#fff}#pub .hbinv .hplus{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.2);display:inline-flex;align-items:center;justify-content:center;font-size:28px;flex:none}
+#pub .hnpos{display:flex;align-items:center;justify-content:center}#pub .hnpos img{width:64px!important;height:64px!important;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}#pub .hnews+.hsrc{margin-bottom:14px}#pub .hnsrc{font-size:22px;font-weight:800;letter-spacing:-.01em;opacity:.9}
 #pub .hnew.hnimg{padding:0;gap:0;overflow:hidden;background:#fff;color:#1c1c1e;min-height:0}#pub .hnph{position:relative;display:block;aspect-ratio:16/9;background:#e5e5ea}#pub .hnph img{width:100%;height:100%;object-fit:cover;display:block}#pub .hnph.ko img{display:none}
 #pub .hncr{position:absolute;left:10px;bottom:-17px;width:44px;height:44px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 #pub .hnph em{position:absolute;right:10px;top:10px;font-style:normal;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:#1a7f37;color:#fff;padding:4px 8px;border-radius:999px}
@@ -2651,7 +2654,7 @@ async function pubLoad(){if(PUB.camp)return PUB.camp;try{if(!SB)SB=window.supaba
   let N=null;try{const f2=await fetch("data/nazionali.json?v="+Date.now(),{cache:"no-store"});if(f2.ok)N=await f2.json()}catch(e){}
   if(J&&J.campionati&&J.campionati.length){PUB.camp=J.campionati.map(c=>({stagione:"2026/2027",...c}))}else{const r=await SB.from("campionati").select("id,categoria,girone,delegazione,stagione,dati,aggiornato").order("categoria");PUB.camp=r.data||[]}if(N&&N.campionati)PUB.camp=PUB.camp.concat(N.campionati);normNomi();const l=await SB.from("loghi").select("chiave,img");PUB.loghi={};(l.data||[]).forEach(x=>PUB.loghi[x.chiave]=x.img);(PUB.camp||[]).forEach(c=>Object.entries((c.dati||{}).loghi||{}).forEach(([n,u])=>{const k=tkey(n);if(k&&!PUB.loghi[k])PUB.loghi[k]=u}));PUB.camp.sort(campSort)}catch(e){PUB.camp=PUB.camp||[];PUB.loghi=PUB.loghi||{}}return PUB.camp}
 function pubBack(){if(PUB.match!=null){PUB.match=null}else if(PUB.sq){PUB.sq=null}else{PUB.id=null}pubRender()}
-async function showPublic(){pubEl().innerHTML=pubCSS+`<div class="lg"><p class="sub">Caricamento…</p></div>`;await pubLoad();try{const {data}=await SB.auth.getSession();if(data&&data.session){PUB.loggato=true;PUB.email=data.session.user.email;const r=await SB.rpc("my_access");PUB.acc=r.data||[];const a=await SB.rpc("is_platform_admin");PUB.admin=a.data===true}}catch(e){}pubRender()}
+async function showPublic(){pubEl().innerHTML=pubCSS+`<div class="lg"><p class="sub">Caricamento…</p></div>`;await pubLoad();favPull();try{const {data}=await SB.auth.getSession();if(data&&data.session){PUB.loggato=true;PUB.email=data.session.user.email;const r=await SB.rpc("my_access");PUB.acc=r.data||[];const a=await SB.rpc("is_platform_admin");PUB.admin=a.data===true}}catch(e){}pubRender()}
 function allTeams(){const n=new Set();(PUB.camp||[]).forEach(c=>{((c.dati.classifica||{}).righe||[]).forEach(r=>n.add(r.squadra));(c.dati.risultati||[]).concat(c.dati.programma||[]).forEach(m=>{n.add(m.casa);n.add(m.ospite)})});return [...n].filter(Boolean).sort()}
 function guessTeam(fn){const STOP=/^(logo|stemma|scudetto|png|jpe?g|webp|svg|image|img|calcio|asd|ssd|fc|ac|us|a|s|d|download|vector|hd|\d{1,3})$/;const tk=fn.toLowerCase().replace(/\.[a-z]+$/,"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/[^a-z0-9]+/).filter(w=>w&&!STOP.test(w));if(!tk.length)return"";let best="",bs=0;
   allTeams().forEach(t=>{const tt=tkey(t);let sc=0;tk.forEach(w=>{if(tt.includes(w))sc+=w.length});if(sc>bs||(sc===bs&&sc&&t.length<best.length)){bs=sc;best=t}});return bs>=4?best:""}
@@ -2668,7 +2671,13 @@ async function pubBulkSalva(){const rows=(PUB.bulk||[]).filter(b=>b.team).map(b=
 async function pubCaricaLogo(f){if(!f)return;const img=new Image();img.src=URL.createObjectURL(f);await img.decode().catch(()=>{});const S2=160,cv=document.createElement("canvas");cv.width=cv.height=S2;const r=Math.min(S2/img.width,S2/img.height);const w=img.width*r,h=img.height*r;const ctx=cv.getContext("2d");ctx.drawImage(img,(S2-w)/2,(S2-h)/2,w,h);let d=cv.toDataURL("image/webp",.85);if(!d.startsWith("data:image/webp"))d=cv.toDataURL("image/png");
   const nome=PUB.sq,chiave=tkey(nome);const {error}=await SB.from("loghi").upsert({chiave,nome,img:d,updated_at:new Date().toISOString()});if(error){toast("Logo non salvato");return}PUB.loghi[chiave]=d;toast("Logo salvato");pubRender()}
 function favGet(){try{return JSON.parse(localStorage.getItem("fc_pref")||"{}")}catch(e){return {}}}
-function favSet(f){try{localStorage.setItem("fc_pref",JSON.stringify(f))}catch(e){}}
+function favSet(f){try{localStorage.setItem("fc_pref",JSON.stringify(f))}catch(e){}favPush()}
+// preferiti salvati anche nell'account: stessi preferiti su telefono e computer
+function favPush(){clearTimeout(PUB._fp);PUB._fp=setTimeout(async()=>{try{if(!SB)return;const uid=await accUserId();if(!uid)return;await SB.from("profili").upsert({user_id:uid,preferiti:favGet(),updated_at:new Date().toISOString()})}catch(e){}},800)}
+async function favPull(){try{if(!SB)return;const uid=await accUserId();if(!uid)return;const r=await SB.from("profili").select("preferiti").maybeSingle();const R=(r.data&&r.data.preferiti)||{};const L=favGet();
+  const sq=[...(R.sq||[])];(L.sq||[]).forEach(x=>{if(!sq.some(y=>y.n===x.n&&y.c===x.c))sq.push(x)});const camp=[...new Set([...(R.camp||[]),...(L.camp||[])])];
+  const nuovo={...R,...L,sq,camp};const cambiatoQui=JSON.stringify({sq:L.sq||[],camp:L.camp||[]})!==JSON.stringify({sq,camp});const daInviare=JSON.stringify({sq:R.sq||[],camp:R.camp||[]})!==JSON.stringify({sq,camp});
+  try{localStorage.setItem("fc_pref",JSON.stringify(nuovo))}catch(e){}if(daInviare)favPush();if(cambiatoQui&&PUB.vista==="partite"&&!PUB.id){PUB.onb=false;pubRender()}}catch(e){}}
 function favIsSq(n){return (favGet().sq||[]).some(x=>x.n===n)}
 function favIsCamp(id){return (favGet().camp||[]).includes(id)}
 function favSq(n,cid){if(PUB.vista==="partite"&&PUB.onb===undefined)PUB.onb=true;const f=favGet();f.sq=f.sq||[];f.sq=favIsSq(n)?f.sq.filter(x=>x.n!==n):[...f.sq,{n,c:cid}];favSet(f);toast(favIsSq(n)?"Aggiunta ai preferiti":"Tolta dai preferiti");pubRender()}
@@ -2953,7 +2962,7 @@ function _pubRender(){
     fs.forEach(x=>{const c=C.find(k=>k.id===x.c);if(!c)return;(c.dati.risultati||[]).concat(c.dati.programma||[]).filter(m=>m.casa===x.n||m.ospite===x.n).forEach(m=>{const k=c.id+m.casa+m.ospite+m.data;if(!vis.has(k)){vis.add(k);tutte.push({...m,cat:c})}})});
     const prossime=tutte.filter(m=>m.gc==null&&(m.data||"")>=oggi).sort((a,b)=>(a.data+(a.ora||"")).localeCompare(b.data+(b.ora||"")));
     const ultime=tutte.filter(m=>m.gc!=null).sort((a,b)=>(b.data||"").localeCompare(a.data||"")).slice(0,20);
-    if((!fs.length&&!fc.length)||PUB.onb){
+    if(PUB.onb){
       body=homeBenvenuto();
     } else {
       body=homePreferiti(tutte);
