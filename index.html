@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-26-10";
+const BUILD="2026-11-26-11";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2582,6 +2582,7 @@ const pubCSS=`<style>#pub .hnpos{display:flex;align-items:center;justify-content
 #pub .pf{display:block;text-align:left;margin-bottom:12px}#pub .pf span{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:0 0 6px 16px}#pub .pf input{width:100%;box-sizing:border-box;border:0;border-radius:16px;background:var(--card);padding:16px;font:inherit;font-size:17px;color:var(--text);outline:none;box-shadow:inset 0 0 0 1px var(--line)}#pub .pf input:focus{box-shadow:inset 0 0 0 2px var(--tint)}
 #pub .plink{border:0;background:none;color:var(--tint);font:inherit;font-size:15px;font-weight:600;padding:14px;cursor:pointer}#pub .pmsg{min-height:20px;font-size:14px;color:var(--muted);margin:4px 0 0}
 #pub .pbar{position:fixed;left:0;right:0;bottom:0;z-index:62;background:rgba(249,249,249,.85);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:.5px solid var(--line);display:flex;justify-content:space-around;padding:8px 6px calc(8px + var(--safe-b,0px))}
+@media (min-width:720px){#pub .pbar{padding-left:calc((100vw - 680px)/2);padding-right:calc((100vw - 680px)/2)}}
 #pub .pbar button{background:none;border:0;color:var(--muted);font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;min-width:64px;padding:4px}
 #pub .pbar button.on{color:var(--tint)}#pub .pbar svg{width:24px;height:24px}#pub .pbar .pav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 0 0 2px transparent}#pub .pbar button.on .pav{box-shadow:0 0 0 2px var(--tint)}#pub .pbar .pav.ini{background:var(--tint);color:#fff;font-size:11px;font-weight:800}#pub .pbar .pav svg,#pub .pbar .pav img{width:26px;height:26px}
 #pub .regsel{appearance:none;-webkit-appearance:none;background:transparent;border:0;color:var(--text);font-size:30px;font-weight:800;letter-spacing:-.02em;padding:0 30px 0 0;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right center;background-size:22px;font-family:inherit}
