@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-26-12";
+const BUILD="2026-11-26-13";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -814,8 +814,11 @@ function homePreferiti(tutte){
   const titolo=s=>s==="0"?"Campionati che segui":s[0]==="1"?"Dilettanti"+(s.slice(2)!=="zz"?" · "+s.slice(2):""):s==="2"?"Professionisti":"Giovanili e altri campionati"+(s.slice(1)!=="zz"?" · "+s.slice(1):"");
   const grp=Object.values(G).sort((a,b)=>sez(a.c).localeCompare(sez(b.c))||campSort(a.c,b.c));
   PUB.hOpen=PUB.hOpen||{};let last=-1;
-  const tutteHTML=grp.length?`<h2 class="hh">Tutte le partite · ${esc(giornoLab(D))}</h2>`+grp.map(({c,l})=>{const s=sez(c);const head=s!==last?`<p class="hsez">${esc(titolo(s))}</p>`:"";last=s;const open=PUB.hOpen[c.id]??(s==="0");const nl=l.filter(m=>{const x=liveDi(m);return x&&x.st==="in"}).length;
-    return head+`<div class="hgrp${open?" o":""}"><button class="hgh" onclick="PUB.hOpen['${esc(c.id)}']=${!open};pubRender()" aria-expanded="${open}">${campBadge(c,30)}<span class="hgt"><b>${esc(c.categoria)}</b><small>${c.girone&&!/unico/i.test(c.girone)?"Girone "+esc(c.girone)+" · ":""}${l.length} ${l.length===1?"partita":"partite"}${nl?` · <em>${nl} in diretta</em>`:""}</small></span><span class="hchev" aria-hidden="true">›</span></button>${open?`<div class="hlist">${l.map(m=>hRow(m,c,mie)).join("")}</div><button class="hcl" onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()">Classifica e calendario ›</button>`:""}</div>`}).join(""):"";
+  const gHTML=grp.map(({c,l})=>{const s=sez(c);const head=s!==last?`<p class="hsez">${esc(titolo(s))}</p>`:"";last=s;const open=PUB.hOpen[c.id]??(s==="0");const nl=l.filter(m=>{const x=liveDi(m);return x&&x.st==="in"}).length;
+    return head+`<div class="hgrp${open?" o":""}"><button class="hgh" onclick="PUB.hOpen['${esc(c.id)}']=${!open};pubRender()" aria-expanded="${open}">${campBadge(c,30)}<span class="hgt"><b>${esc(c.categoria)}</b><small>${c.girone&&!/unico/i.test(c.girone)?"Girone "+esc(c.girone)+" · ":""}${l.length} ${l.length===1?"partita":"partite"}${nl?` · <em>${nl} in diretta</em>`:""}</small></span><span class="hchev" aria-hidden="true">›</span></button>${open?`<div class="hlist">${l.map(m=>hRow(m,c,mie)).join("")}</div><button class="hcl" onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()">Classifica e calendario ›</button>`:""}</div>`});
+  // notizie dopo le prime partite, come sul telefono
+  const NEWS=homeNotizie(f);const dopo=sq.length||cs.length?1:2;
+  const tutteHTML=grp.length?`<h2 class="hh">Tutte le partite · ${esc(giornoLab(D))}</h2>`+gHTML.slice(0,dopo).join("")+NEWS+gHTML.slice(dopo).join(""):NEWS;
   // banner delle squadre preferite, a scorrimento orizzontale
   const oggiI=isoAdd(0);
   const ban=sq.map(x=>{const c=C.find(k=>k.id===x.c);const d=c.dati||{};const mia=m=>m.casa===x.n||m.ospite===x.n;
@@ -829,7 +832,7 @@ function homePreferiti(tutte){
   const banC=cs.map(c=>{const r=(((c.dati||{}).classifica||{}).righe||[])[0];return `<button class="hban hbc" onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()"><span class="hbt">${campBadge(c,46)}<span class="hbn"><b>${esc(c.categoria)}</b><small>${c.girone&&!/unico/i.test(c.girone)?"Girone "+esc(c.girone):"Campionato"}</small></span></span><span class="hbr">${r?`<span class="hbk">In testa</span><span class="hbm">${sqBadge(r.squadra,18)}<span>${esc(r.squadra)} · ${r.pt} pt</span></span>`:`<span class="hbd">Classifica e calendario</span>`}</span></button>`}).join("");
   const banner=(sq.length||cs.length)?`<div class="hbans" aria-label="Le tue squadre">${ban}${banC}<button class="hban hbadd" onclick="PUB.onb=true;pubRender()" aria-label="Aggiungi squadre"><span class="hplus">+</span><b>Aggiungi</b></button></div>`
     :`<button class="hban hbinv" onclick="PUB.onb=true;pubRender()"><span class="hbt"><span class="hplus">+</span><span class="hbn"><b>Scegli le tue squadre</b><small>Le loro partite e notizie arriveranno qui</small></span></span><span class="hbr"><span class="hbd">${PUB.loggato||S.session?"Le ritrovi su tutti i tuoi dispositivi":"Accedi per ritrovarle su tutti i dispositivi"}</span></span></button>`;
-  return pubBrand()+banner+homeNotizie(f)+strip+((sq.length||cs.length)?tue:"")+tutteHTML}
+  return pubBrand()+banner+strip+((sq.length||cs.length)?tue:"")+tutteHTML}
 function fa(iso){const s=(Date.now()-Date.parse(iso))/1000;if(!(s>=0))return"";if(s<3600)return Math.max(1,Math.round(s/60))+" min fa";if(s<86400)return Math.round(s/3600)+" h fa";const g=Math.round(s/86400);return g===1?"ieri":g+" giorni fa"}
 function homeNotizie(f){const N=((PUB.news||{}).notizie)||[];if(!N.length)return"";
   const mie=new Set((f.sq||[]).map(x=>keyOf(x.n)));const mia=x=>(x.sq||[]).some(n=>mie.has(tkey(n))||mie.has(keyOf(nomeBreve(n))));
