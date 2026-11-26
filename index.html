@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-26-03";
+const BUILD="2026-11-26-04";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -814,7 +814,7 @@ function homePreferiti(tutte){
   PUB.hOpen=PUB.hOpen||{};let last=-1;
   const tutteHTML=grp.length?`<h2 class="hh">Tutte le partite · ${esc(giornoLab(D))}</h2>`+grp.map(({c,l})=>{const s=sez(c);const head=s!==last?`<p class="hsez">${esc(titolo(s))}</p>`:"";last=s;const open=PUB.hOpen[c.id]??(s==="0");const nl=l.filter(m=>{const x=liveDi(m);return x&&x.st==="in"}).length;
     return head+`<div class="hgrp${open?" o":""}"><button class="hgh" onclick="PUB.hOpen['${esc(c.id)}']=${!open};pubRender()" aria-expanded="${open}">${campBadge(c,30)}<span class="hgt"><b>${esc(c.categoria)}</b><small>${c.girone&&!/unico/i.test(c.girone)?"Girone "+esc(c.girone)+" · ":""}${l.length} ${l.length===1?"partita":"partite"}${nl?` · <em>${nl} in diretta</em>`:""}</small></span><span class="hchev" aria-hidden="true">›</span></button>${open?`<div class="hlist">${l.map(m=>hRow(m,c,mie)).join("")}</div><button class="hcl" onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()">Classifica e calendario ›</button>`:""}</div>`}).join(""):"";
-  return pubBrand()+strip+tue+rapido+tutteHTML}
+  return pubBrand()+strip+tue+tutteHTML}
 // ================= HOME DI BENVENUTO (nessun preferito) =================
 function homeSquadre(k){const C=PUB.camp||[];
   if(k==="lig"){const L=C.filter(c=>/^(Eccellenza|Promozione)$/i.test(c.categoria)&&/regionale/i.test(c.delegazione||""));const out=[];L.forEach(c=>((c.dati.classifica||{}).righe||[]).forEach(r=>out.push({n:r.squadra,c:c.id})));
