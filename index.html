@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-27-08";
+const BUILD="2026-11-27-09";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -838,24 +838,37 @@ function homePreferiti(tutte){
   return pubBrand()+rap+homeHero(sq)+homeNotizie(f)+strip+(ha?tue:"")+tutteHTML2}
 function fmtGM(d){const x=new Date(d+"T12:00:00");return x.getDate()+" "+["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"][x.getMonth()]}
 // partita in evidenza: diretta > oggi > prossima > ultima, tra le squadre seguite
-function homeHero(sq){const C=PUB.camp||[];const oggi=isoAdd(0);const L=[],vis=new Set();
-  sq.forEach(x=>{const c=C.find(k=>k.id===x.c);if(!c)return;const d=c.dati||{};let best=null;
+function homeHero(sq){const C=PUB.camp||[];const oggi=isoAdd(0);const best=[];
+  // per ogni squadra preferita: la sua partita più importante (live > oggi > prossima > ultima)
+  sq.forEach(x=>{const c=C.find(k=>k.id===x.c);if(!c)return;const d=c.dati||{};let b=null;
     [...(d.risultati||[]),...(d.programma||[])].forEach(m=>{if(m.casa!==x.n&&m.ospite!==x.n)return;const lv=liveDi(m);
       const pr=lv&&lv.st==="in"?0:m.data===oggi?1:m.data>oggi&&m.gc==null?2:m.gc!=null?3:9;if(pr===9)return;
-      const k=[pr,pr===3?-(Date.parse(m.data)||0):(m.data+(m.ora||""))];if(!best||k[0]<best.k[0]||(k[0]===best.k[0]&&String(k[1])<String(best.k[1])))best={m,c,k,lv,sq:x.n}});
-    if(best){const id=best.c.id+"|"+best.m.casa+"|"+best.m.ospite+"|"+best.m.data;if(!vis.has(id)){vis.add(id);L.push(best)}}});
-  if(!L.length)return"";
-  L.sort((a,b)=>a.k[0]-b.k[0]||(a.k[0]===3?String(a.k[1]).localeCompare(String(b.k[1])):String(a.k[1]).localeCompare(String(b.k[1]))));
+      const k=[pr,pr===3?-(Date.parse(m.data)||0):(m.data+(m.ora||""))];if(!b||k[0]<b.k[0]||(k[0]===b.k[0]&&String(k[1])<String(b.k[1])))b={m,c,k,sq:x.n}});
+    if(b)best.push(b)});
+  if(!best.length)return"";
+  // tutte le partite della stessa giornata di quei campionati, in ordine di orario
+  const L=[],vis=new Set(),mie=new Set(sq.map(x=>x.n));
+  best.forEach(b=>{const d=b.c.dati||{},g=b.m.giornata;let stesse=g?[...(d.risultati||[]),...(d.programma||[])].filter(m=>m.giornata===g):[b.m];if(!stesse.length)stesse=[b.m];
+    stesse.forEach(m=>{const id=b.c.id+"|"+m.casa+"|"+m.ospite+"|"+m.data;if(vis.has(id))return;vis.add(id);const lv=liveDi(m);
+      const tua=mie.has(m.casa)?m.casa:mie.has(m.ospite)?m.ospite:"";L.push({m,c:b.c,lv,tua,t:(m.data||"9999")+"T"+(m.ora||"23:59")})})});
+  L.sort((a,b)=>a.t.localeCompare(b.t));
+  // si parte dalla partita più importante di una squadra preferita
+  const tb=[...best].sort((a,b)=>a.k[0]-b.k[0]||String(a.k[1]).localeCompare(String(b.k[1])))[0];
+  let start=L.findIndex(x=>x.m===tb.m);if(start<0)start=0;
   PUB.mm=PUB.mm||[];
-  const card=({m,c,lv,k,sq:s})=>{const pr=k[0];const mi=PUB.mm.push({m,c})-1;
+  const card=({m,c,lv,tua})=>{const mi=PUB.mm.push({m,c})-1;const live=lv&&lv.st==="in";
     const gc=lv&&lv.gc!=null?lv.gc:m.gc,go=lv&&lv.go!=null?lv.go:m.go;const sc=gc!=null&&go!=null;
-    const tag=pr===0?`<span class="hhl live">● LIVE</span>`:pr===1?`<span class="hhl">Oggi</span>`:pr===2?`<span class="hhl">Prossima</span>`:`<span class="hhl">Ultima</span>`;
-    const sub=pr===0?esc(lv.min||"In corso"):sc?"Finale":esc(giornoLab(m.data));
-    return `<button class="hhero" onclick="PUB.match=${mi};pubRender()" aria-label="${esc(m.casa+" contro "+m.ospite)}"><span class="hhbg" aria-hidden="true"></span>${tag}${L.length>1?`<span class="hhq">${esc(s)}</span>`:""}
+    const tag=live?`<span class="hhl live">● LIVE</span>`:sc?`<span class="hhl">Finale</span>`:m.data===oggi?`<span class="hhl">Oggi</span>`:`<span class="hhl">In programma</span>`;
+    const sub=live?esc(lv.min||"In corso"):sc?esc(giornoLab(m.data)):esc(giornoLab(m.data));
+    return `<button class="hhero${tua?" tua":""}" onclick="PUB.match=${mi};pubRender()" aria-label="${esc(m.casa+" contro "+m.ospite)}"><span class="hhbg" aria-hidden="true"></span>${tag}${tua?`<span class="hhq">★ ${esc(tua)}</span>`:""}
       <span class="hhm"><span class="hht">${sqBadge(m.casa,58)}<b>${esc(m.casa)}</b></span><span class="hhs"><b>${sc?`${gc} - ${go}`:esc(m.ora||"–")}</b><small>${sub}</small></span><span class="hht">${sqBadge(m.ospite,58)}<b>${esc(m.ospite)}</b></span></span>
-      <span class="hhc">${esc(c.categoria)}${c.girone&&!/unico/i.test(c.girone)?" · Girone "+esc(c.girone):""}${m.campo?" · "+esc(m.campo):""}</span></button>`};
+      <span class="hhc">${esc(c.categoria)}${c.girone&&!/unico/i.test(c.girone)?" · Girone "+esc(c.girone):""}${m.giornata?" · "+m.giornata+"ª giornata":""}</span></button>`};
   if(L.length===1)return card(L[0]);
-  return `<div class="hhcar" onscroll="clearTimeout(this._t);this._t=setTimeout(()=>{const c=this.children[0];const i=Math.round(this.scrollLeft/(c.offsetWidth+10));[...this.nextElementSibling.children].forEach((d,j)=>d.classList.toggle('on',j===i))},60)">${L.map(card).join("")}</div><div class="hndots hhdots" aria-hidden="true">${L.map((x,j)=>`<i class="${j?"":"on"}"></i>`).join("")}</div>`}
+  return `<div class="hhcar" data-i="${start}" onscroll="hhScroll(this)">${L.map(card).join("")}</div><div class="hhnav"><button onclick="hhStep(this,-1)" aria-label="Partita precedente">‹</button><span>${start+1} di ${L.length}</span><button onclick="hhStep(this,1)" aria-label="Partita successiva">›</button></div>`}
+function hhIdx(el){const L=el.getBoundingClientRect().left;let bi=0,bd=1e9;[...el.children].forEach((c,i)=>{const d=Math.abs(c.getBoundingClientRect().left-L);if(d<bd){bd=d;bi=i}});return bi}
+function hhGo(el,i,sm){const s=el.children[i];if(!s)return;el.scrollTo({left:el.scrollLeft+s.getBoundingClientRect().left-el.getBoundingClientRect().left,behavior:sm?"smooth":"auto"})}
+function hhScroll(el){clearTimeout(el._t);el._t=setTimeout(()=>{const i=hhIdx(el);el.dataset.i=i;const n=el.nextElementSibling;if(n)n.querySelector("span").textContent=(i+1)+" di "+el.children.length},60)}
+function hhStep(b,d){const el=b.parentElement.previousElementSibling;hhGo(el,Math.max(0,Math.min(el.children.length-1,hhIdx(el)+d)),true)}
 function homeNotizieLista(f){const N=((PUB.news||{}).notizie)||[];if(!N.length)return"";
   const mie=new Set((f.sq||[]).map(x=>keyOf(x.n)));const mia=x=>(x.sq||[]).some(n=>mie.has(tkey(n))||mie.has(keyOf(nomeBreve(n))));
   const L=[...N].sort((a,b)=>(mia(b)-mia(a))||((b.z!=="Italia")-(a.z!=="Italia"))||(!!b.img-!!a.img)||(b.d||"").localeCompare(a.d||""));const n=PUB.newsAll?14:4;
@@ -2806,6 +2819,8 @@ html,body{overflow-x:hidden;max-width:100%;overscroll-behavior-x:none}#pub{overf
 #pub .hhcar{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:6px 0 4px;touch-action:pan-x pan-y;overscroll-behavior-x:contain}#pub .hhcar::-webkit-scrollbar{display:none}
 #pub .hhcar .hhero{flex:0 0 90%;scroll-snap-align:start;margin:0}#pub .hhdots{margin:8px 0 14px}
 #pub .hhq{float:right;font-size:12px;font-weight:600;opacity:.75;padding:5px 2px;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pub .hhnav{display:flex;align-items:center;justify-content:center;gap:14px;margin:8px 0 14px;font-size:13px;color:var(--muted,#8e8e93);font-weight:600}#pub .hhnav button{width:36px;height:36px;border-radius:999px;border:0;background:var(--card,#fff);box-shadow:0 1px 3px rgba(0,0,0,.08);font-size:20px;line-height:1;color:#1c1c1e}
+#pub .hhero.tua{box-shadow:inset 0 0 0 2px rgba(255,255,255,.22)}
 body.acl-on,body.acl-on #pub{overflow:hidden!important}
 #pub .acl{background:linear-gradient(180deg,#2a2a2d 0%,#161618 55%,#0e0e0f 100%)!important}
 #pub .aclbg{inset:0!important;background:url("assets/campo.svg") center/cover no-repeat!important;filter:grayscale(1) blur(2px) brightness(.55)!important;opacity:.28;transform:none!important}
@@ -3214,7 +3229,7 @@ function pubScrKey(){return [PUB.vista,PUB.id,PUB.sq,PUB.match,PUB.sez,PUB.tab,P
 function pubRender(){const el=pubEl(),k0=PUB._sk,y0=el.scrollTop;PUB._sc=PUB._sc||{};if(k0!=null)PUB._sc[k0]=y0;
   const tb0=el.querySelector(".ttabs"),ty0=tb0?tb0.getBoundingClientRect().top:null,kt0=PUB._skt;
   _pubRender.apply(this,arguments);
-  el.querySelectorAll(".gcar").forEach(gInit);
+  el.querySelectorAll(".gcar").forEach(gInit);el.querySelectorAll(".hhcar").forEach(h=>hhGo(h,+h.dataset.i||0,false));
   // cambio solo scheda della squadra (Panoramica/Partite/Classifica/Rosa): la barra delle schede resta dov'era
   const kt=[PUB.vista,PUB.id,PUB.sq,PUB.match].join("|");PUB._skt=kt;const tb1=el.querySelector(".ttabs");
   if(tb1&&ty0!=null&&kt===kt0&&PUB._sk!==pubScrKey()){document.body.classList.remove("acl-on");PUB._sk=pubScrKey();el.scrollTop=Math.max(0,y0+(tb1.getBoundingClientRect().top-ty0));return}document.body.classList.toggle("acl-on",!!el.querySelector(".acl"));const k=pubScrKey();PUB._sk=k;
