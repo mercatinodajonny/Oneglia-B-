@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-27-12";
+const BUILD="2026-11-27-13";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -798,7 +798,7 @@ function homePreferiti(tutte){
   const ord=(a,b)=>{const la=liveDi(a),lb=liveDi(b);const ia=la&&la.st==="in"?0:1,ib=lb&&lb.st==="in"?0:1;return ia-ib||(a.ora||"99").localeCompare(b.ora||"99")};
   const mieD=tutte.filter(m=>m.data===D).sort(ord);
   const prossimo=[...giorniCon].filter(d=>d>D).sort()[0];
-  const strip=`<div class="hdays" role="tablist">${giorni.map(d=>`<button role="tab" aria-selected="${d===D}" class="${d===D?"on":""}" onclick="PUB.hDay='${d}';PUB.hDayMan=true;PUB.hOpen={};pubRender()"><span>${esc(giornoLab(d).replace(/ \d+$/,""))}</span><small>${esc(fmtGM(d))}</small>${giorniCon.has(d)?'<i aria-hidden="true"></i>':"<i class=\"no\"></i>"}</button>`).join("")}</div>`;
+  const strip=`<div class="hdays" role="tablist">${giorni.map(d=>`<button role="tab" aria-selected="${d===D}" class="${d===D?"on":""}" onclick="PUB.hDay='${d}';PUB.hDayMan=true;PUB.hOpen={};pubRender()"><small class="dw">${d===isoAdd(0)?"OGGI":["DOM","LUN","MAR","MER","GIO","VEN","SAB"][new Date(d+"T12:00:00").getDay()]}</small><b class="dn${d===isoAdd(0)?" oggi":""}">${+d.slice(8,10)}</b>${giorniCon.has(d)?'<i aria-hidden="true"></i>':"<i class=\"no\"></i>"}<span class="vh">${esc(giornoLab(d))} ${esc(fmtGM(d))}</span></button>`).join("")}</div>`;
   const fonti=[...new Set(mieD.map(m=>fonteDi(m.cat)))];
   const agg=Math.max(0,...mieD.filter(m=>fonteDi(m.cat)==="lnd").map(m=>Date.parse(m.cat.aggiornato||"")||0));
   const nota=fonti.length?`<p class="hsrc">${fonti.map(k=>k==="espn"?"ESPN"+(Object.keys(PUB.liveTs||{}).some(x=>x.endsWith(D))?" · diretta aggiornata alle "+new Date(Math.max(...Object.entries(PUB.liveTs||{}).filter(([x])=>x.endsWith(D)).map(([,v])=>v))).toTimeString().slice(0,5):""):k==="lnd"?"Comunicati LND"+(agg?" · aggiornati al "+fmtD(new Date(agg).toISOString().slice(0,10)).replace(/ \d{4}$/,""):""):FONTI[k].nome).join(" · ")}</p>`:"";
@@ -838,6 +838,21 @@ function homePreferiti(tutte){
   return pubBrand()+rap+homeHero(sq)+homeNotizie(f)+strip+(ha?tue:"")+tutteHTML2}
 function fmtGM(d){const x=new Date(d+"T12:00:00");return x.getDate()+" "+["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"][x.getMonth()]}
 // partita in evidenza: diretta > oggi > prossima > ultima, tra le squadre seguite
+// colore del banner preso dallo stemma della squadra di casa (colore più acceso dello stemma)
+function hhColore(img){const k=img.currentSrc||img.src;PUB._hc=PUB._hc||{};if(PUB._hc[k]!==undefined)return PUB._hc[k];let out=null;
+  try{const c=document.createElement("canvas"),W=40;c.width=c.height=W;const x=c.getContext("2d",{willReadFrequently:true});x.drawImage(img,0,0,W,W);const d=x.getImageData(0,0,W,W).data;const B={};
+    let op=0;for(let i=0;i<d.length;i+=4){const r=d[i],g=d[i+1],b=d[i+2],a=d[i+3];if(a<200)continue;op++;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),s=mx?(mx-mn)/mx:0;if(mx<40||(s<.28&&mx>200))continue;if(s<.25)continue;
+      const k2=(r>>5)+","+(g>>5)+","+(b>>5);const o=B[k2]||(B[k2]={n:0,r:0,g:0,b:0,s:0});o.n++;o.r+=r;o.g+=g;o.b+=b;o.s+=s}
+    let best=null;for(const k2 in B){const o=B[k2];const sc=o.n*(.5+o.s/o.n);if(!best||sc>best.sc)best={sc,...o}}
+    if(best&&best.n>Math.max(12,op*.04))out=[Math.round(best.r/best.n),Math.round(best.g/best.n),Math.round(best.b/best.n)];else if(op>50)out=[92,94,100]}catch(e){out=null}
+  PUB._hc[k]=out;return out}
+function hhTinta(btn){const im=btn.querySelector(".hht img");if(!im)return;const paint=c=>{if(!c)return;let [r,g,b]=c;
+    const L=(r*299+g*587+b*114)/1000;if(L>150){r=Math.round(r*.62);g=Math.round(g*.62);b=Math.round(b*.62)}
+    const dk=`rgb(${Math.round(r*.32)},${Math.round(g*.32)},${Math.round(b*.32)})`,md=`rgb(${Math.round(r*.7)},${Math.round(g*.7)},${Math.round(b*.7)})`,lt=`rgb(${Math.min(255,r+40)},${Math.min(255,g+40)},${Math.min(255,b+40)})`;
+    btn.style.background=`radial-gradient(120% 90% at 50% -10%,${lt} 0%,${md} 45%,${dk} 100%)`};const go=()=>paint(hhColore(im));
+  const src=im.currentSrc||im.src;if(/^https?:/.test(src)&&!src.startsWith(location.origin)){PUB._hc=PUB._hc||{};if(PUB._hc[src]!==undefined){paint(PUB._hc[src]);return}
+    const j=new Image();j.crossOrigin="anonymous";j.onload=()=>{const c=hhColore(j);PUB._hc[src]=c;paint(c)};j.onerror=()=>{PUB._hc[src]=null};j.src=src;return}
+  if(im.complete&&im.naturalWidth)go();else im.addEventListener("load",go,{once:true})}
 function hhTema(c){const s=((c.categoria||"")+" "+(c.id||"")).toLowerCase();
   if(/serie-a|serie a\b/.test(s))return "t-a";if(/serie-b|serie b\b/.test(s))return "t-b";if(/serie-c|serie c\b/.test(s))return "t-c";if(/serie d|serie-d/.test(s))return "t-d";
   if(/eccellenza/.test(s))return "t-e";if(/promozione/.test(s))return "t-p";if(/prima/.test(s))return "t-1";if(/seconda|terza/.test(s))return "t-2";return "t-g"}
@@ -2855,6 +2870,17 @@ html,body{overflow-x:hidden;max-width:100%;overscroll-behavior-x:none}#pub{overf
 #pub .hhero.tua{box-shadow:0 10px 24px rgba(0,0,0,.18)}
 #pub .gstrip{touch-action:pan-x!important;overscroll-behavior:none;height:48px!important}#pub .gstrip button{height:48px!important}
 #pub .hhnav button:disabled{opacity:.3}
+#pub .hdays{gap:0!important;padding:6px 0 4px!important;margin:2px 0 8px!important;background:var(--card,#fff);border-radius:22px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+#pub .hdays button{flex:1 0 50px!important;min-width:50px!important;height:auto!important;background:none!important;box-shadow:none!important;border-radius:14px!important;padding:6px 0 4px!important;gap:3px!important;color:#1c1c1e!important}
+#pub .hdays button.on{background:none!important;box-shadow:none!important}
+#pub .hdays .dw{font-size:11px!important;font-weight:600;letter-spacing:.04em;color:#8e8e93;opacity:1!important}
+#pub .hdays .dn{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;font-size:19px;font-weight:600;letter-spacing:-.01em;transition:background .15s,color .15s}
+#pub .hdays .dn.oggi{color:#ff3b30}
+#pub .hdays button.on .dn{background:#1c1c1e;color:#fff}#pub .hdays button.on .dn.oggi{background:#ff3b30;color:#fff}
+#pub .hdays button.on .dw{color:#1c1c1e}
+#pub .hdays i{width:5px!important;height:5px!important;background:#8e8e93!important}#pub .hdays button.on i{background:#1c1c1e!important}#pub .hdays i.no{background:transparent!important}
+#pub .hdays button:active .dn{background:rgba(0,0,0,.08)}
+#pub .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 body.acl-on,body.acl-on #pub{overflow:hidden!important}
 #pub .acl{background:linear-gradient(180deg,#2a2a2d 0%,#161618 55%,#0e0e0f 100%)!important}
 #pub .aclbg{inset:0!important;background:url("assets/campo.svg") center/cover no-repeat!important;filter:grayscale(1) blur(2px) brightness(.55)!important;opacity:.28;transform:none!important}
@@ -3267,7 +3293,7 @@ function pubScrKey(){return [PUB.vista,PUB.id,PUB.sq,PUB.match,PUB.sez,PUB.tab,P
 function pubRender(){const el=pubEl(),k0=PUB._sk,y0=el.scrollTop;PUB._sc=PUB._sc||{};if(k0!=null)PUB._sc[k0]=y0;
   const tb0=el.querySelector(".ttabs"),ty0=tb0?tb0.getBoundingClientRect().top:null,kt0=PUB._skt;
   _pubRender.apply(this,arguments);
-  el.querySelectorAll(".gwrap").forEach(gInit);
+  el.querySelectorAll(".gwrap").forEach(gInit);el.querySelectorAll(".hhero").forEach(hhTinta);
   // cambio solo scheda della squadra (Panoramica/Partite/Classifica/Rosa): la barra delle schede resta dov'era
   const kt=[PUB.vista,PUB.id,PUB.sq,PUB.match].join("|");PUB._skt=kt;const tb1=el.querySelector(".ttabs");
   if(tb1&&ty0!=null&&kt===kt0&&PUB._sk!==pubScrKey()){document.body.classList.remove("acl-on");PUB._sk=pubScrKey();el.scrollTop=Math.max(0,y0+(tb1.getBoundingClientRect().top-ty0));return}document.body.classList.toggle("acl-on",!!el.querySelector(".acl"));const k=pubScrKey();PUB._sk=k;
