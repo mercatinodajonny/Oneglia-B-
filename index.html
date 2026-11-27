@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-27-11";
+const BUILD="2026-11-27-12";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -838,6 +838,9 @@ function homePreferiti(tutte){
   return pubBrand()+rap+homeHero(sq)+homeNotizie(f)+strip+(ha?tue:"")+tutteHTML2}
 function fmtGM(d){const x=new Date(d+"T12:00:00");return x.getDate()+" "+["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"][x.getMonth()]}
 // partita in evidenza: diretta > oggi > prossima > ultima, tra le squadre seguite
+function hhTema(c){const s=((c.categoria||"")+" "+(c.id||"")).toLowerCase();
+  if(/serie-a|serie a\b/.test(s))return "t-a";if(/serie-b|serie b\b/.test(s))return "t-b";if(/serie-c|serie c\b/.test(s))return "t-c";if(/serie d|serie-d/.test(s))return "t-d";
+  if(/eccellenza/.test(s))return "t-e";if(/promozione/.test(s))return "t-p";if(/prima/.test(s))return "t-1";if(/seconda|terza/.test(s))return "t-2";return "t-g"}
 function homeHero(sq){const C=PUB.camp||[];const oggi=isoAdd(0);const best=[];
   // per ogni squadra preferita: la sua partita più importante (live > oggi > prossima > ultima)
   sq.forEach(x=>{const c=C.find(k=>k.id===x.c);if(!c)return;const d=c.dati||{};let b=null;
@@ -860,15 +863,16 @@ function homeHero(sq){const C=PUB.camp||[];const oggi=isoAdd(0);const best=[];
     const gc=lv&&lv.gc!=null?lv.gc:m.gc,go=lv&&lv.go!=null?lv.go:m.go;const sc=gc!=null&&go!=null;
     const tag=live?`<span class="hhl live">● LIVE</span>`:sc?`<span class="hhl">Finale</span>`:m.data===oggi?`<span class="hhl">Oggi</span>`:`<span class="hhl">In programma</span>`;
     const sub=live?esc(lv.min||"In corso"):sc?esc(giornoLab(m.data)):esc(giornoLab(m.data));
-    return `<button class="hhero${tua?" tua":""}" onclick="PUB.match=${mi};pubRender()" aria-label="${esc(m.casa+" contro "+m.ospite)}"><span class="hhbg" aria-hidden="true"></span>${tag}${tua?`<span class="hhq">★ ${esc(tua)}</span>`:""}
+    return `<button class="hhero ${hhTema(c)}${tua?" tua":""}" onclick="if(Date.now()-(this.parentElement._sw||0)<400)return;PUB.match=${mi};pubRender()" aria-label="${esc(m.casa+" contro "+m.ospite)}"><span class="hhbg" aria-hidden="true"></span>${tag}${tua?`<span class="hhq">★ ${esc(tua)}</span>`:""}
       <span class="hhm"><span class="hht">${sqBadge(m.casa,58)}<b>${esc(m.casa)}</b></span><span class="hhs"><b>${sc?`${gc} - ${go}`:esc(m.ora||"–")}</b><small>${sub}</small></span><span class="hht">${sqBadge(m.ospite,58)}<b>${esc(m.ospite)}</b></span></span>
       <span class="hhc">${esc(c.categoria)}${c.girone&&!/unico/i.test(c.girone)?" · Girone "+esc(c.girone):""}${m.giornata?" · "+m.giornata+"ª giornata":""}</span></button>`};
   if(L.length===1)return card(L[0]);
-  return `<div class="hhcar" data-i="${start}" onscroll="hhScroll(this)">${L.map(card).join("")}</div><div class="hhnav"><button onclick="hhStep(this,-1)" aria-label="Partita precedente">‹</button><span>${start+1} di ${L.length}</span><button onclick="hhStep(this,1)" aria-label="Partita successiva">›</button></div>`}
-function hhIdx(el){const L=el.getBoundingClientRect().left;let bi=0,bd=1e9;[...el.children].forEach((c,i)=>{const d=Math.abs(c.getBoundingClientRect().left-L);if(d<bd){bd=d;bi=i}});return bi}
-function hhGo(el,i,sm){const s=el.children[i];if(!s)return;el.scrollTo({left:el.scrollLeft+s.getBoundingClientRect().left-el.getBoundingClientRect().left,behavior:sm?"smooth":"auto"})}
-function hhScroll(el){clearTimeout(el._t);el._t=setTimeout(()=>{const i=hhIdx(el);el.dataset.i=i;const n=el.nextElementSibling;if(n)n.querySelector("span").textContent=(i+1)+" di "+el.children.length},60)}
-function hhStep(b,d){const el=b.parentElement.previousElementSibling;hhGo(el,Math.max(0,Math.min(el.children.length-1,hhIdx(el)+d)),true)}
+  return `<div class="hhone" data-i="${start}" ontouchstart="gTs(event,this)" ontouchend="hhTe(event,this)">${L.map((x,j)=>card(x).replace('<button class="hhero','<button'+(j===start?"":" hidden")+' class="hhero')).join("")}</div><div class="hhnav"><button onclick="hhStep(this,-1)" aria-label="Partita precedente" ${start?"":"disabled"}>‹</button><span>${start+1} di ${L.length}</span><button onclick="hhStep(this,1)" aria-label="Partita successiva" ${start<L.length-1?"":"disabled"}>›</button></div>`}
+function hhShow(el,j,dir){const C=[...el.children],n=C.length;j=Math.max(0,Math.min(n-1,j));const old=+el.dataset.i||0;if(j===old)return;
+  C.forEach((c,k)=>{c.hidden=k!==j;c.classList.remove("gin-l","gin-r")});void C[j].offsetWidth;C[j].classList.add((dir??(j>old?1:-1))>0?"gin-r":"gin-l");el.dataset.i=j;
+  const nav=el.nextElementSibling;if(nav){nav.querySelector("span").textContent=(j+1)+" di "+n;const bs=nav.querySelectorAll("button");bs[0].disabled=j===0;bs[1].disabled=j===n-1}}
+function hhStep(b,d){const el=b.parentElement.previousElementSibling;hhShow(el,(+el.dataset.i||0)+d,d)}
+function hhTe(e,el){if(el._x==null)return;const t=e.changedTouches[0],dx=t.clientX-el._x,dy=t.clientY-el._y;el._x=null;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.4){el._sw=Date.now();hhShow(el,(+el.dataset.i||0)+(dx<0?1:-1),dx<0?1:-1)}}
 function homeNotizieLista(f){const N=((PUB.news||{}).notizie)||[];if(!N.length)return"";
   const mie=new Set((f.sq||[]).map(x=>keyOf(x.n)));const mia=x=>(x.sq||[]).some(n=>mie.has(tkey(n))||mie.has(keyOf(nomeBreve(n))));
   const L=[...N].sort((a,b)=>(mia(b)-mia(a))||((b.z!=="Italia")-(a.z!=="Italia"))||(!!b.img-!!a.img)||(b.d||"").localeCompare(a.d||""));const n=PUB.newsAll?14:4;
@@ -2834,6 +2838,23 @@ html,body{overflow-x:hidden;max-width:100%;overscroll-behavior-x:none}#pub{overf
 #pub .hdays button{min-width:74px;height:62px;padding:0 14px!important;border-radius:50%/50%!important;justify-content:center;gap:2px!important;box-shadow:0 1px 3px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04)!important;font-size:14.5px}
 #pub .hdays button.on{background:#1c1c1e!important;box-shadow:0 4px 12px rgba(0,0,0,.18)!important}
 #pub .hdays button small{font-size:12px!important}
+#pub .hhone{touch-action:pan-y pinch-zoom;margin:6px 0 0}#pub .hhone .hhero{margin:0}#pub .hhone .hhero[hidden]{display:none}
+#pub .hhero.gin-r{animation:ginr .22s ease-out}#pub .hhero.gin-l{animation:ginl .22s ease-out}
+#pub .hhero .hhbg{display:none}
+#pub .hhero.t-a{background:radial-gradient(120% 90% at 50% -10%,#3b6fe0 0%,#163b9a 45%,#0a1c4d 100%)}
+#pub .hhero.t-b{background:radial-gradient(120% 90% at 50% -10%,#2fb38a 0%,#0e6b55 45%,#06372c 100%)}
+#pub .hhero.t-c{background:radial-gradient(120% 90% at 50% -10%,#e2534d 0%,#a4232a 45%,#560f14 100%)}
+#pub .hhero.t-d{background:radial-gradient(120% 90% at 50% -10%,#a06ae0 0%,#5b2f9c 45%,#2a1550 100%)}
+#pub .hhero.t-e{background:radial-gradient(120% 90% at 50% -10%,#4f8cf0 0%,#1f4fb0 45%,#0f2457 100%)}
+#pub .hhero.t-p{background:radial-gradient(120% 90% at 50% -10%,#f0a23a 0%,#b9641a 45%,#5a2c09 100%)}
+#pub .hhero.t-1{background:radial-gradient(120% 90% at 50% -10%,#36b6d6 0%,#11718f 45%,#073646 100%)}
+#pub .hhero.t-2{background:radial-gradient(120% 90% at 50% -10%,#e86aa0 0%,#a62a63 45%,#4f0f2c 100%)}
+#pub .hhero.t-g{background:radial-gradient(120% 90% at 50% -10%,#8e9aa8 0%,#4b5563 45%,#1f2329 100%)}
+#pub .hhero:before{content:"";position:absolute;inset:0;background:url("assets/campo.svg") center 30%/cover no-repeat;opacity:.08;mix-blend-mode:screen;pointer-events:none}
+#pub .hhero .hhl{background:rgba(255,255,255,.2)!important}#pub .hhero .hhl.live{background:#ff3b30!important}
+#pub .hhero.tua{box-shadow:0 10px 24px rgba(0,0,0,.18)}
+#pub .gstrip{touch-action:pan-x!important;overscroll-behavior:none;height:48px!important}#pub .gstrip button{height:48px!important}
+#pub .hhnav button:disabled{opacity:.3}
 body.acl-on,body.acl-on #pub{overflow:hidden!important}
 #pub .acl{background:linear-gradient(180deg,#2a2a2d 0%,#161618 55%,#0e0e0f 100%)!important}
 #pub .aclbg{inset:0!important;background:url("assets/campo.svg") center/cover no-repeat!important;filter:grayscale(1) blur(2px) brightness(.55)!important;opacity:.28;transform:none!important}
@@ -3246,7 +3267,7 @@ function pubScrKey(){return [PUB.vista,PUB.id,PUB.sq,PUB.match,PUB.sez,PUB.tab,P
 function pubRender(){const el=pubEl(),k0=PUB._sk,y0=el.scrollTop;PUB._sc=PUB._sc||{};if(k0!=null)PUB._sc[k0]=y0;
   const tb0=el.querySelector(".ttabs"),ty0=tb0?tb0.getBoundingClientRect().top:null,kt0=PUB._skt;
   _pubRender.apply(this,arguments);
-  el.querySelectorAll(".gwrap").forEach(gInit);el.querySelectorAll(".hhcar").forEach(h=>hhGo(h,+h.dataset.i||0,false));
+  el.querySelectorAll(".gwrap").forEach(gInit);
   // cambio solo scheda della squadra (Panoramica/Partite/Classifica/Rosa): la barra delle schede resta dov'era
   const kt=[PUB.vista,PUB.id,PUB.sq,PUB.match].join("|");PUB._skt=kt;const tb1=el.querySelector(".ttabs");
   if(tb1&&ty0!=null&&kt===kt0&&PUB._sk!==pubScrKey()){document.body.classList.remove("acl-on");PUB._sk=pubScrKey();el.scrollTop=Math.max(0,y0+(tb1.getBoundingClientRect().top-ty0));return}document.body.classList.toggle("acl-on",!!el.querySelector(".acl"));const k=pubScrKey();PUB._sk=k;
