@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-27-14";
+const BUILD="2026-11-27-15";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -912,7 +912,7 @@ function homeHero(sq){const C=PUB.camp||[];const oggi=isoAdd(0);const best=[];
   PUB.mm=PUB.mm||[];
   const card=({m,c,lv,tua})=>{const mi=PUB.mm.push({m,c})-1;const live=lv&&lv.st==="in";
     const gc=lv&&lv.gc!=null?lv.gc:m.gc,go=lv&&lv.go!=null?lv.go:m.go;const sc=gc!=null&&go!=null;
-    const tag=live?`<span class="hhl live">● LIVE</span>`:sc?`<span class="hhl">Finale</span>`:m.data===oggi?`<span class="hhl">Oggi</span>`:`<span class="hhl">In programma</span>`;
+    const tag=live?`<span class="hhl live">● LIVE</span>`:sc?`<span class="hhl">Finale</span>`:m.rinviata?`<span class="hhl">Rinviata</span>`:m.data===oggi?`<span class="hhl">Oggi</span>`:`<span class="hhl">In programma</span>`;
     const sub=live?esc(lv.min||"In corso"):sc?esc(giornoLab(m.data)):esc(giornoLab(m.data));
     return `<button class="hhero ${hhTema(c)}${tua?" tua":""}" onclick="if(Date.now()-(this.parentElement._sw||0)<400)return;PUB.match=${mi};pubRender()" aria-label="${esc(m.casa+" contro "+m.ospite)}"><span class="hhbg" aria-hidden="true"></span>${tag}${tua?`<span class="hhq">★ ${esc(tua)}</span>`:""}
       <span class="hhm"><span class="hht">${sqBadge(m.casa,58)}<b>${esc(m.casa)}</b></span><span class="hhs"><b>${sc?`${gc} - ${go}`:esc(m.ora||"–")}</b><small>${sub}</small></span><span class="hht">${sqBadge(m.ospite,58)}<b>${esc(m.ospite)}</b></span></span>
@@ -3091,7 +3091,7 @@ function gPills(w,i,smooth){const st=w.querySelector(".gstrip"),bar=w.querySelec
 function gInit(w){gPills(w,+w.dataset.i||0,false)}
 function gHead(){return ""}
 function mrow(m,evid,c){const fatto=m.gc!=null;PUB.mm=PUB.mm||[];const mi=PUB.mm.push({m,c:c||m.cat||(PUB.camp||[]).find(x=>x.id===PUB.id)})-1;const t=(n,r)=>`<div class="t${r?" r":""}" style="${evid===n?"color:var(--tint)":""}">${r?`<span class="n">${esc(n)}</span>${sqBadge(n,26)}`:`${sqBadge(n,26)}<span class="n">${esc(n)}</span>`}</div>`;
-  const lv=!fatto&&liveDi(m),lvOk=lv&&lv.gc!=null;return `<div class="mrow" role="button" tabindex="0" onclick="PUB.match=${mi};pubRender()" style="cursor:pointer">${t(m.casa)}<div class="sc">${fatto?`${m.gc} - ${m.go}`:lvOk?`<span style="color:${lv.st==="in"?"#ff3b30":"inherit"}">${lv.gc} - ${lv.go}</span>`:esc(m.ora||"–")}<small${lv&&lv.st==="in"?' style="color:#ff3b30;font-weight:700"':""}>${lv&&lv.st!=="pre"?esc(lv.st==="in"?"LIVE "+(lv.min||""):lv.min||"Finale"):esc(fmtD(m.data).replace(/ \d{4}$/,""))}</small></div>${t(m.ospite,1)}</div>`}
+  const lv=!fatto&&liveDi(m),lvOk=lv&&lv.gc!=null;return `<div class="mrow" role="button" tabindex="0" onclick="PUB.match=${mi};pubRender()" style="cursor:pointer">${t(m.casa)}<div class="sc">${m.rinviata&&!fatto?`<span style="font-size:13px;color:#ff9500">Rinviata</span>`:fatto?`${m.gc} - ${m.go}`:lvOk?`<span style="color:${lv.st==="in"?"#ff3b30":"inherit"}">${lv.gc} - ${lv.go}</span>`:esc(m.ora||"–")}<small${lv&&lv.st==="in"?' style="color:#ff3b30;font-weight:700"':""}>${lv&&lv.st!=="pre"?esc(lv.st==="in"?"LIVE "+(lv.min||""):lv.min||"Finale"):esc(fmtD(m.data).replace(/ \d{4}$/,""))}</small></div>${t(m.ospite,1)}</div>`}
 // ordine come nella piramide del calcio: prima i campionati più alti
 // piramide del calcio: dal livello più alto in giù
 const LOGO_LIV={"Serie D":"serie-d","Eccellenza":"eccellenza","Promozione":"promozione","Prima Categoria":"prima","Seconda Categoria":"seconda","Terza Categoria":"terza"};
@@ -3112,7 +3112,7 @@ function pubMatchView(x){const m=x.m,c=x.c||{};const lvB=m.gc==null&&!m.eid?live
   const mio=n=>/oneglia/i.test(n);
   const g=m.giornata?(m.giornata>100?(m.giornata-100)+"ª giornata · ritorno":m.giornata+"ª giornata"):"";
   return pubTop("Partita","",true)+`<div class="card mhero"><div class="mlab">${esc(c.categoria||"")}${c.girone&&c.girone!=="Unico"?" · Girone "+esc(c.girone):""}${g?" · "+g:""}</div>
-    <div class="mvs"><div role="button" tabindex="0" style="cursor:pointer" onclick="PUB.match=null;PUB.id='${esc(c.id||"")}';PUB.sq=${esc(JSON.stringify(m.casa))};PUB.tt='pan';pubRender()">${sqBadge(m.casa,64)}<b>${esc(m.casa)}</b></div><div class="msc">${fatto?`<span style="white-space:nowrap${lvB&&lvB.st==="in"?";color:#ff3b30":""}">${m.gc!=null?m.gc:lvB.gc}<i>–</i>${m.gc!=null?m.go:lvB.go}</span>`:`<span>VS</span>`}<small${lvB&&lvB.st==="in"?' style="color:#ff3b30;font-weight:700"':""}>${m.gc!=null?"Finale":lvB&&lvB.st!=="pre"?esc(lvB.st==="in"?"LIVE · "+lvB.min:lvB.min):esc(m.ora||"Orario da definire")}</small></div><div role="button" tabindex="0" style="cursor:pointer" onclick="PUB.match=null;PUB.id='${esc(c.id||"")}';PUB.sq=${esc(JSON.stringify(m.ospite))};pubRender()">${sqBadge(m.ospite,64)}<b>${esc(m.ospite)}</b></div></div>
+    <div class="mvs"><div role="button" tabindex="0" style="cursor:pointer" onclick="PUB.match=null;PUB.id='${esc(c.id||"")}';PUB.sq=${esc(JSON.stringify(m.casa))};PUB.tt='pan';pubRender()">${sqBadge(m.casa,64)}<b>${esc(m.casa)}</b></div><div class="msc">${fatto?`<span style="white-space:nowrap${lvB&&lvB.st==="in"?";color:#ff3b30":""}">${m.gc!=null?m.gc:lvB.gc}<i>–</i>${m.gc!=null?m.go:lvB.go}</span>`:`<span>VS</span>`}<small${lvB&&lvB.st==="in"?' style="color:#ff3b30;font-weight:700"':""}>${m.gc!=null?"Finale":m.rinviata?"Partita rinviata":lvB&&lvB.st!=="pre"?esc(lvB.st==="in"?"LIVE · "+lvB.min:lvB.min):esc(m.ora||"Orario da definire")}</small></div><div role="button" tabindex="0" style="cursor:pointer" onclick="PUB.match=null;PUB.id='${esc(c.id||"")}';PUB.sq=${esc(JSON.stringify(m.ospite))};pubRender()">${sqBadge(m.ospite,64)}<b>${esc(m.ospite)}</b></div></div>
     <div class="mdate">${esc(fmtD(m.data||"",1))}</div></div>
     ${bordoSezione(m,c,mi)}
     ${m.eid&&(c.dati||{}).lega?espnMatchSection(m,c):`<h2>Formazioni</h2>
