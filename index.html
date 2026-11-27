@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-27-03";
+const BUILD="2026-11-27-04";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2759,7 +2759,21 @@ html,body{overflow-x:hidden;max-width:100%;overscroll-behavior-x:none}#pub{overf
 #pub .acltx b{font-size:19px!important;font-weight:700}#pub .acltx small{font-size:14.5px!important;color:#3a3a3c!important;margin-top:4px!important;line-height:1.32!important}#pub .aclch{flex:none;color:#1c1c1e}
 #pub .aclor{margin:30px 0 20px!important;font-size:16px!important;font-weight:500}#pub .aclor:before,#pub .aclor:after{background:rgba(255,255,255,.35)!important}
 #pub .aclmail{height:56px!important;border:1.5px solid #fff!important;font-size:17px!important}#pub .aclreg{margin-top:26px!important}#pub .aclreg button{color:#34c759!important;font-size:15.5px;text-decoration:underline;text-underline-offset:3px}
-body.acl-on #pub .pbar{display:none}body.acl-on,body.acl-on #pub{background:#040806!important}
+#pub .acl{position:fixed!important;left:0;right:0;top:0;bottom:calc(64px + var(--safe-b,0px));margin:0!important;min-height:0!important;padding:calc(env(safe-area-inset-top,0px) + 12px) 22px 14px!important;display:flex;flex-direction:column;justify-content:center;overflow:hidden!important;background:#0d1a12!important;z-index:5;touch-action:none;overscroll-behavior:none}
+#pub .aclbg{inset:-40px!important;background:#2f5a2a url("assets/campo-sfocato.webp") center/cover no-repeat!important;filter:blur(6px);transform:scale(1.06)}
+#pub .acl:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,16,12,.18),rgba(8,16,12,.38) 55%,rgba(8,16,12,.5))}
+#pub .aclin{z-index:2;width:100%;max-width:440px}
+#pub .acllogo{height:44px!important;margin:0 auto 8px!important}#pub .aclsub{font-size:17px!important;margin:0 0 20px!important;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+#pub .aclr{background:rgba(255,255,255,.14)!important;color:#fff!important;border:1px solid rgba(255,255,255,.22)!important;box-shadow:none!important;-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);border-radius:20px!important;padding:13px 14px!important;margin:0 0 10px!important;gap:14px!important}
+#pub .aclr:active{background:rgba(255,255,255,.24)!important}
+#pub .aclic{width:42px!important;height:42px!important;border-radius:50%;background:rgba(255,255,255,.92);color:#1f8a43!important}#pub .aclic svg{width:22px;height:22px}
+#pub .acltx b{font-size:16.5px!important;font-weight:600!important}#pub .acltx small{font-size:13px!important;color:rgba(255,255,255,.78)!important;margin-top:2px!important}#pub .aclch{color:rgba(255,255,255,.7)!important;width:18px;height:18px}
+#pub .aclor{margin:14px 0 12px!important;font-size:14px!important;opacity:.85}
+#pub .aclmail{height:50px!important;border:0!important;background:#fff!important;color:#111!important;font-size:16px!important}
+#pub .aclreg{margin-top:12px!important}#pub .aclreg button{color:#fff!important;font-size:14.5px!important;opacity:.9}
+#pub .aclx{z-index:3!important;background:rgba(255,255,255,.18)!important}
+@media (max-height:700px){#pub .acllogo{height:36px!important}#pub .aclsub{margin-bottom:12px!important}#pub .aclr{padding:9px 12px!important;margin-bottom:8px!important}#pub .acltx small{display:none!important}#pub .aclor{margin:8px 0!important}}
+body.acl-on,body.acl-on #pub{overflow:hidden!important}body.acl-on #pub .pbar{background:rgba(20,28,23,.72);border-top-color:rgba(255,255,255,.12)}body.acl-on #pub .pbar button{color:rgba(255,255,255,.7)}body.acl-on #pub .pbar button.on{color:#fff}
 </style>`;
 function pubEl(){let el=$("#pub");if(!el){el=document.createElement("div");el.id="pub";document.body.appendChild(el)}el.classList.add("on");return el}
 async function pubLoad(){if(PUB.camp)return PUB.camp;try{if(!SB)SB=window.supabase.createClient(CONFIG.url,CONFIG.key);let J=null;try{const f=await fetch("data/campionati.json?v="+Date.now(),{cache:"no-store"});if(f.ok)J=await f.json()}catch(e){}
@@ -3085,7 +3099,11 @@ function espnMatchSection(m,c){const lega=(c.dati||{}).lega;if(!m.eid||!lega)ret
 
 function pubScrKey(){return [PUB.vista,PUB.id,PUB.sq,PUB.match,PUB.sez,PUB.tab,PUB.tt,PUB.scegli].join("|")}
 function pubRender(){const el=pubEl(),k0=PUB._sk,y0=el.scrollTop;PUB._sc=PUB._sc||{};if(k0!=null)PUB._sc[k0]=y0;
-  _pubRender.apply(this,arguments);document.body.classList.toggle("acl-on",!!el.querySelector(".acl"));const k=pubScrKey();PUB._sk=k;
+  const tb0=el.querySelector(".ttabs"),ty0=tb0?tb0.getBoundingClientRect().top:null,kt0=PUB._skt;
+  _pubRender.apply(this,arguments);
+  // cambio solo scheda della squadra (Panoramica/Partite/Classifica/Rosa): la barra delle schede resta dov'era
+  const kt=[PUB.vista,PUB.id,PUB.sq,PUB.match].join("|");PUB._skt=kt;const tb1=el.querySelector(".ttabs");
+  if(tb1&&ty0!=null&&kt===kt0&&PUB._sk!==pubScrKey()){document.body.classList.remove("acl-on");PUB._sk=pubScrKey();el.scrollTop=Math.max(0,y0+(tb1.getBoundingClientRect().top-ty0));return}document.body.classList.toggle("acl-on",!!el.querySelector(".acl"));const k=pubScrKey();PUB._sk=k;
   // stessa schermata (es. apro un gruppo o arriva un aggiornamento live): resto dove sono.
   // torno alla Home: riprendo dal punto in cui l'avevo lasciata. Altrimenti parto dall'alto.
   const home=PUB.vista==="partite"&&!PUB.id&&PUB.match==null;
