@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-27-09";
+const BUILD="2026-11-27-10";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2821,6 +2821,12 @@ html,body{overflow-x:hidden;max-width:100%;overscroll-behavior-x:none}#pub{overf
 #pub .hhq{float:right;font-size:12px;font-weight:600;opacity:.75;padding:5px 2px;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pub .hhnav{display:flex;align-items:center;justify-content:center;gap:14px;margin:8px 0 14px;font-size:13px;color:var(--muted,#8e8e93);font-weight:600}#pub .hhnav button{width:36px;height:36px;border-radius:999px;border:0;background:var(--card,#fff);box-shadow:0 1px 3px rgba(0,0,0,.08);font-size:20px;line-height:1;color:#1c1c1e}
 #pub .hhero.tua{box-shadow:inset 0 0 0 2px rgba(255,255,255,.22)}
+#pub .gone{width:100%;touch-action:pan-y pinch-zoom}#pub .gone .gpage[hidden]{display:none}
+@keyframes ginr{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}@keyframes ginl{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+#pub .gpage.gin-r{animation:ginr .22s ease-out}#pub .gpage.gin-l{animation:ginl .22s ease-out}
+@media (prefers-reduced-motion:reduce){#pub .gpage.gin-r,#pub .gpage.gin-l{animation:none}}
+#pub .gstrip{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 28px,#000 calc(100% - 28px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 28px,#000 calc(100% - 28px),transparent 100%);padding:0 24px}
+#pub .gstrip button{font-size:15.5px;color:#6e6e73}#pub .gstrip button.on{color:#1c1c1e;font-weight:700}
 body.acl-on,body.acl-on #pub{overflow:hidden!important}
 #pub .acl{background:linear-gradient(180deg,#2a2a2d 0%,#161618 55%,#0e0e0f 100%)!important}
 #pub .aclbg{inset:0!important;background:url("assets/campo.svg") center/cover no-repeat!important;filter:grayscale(1) blur(2px) brightness(.55)!important;opacity:.28;transform:none!important}
@@ -2967,18 +2973,22 @@ function gLab(g){return g.n?g.n+"ª giornata":"Altre gare"}
 // carosello di giornate: si scorre a destra e a sinistra, le pillole sopra seguono
 function gCar(key,G,page,lab){if(G.length===1&&!G[0].n)return `<div class="card" style="padding:4px 12px">${G[0].L.map(m=>mrow(m)).join("")}</div>`;PUB.gsel=PUB.gsel||{};let i=PUB.gsel[key];if(i==null||i>=G.length)i=giornataOra(G);
   const sub=g=>(g.tot&&g.n?(g.rit?"Ritorno":"Andata"):"")+(g.data?(g.tot&&g.n?" · ":"")+fmtD(g.data).replace(/ \d{4}$/,""):"");
-  return `<div class="gwrap"><div class="gstrip" role="tablist" aria-label="Giornate">${G.map((g,j)=>`<button role="tab" class="${j===i?"on":""}" aria-selected="${j===i}" onclick="gGo(this,${j})">${lab?lab(g):(g.n?"Giornata "+g.n:"Altre")}</button>`).join("")}</div>
-    <div class="gbar"><button onclick="gStep(this,-1)" aria-label="Giornata precedente">‹</button><div aria-live="polite"><b>${esc(G[i].n?"Giornata "+G[i].n+" di "+(G[i].tot||G[G.length-1].n||G.length):gLab(G[i]))}</b><small>${esc(sub(G[i]))}</small></div><button onclick="gStep(this,1)" aria-label="Giornata successiva">›</button></div>
-    <div class="gcar" data-k="${esc(key)}" data-i="${i}" onscroll="gScroll(this)">${G.map((g,j)=>`<section class="gpage" data-l="${esc(g.n?"Giornata "+g.n+" di "+(g.tot||G[G.length-1].n||G.length):gLab(g))}" data-s="${esc(sub(g))}" aria-label="${esc(gLab(g))}">${page(g,j)}</section>`).join("")}</div></div>`}
-function gIdx(el){const L=el.getBoundingClientRect().left;let bi=0,bd=1e9;[...el.children].forEach((c,i)=>{const d=Math.abs(c.getBoundingClientRect().left-L);if(d<bd){bd=d;bi=i}});return bi}
-function gAlign(el,i,smooth){const s=el.children[i];if(!s)return;const x=el.scrollLeft+s.getBoundingClientRect().left-el.getBoundingClientRect().left;el.scrollTo({left:x,behavior:smooth?"smooth":"auto"})}
-function gInit(el){const i=+el.dataset.i||0;gAlign(el,i,false);gPills(el,i,false);if(!el._ro&&window.ResizeObserver){el._ro=new ResizeObserver(()=>{gAlign(el,+el.dataset.i||0,false);gPills(el,+el.dataset.i||0,false)});el._ro.observe(el)}}
-function gPills(el,i,smooth){const w=el.closest(".gwrap");if(!w)return;const st=w.querySelector(".gstrip"),bar=w.querySelector(".gbar"),pg=el.children[i];
-  [...st.children].forEach((b,j)=>{b.classList.toggle("on",j===i);b.setAttribute("aria-selected",j===i)});const b=st.children[i];if(b){const x=st.scrollLeft+b.getBoundingClientRect().left-st.getBoundingClientRect().left-st.clientWidth/2+b.offsetWidth/2;st.scrollTo({left:x,behavior:smooth?"smooth":"auto"})}
-  if(bar&&pg){bar.querySelector("b").textContent=pg.dataset.l;bar.querySelector("small").textContent=pg.dataset.s;const bs=bar.querySelectorAll("button");bs[0].disabled=i===0;bs[1].disabled=i===el.children.length-1}}
-function gScroll(el){clearTimeout(el._t);el._t=setTimeout(()=>{const i=gIdx(el);if(i===+el.dataset.i)return;el.dataset.i=i;PUB.gsel=PUB.gsel||{};PUB.gsel[el.dataset.k]=i;gPills(el,i,true)},70)}
-function gGo(b,j){const el=b.closest(".gwrap").querySelector(".gcar");gAlign(el,j,true)}
-function gStep(b,d){const el=b.closest(".gwrap").querySelector(".gcar"),j=Math.max(0,Math.min(el.children.length-1,gIdx(el)+d));gAlign(el,j,true)}
+  const tit=g=>g.n?"Giornata "+g.n+" di "+(g.tot||G[G.length-1].n||G.length):gLab(g);
+  return `<div class="gwrap" data-k="${esc(key)}" data-i="${i}"><div class="gstrip" role="tablist" aria-label="Giornate">${G.map((g,j)=>`<button role="tab" class="${j===i?"on":""}" aria-selected="${j===i}" onclick="gShow(this,${j})">${lab?lab(g):(g.n?"Giornata "+g.n:"Altre")}</button>`).join("")}</div>
+    <div class="gbar"><button onclick="gStep(this,-1)" aria-label="Giornata precedente" ${i?"":"disabled"}>‹</button><div aria-live="polite"><b>${esc(tit(G[i]))}</b><small>${esc(sub(G[i]))}</small></div><button onclick="gStep(this,1)" aria-label="Giornata successiva" ${i<G.length-1?"":"disabled"}>›</button></div>
+    <div class="gone" ontouchstart="gTs(event,this)" ontouchend="gTe(event,this)">${G.map((g,j)=>`<section class="gpage" data-l="${esc(tit(g))}" data-s="${esc(sub(g))}" aria-label="${esc(gLab(g))}"${j===i?"":" hidden"}>${page(g,j)}</section>`).join("")}</div></div>`}
+// una giornata alla volta: niente scorrimento da allineare, quindi sempre centrata su telefono e computer
+function gShow(b,j,dir){const w=b.closest(".gwrap"),P=w.querySelectorAll(".gpage"),n=P.length;j=Math.max(0,Math.min(n-1,j));const old=+w.dataset.i||0;if(j===old&&dir==null){gPills(w,j,true);return}
+  P.forEach((s,k)=>{s.hidden=k!==j;s.classList.remove("gin-l","gin-r")});const s=P[j];if(dir==null)dir=j>old?1:-1;void s.offsetWidth;s.classList.add(dir>0?"gin-r":"gin-l");
+  w.dataset.i=j;PUB.gsel=PUB.gsel||{};PUB.gsel[w.dataset.k]=j;gPills(w,j,true)}
+function gStep(b,d){const w=b.closest(".gwrap");gShow(b,(+w.dataset.i||0)+d,d)}
+function gTs(e,el){const t=e.touches[0];el._x=t.clientX;el._y=t.clientY}
+function gTe(e,el){if(el._x==null)return;const t=e.changedTouches[0],dx=t.clientX-el._x,dy=t.clientY-el._y;el._x=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.4)gStep(el,dx<0?1:-1)}
+function gPills(w,i,smooth){const st=w.querySelector(".gstrip"),bar=w.querySelector(".gbar"),pg=w.querySelectorAll(".gpage")[i];
+  [...st.children].forEach((b,j)=>{b.classList.toggle("on",j===i);b.setAttribute("aria-selected",j===i)});const b=st.children[i];
+  if(b){const x=st.scrollLeft+b.getBoundingClientRect().left-st.getBoundingClientRect().left-st.clientWidth/2+b.offsetWidth/2;st.scrollTo({left:x,behavior:smooth?"smooth":"auto"})}
+  if(bar&&pg){bar.querySelector("b").textContent=pg.dataset.l;bar.querySelector("small").textContent=pg.dataset.s;const bs=bar.querySelectorAll("button");bs[0].disabled=i===0;bs[1].disabled=i===st.children.length-1}}
+function gInit(w){gPills(w,+w.dataset.i||0,false)}
 function gHead(){return ""}
 function mrow(m,evid,c){const fatto=m.gc!=null;PUB.mm=PUB.mm||[];const mi=PUB.mm.push({m,c:c||m.cat||(PUB.camp||[]).find(x=>x.id===PUB.id)})-1;const t=(n,r)=>`<div class="t${r?" r":""}" style="${evid===n?"color:var(--tint)":""}">${r?`<span class="n">${esc(n)}</span>${sqBadge(n,26)}`:`${sqBadge(n,26)}<span class="n">${esc(n)}</span>`}</div>`;
   return `<div class="mrow" role="button" tabindex="0" onclick="PUB.match=${mi};pubRender()" style="cursor:pointer">${t(m.casa)}<div class="sc">${fatto?`${m.gc} - ${m.go}`:esc(m.ora||"–")}<small>${esc(fmtD(m.data).replace(/ \d{4}$/,""))}</small></div>${t(m.ospite,1)}</div>`}
@@ -3229,7 +3239,7 @@ function pubScrKey(){return [PUB.vista,PUB.id,PUB.sq,PUB.match,PUB.sez,PUB.tab,P
 function pubRender(){const el=pubEl(),k0=PUB._sk,y0=el.scrollTop;PUB._sc=PUB._sc||{};if(k0!=null)PUB._sc[k0]=y0;
   const tb0=el.querySelector(".ttabs"),ty0=tb0?tb0.getBoundingClientRect().top:null,kt0=PUB._skt;
   _pubRender.apply(this,arguments);
-  el.querySelectorAll(".gcar").forEach(gInit);el.querySelectorAll(".hhcar").forEach(h=>hhGo(h,+h.dataset.i||0,false));
+  el.querySelectorAll(".gwrap").forEach(gInit);el.querySelectorAll(".hhcar").forEach(h=>hhGo(h,+h.dataset.i||0,false));
   // cambio solo scheda della squadra (Panoramica/Partite/Classifica/Rosa): la barra delle schede resta dov'era
   const kt=[PUB.vista,PUB.id,PUB.sq,PUB.match].join("|");PUB._skt=kt;const tb1=el.querySelector(".ttabs");
   if(tb1&&ty0!=null&&kt===kt0&&PUB._sk!==pubScrKey()){document.body.classList.remove("acl-on");PUB._sk=pubScrKey();el.scrollTop=Math.max(0,y0+(tb1.getBoundingClientRect().top-ty0));return}document.body.classList.toggle("acl-on",!!el.querySelector(".acl"));const k=pubScrKey();PUB._sk=k;
