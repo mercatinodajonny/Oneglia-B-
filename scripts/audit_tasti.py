@@ -22,7 +22,7 @@ SETUP={
  "cerca":"PUB.q='';pubGo('cerca')",
  "cerca_q":"PUB.q='sanrem';pubGo('cerca')",
  "camp_serieA":"PUB.vista='home';PUB.id='serie-a';PUB.sq=null;PUB.tab='cl';pubRender()",
- "camp_serieC_ris":"PUB.vista='home';PUB.id='serie-c-a';PUB.sq=null;PUB.tab='ris';pubRender()",
+ "camp_serieC_ris":"PUB.vista='home';PUB.id='serie-c-a';PUB.sq=null;PUB.tab='gio';pubRender()",
  "squadra_juve":"PUB.vista='home';PUB.id='serie-a';PUB.sq='Juventus';pubRender()",
  "squadra_andora":"PUB.vista='home';PUB.id=PUB.camp.find(c=>JSON.stringify(c.dati).includes('\"Andora\"')).id;PUB.sq='Andora';pubRender()",
  "entra":"PUB.chi='gio';pubGo('entra')",
