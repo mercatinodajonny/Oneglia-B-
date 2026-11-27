@@ -170,9 +170,19 @@ def leggi_classifiche_seried(txt):
 
 def leggi_seried(nome_area, pref, gironi=("A",)):
     """Serie D: comunicati del Dipartimento Interregionale (risultati dal Giudice Sportivo, classifica dalle Comunicazioni)."""
-    html = get("https://lnd.it/seried/comunicati/")
-    pdfs = list(dict.fromkeys(re.findall(r'href="(https://comunicati\.lnd\.it/storage/comunicati/[^"]+?\.pdf)"', html)))
-    pdfs = [u for u in pdfs if re.search(r"Giudice_Sportivo_Serie_D|classifica", u, re.I)][:12]
+    # tutte le pagine dei comunicati della stagione in corso: servono tutti i Giudice Sportivo (risultati dalla 1ª giornata)
+    stag = f"{STAGIONE_INIZIO[:4]}/{int(STAGIONE_INIZIO[:4]) + 1}" if "STAGIONE_INIZIO" in globals() else None
+    pdfs = []
+    for pag in range(1, 16):
+        try: html = get("https://lnd.it/seried/comunicati/" + (f"page/{pag}/" if pag > 1 else ""))
+        except Exception: break
+        trov = list(dict.fromkeys(re.findall(r'href="(https://comunicati\.lnd\.it/storage/comunicati/[^"]+?\.pdf)"', html)))
+        if not trov: break
+        if stag and not any(f"/{stag}/" in u for u in trov): break
+        pdfs += [u for u in trov if u not in pdfs and (not stag or f"/{stag}/" in u)]
+    gs = [u for u in pdfs if re.search(r"Giudice_Sportivo_Serie_D", u, re.I)]
+    cl = [u for u in pdfs if re.search(r"classifica", u, re.I)][:2]
+    pdfs = gs + cl
     camp = {}
     for u in reversed(pdfs):
         try: txt = pdf_text(get(u, True))

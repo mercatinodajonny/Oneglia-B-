@@ -1,6 +1,7 @@
 import sys,json,glob,re,difflib
 sys.path.insert(0,'/home/claude/scr');import leggi_calendario as cal2
 camp=json.load(open('/home/claude/oneglia-b-/data/campionati.json'))['campionati']
+import serie_d as seried_cal
 STOP={'CALCIO','ASD','A','S','D','SSD','FC','F','C','US','USD','POL','POLISP','POLISPORTIVA','AC','ACD','SC','ASDC','SSDARL','ARL','1919','DI','DEL','THE','CLUB','SPORT','SPORTIVA','ASS','ASSOCIAZIONE'}
 def norm(s):
   s=s.upper().replace('&',' ').replace('“','"').replace('”','"')
@@ -32,11 +33,14 @@ def mapping(calteams,apptm):
     if s>=0.6: M[a]=b
   return M
 src=[]
-for f in sorted(glob.glob('/tmp/cal/src/*.pdf')):
+for f in sorted(glob.glob('/tmp/cal/src/*.pdf')+glob.glob('/tmp/cal/src2/*.pdf')):
   if 'Open Day' in f: continue
-  for gi in cal2.parse(f): src.append((f,gi['g']))
-for f in sorted(glob.glob('/tmp/cal/docx/*/*.docx')):
+  try:
+    for gi in cal2.parse(f): src.append((f,gi['g']))
+  except Exception as e: print('ERR',f,e)
+for f in sorted(glob.glob('/tmp/cal/docx/*/*.docx')+glob.glob('/tmp/cal/docx2/*.docx')):
   for gi in cal2.parse_docx(f): src.append((f,gi['g']))
+for gi in seried_cal.parse('/tmp/cal/sd/A.pdf'): src.append(('/tmp/cal/sd/Tabellone-Girone-A.pdf',gi['g']))
 for f in sorted(glob.glob('/tmp/cal/ocr/*.pdf')):
   for gi in cal2.parse(f,ocr=True): src.append((f,gi['g']))
 out={};rep=[]
@@ -53,9 +57,10 @@ for f,G in src:
     for g in G:
       for h,a in g['p']: cp.setdefault(g['n'],[]).append((M.get(h),M.get(a)))
     ok=sum(1 for n,ca,os_ in res if any((x and sc(x,ca)>0.7) and (y and sc(y,os_)>0.7) for x,y in cp.get(n,[])))
+    mv=set(M.values());res2=[r for r in res if r[1] in mv and r[2] in mv]
     score=len(set(M.values()))/max(len(apptm),1)
     key=(ok, score)
-    if not best or key>best[0]: best=(key,c,M,len(res))
+    if not best or key>best[0]: best=(key,c,M,len(res2) if len(teams_of(c))>len(calteams)+2 else len(res))
   (ok,score),c,M,nres=best
   napp=len(teams_of(c))
   # ensure c not taken by better
