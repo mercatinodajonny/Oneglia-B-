@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-27-04";
+const BUILD="2026-11-27-05";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -2760,8 +2760,8 @@ html,body{overflow-x:hidden;max-width:100%;overscroll-behavior-x:none}#pub{overf
 #pub .aclor{margin:30px 0 20px!important;font-size:16px!important;font-weight:500}#pub .aclor:before,#pub .aclor:after{background:rgba(255,255,255,.35)!important}
 #pub .aclmail{height:56px!important;border:1.5px solid #fff!important;font-size:17px!important}#pub .aclreg{margin-top:26px!important}#pub .aclreg button{color:#34c759!important;font-size:15.5px;text-decoration:underline;text-underline-offset:3px}
 #pub .acl{position:fixed!important;left:0;right:0;top:0;bottom:calc(64px + var(--safe-b,0px));margin:0!important;min-height:0!important;padding:calc(env(safe-area-inset-top,0px) + 12px) 22px 14px!important;display:flex;flex-direction:column;justify-content:center;overflow:hidden!important;background:#0d1a12!important;z-index:5;touch-action:none;overscroll-behavior:none}
-#pub .aclbg{inset:-40px!important;background:#2f5a2a url("assets/campo-sfocato.webp") center/cover no-repeat!important;filter:blur(6px);transform:scale(1.06)}
-#pub .acl:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(8,16,12,.18),rgba(8,16,12,.38) 55%,rgba(8,16,12,.5))}
+#pub .aclbg{inset:-40px!important;background:#35793a url("assets/campo.svg") center/cover no-repeat!important;filter:blur(3px);transform:scale(1.04)}
+#pub .acl:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(6,14,9,.30),rgba(6,14,9,.38) 55%,rgba(6,14,9,.48))}
 #pub .aclin{z-index:2;width:100%;max-width:440px}
 #pub .acllogo{height:44px!important;margin:0 auto 8px!important}#pub .aclsub{font-size:17px!important;margin:0 0 20px!important;text-shadow:0 1px 8px rgba(0,0,0,.35)}
 #pub .aclr{background:rgba(255,255,255,.14)!important;color:#fff!important;border:1px solid rgba(255,255,255,.22)!important;box-shadow:none!important;-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);border-radius:20px!important;padding:13px 14px!important;margin:0 0 10px!important;gap:14px!important}
@@ -3272,7 +3272,7 @@ function _pubRender(){
       const IC={gio:`<svg viewBox="0 0 48 48" width="46" height="46" aria-hidden="true"><circle cx="30" cy="8" r="5" fill="#1fa64a"/><path d="M19 15l9-1 6 7 7 2-1.5 4.5-9-3-3-3-3 8 6 6-2 12h-5l1.5-9-6-5-4 7-9 2-1-5 7-2 5-11-4 2-3 6-4.5-2 4-8z" fill="#1fa64a"/></svg>`,
         soc:`<svg viewBox="0 0 48 48" width="46" height="46" aria-hidden="true"><path d="M24 3l17 6v13c0 11-7.5 18.5-17 23-9.5-4.5-17-12-17-23V9z" fill="#1fa64a"/><path d="M24 13c3 4 7 5 9 5-1 6-4 11-9 14-5-3-8-8-9-14 2 0 6-1 9-5z" fill="#fff" opacity=".95"/><path d="M24 17v14" stroke="#1fa64a" stroke-width="2"/></svg>`,
         arb:`<svg viewBox="0 0 48 48" width="46" height="46" aria-hidden="true"><circle cx="17" cy="29" r="12" fill="#1fa64a"/><circle cx="17" cy="29" r="5" fill="#fff"/><path d="M24 19l20-8v9l-15 6z" fill="#1fa64a"/><rect x="9" y="11" width="8" height="5" rx="2" fill="#1fa64a"/></svg>`,
-        bor:`<svg viewBox="0 0 48 48" width="46" height="46" aria-hidden="true"><rect x="5" y="9" width="32" height="32" rx="4" fill="#1fa64a"/><path d="M37 17h4a3 3 0 0 1 3 3v17a4 4 0 0 1-4 4h-3z" fill="#1fa64a"/><rect x="10" y="14" width="11" height="9" rx="1.5" fill="#fff"/><path d="M25 15h7M25 20h7M10 28h22M10 33h22" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg>`};
+        bor:`<svg viewBox="0 0 48 48" width="46" height="46" aria-hidden="true"><rect x="3" y="13" width="30" height="24" rx="5" fill="#1fa64a"/><path d="M33 21l11-6v20l-11-6z" fill="#1fa64a"/><circle cx="18" cy="25" r="6.5" fill="#fff"/><circle cx="18" cy="25" r="3" fill="#1fa64a"/><circle cx="9" cy="18" r="1.8" fill="#fff"/></svg>`};
       const rc=[["gio","Giocatore","Il tuo profilo, le tue partite,<br>le tue statistiche"],["soc","Società","Gestisci la tua squadra,<br>organizza il tuo club"],["arb","Arbitro","Il tuo profilo arbitrale,<br>le designazioni"],["bor","Bordocampo","Pubblica notizie, cronache<br>e contenuti"]];
       body=`<div class="acl"><div class="aclbg" aria-hidden="true"></div><button class="aclx" onclick="PUB.vista='partite';PUB.id=null;pubRender()" aria-label="Chiudi e torna alla Home"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="aclin"><img src="assets/golazo-scritta-bianca.svg" alt="Golazo" class="acllogo"><p class="aclsub">Entra nel mondo del calcio</p>
         ${rc.map(([k,l,d])=>`<button class="aclr" onclick="PUB.chi='${k}';PUB.chiSel=true;pubRender();document.querySelector('#pub').scrollTop=0"><span class="aclic">${IC[k]}</span><span class="acltx"><b>${l}</b><small>${d}</small></span><svg class="aclch" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>`).join("")}
@@ -3280,8 +3280,7 @@ function _pubRender(){
         <button class="aclmail" onclick="PUB.chi='acc';PUB.lm='in';pubGo('login')"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5l8.5 6 8.5-6"/></svg>Accedi con email</button>
         <p class="aclreg"><button onclick="PUB.chi='acc';PUB.lm='up';pubGo('login')">Non hai un account? Registrati</button></p></div></div>`;
     } else
-    body=`<button class="pback" onclick="PUB.chiSel=false;pubRender()">‹ Indietro</button>`+pubTop("Entra in Golazo","Scegli come vuoi entrare").replace(/^<div class="ph">[\s\S]*?<\/div>/,"")+
-      `<div class="pill2 p4 ios" role="tablist" style="--rc:${X.c}">${[["gio","Giocatore"],["soc","Società"],["bor","Bordocampo"],["arb","Arbitro"]].map(([kk,l])=>`<button role="tab" aria-selected="${k===kk}" class="${k===kk?"on":""}" onclick="PUB.chi='${kk}';pubRender()">${l}</button>`).join("")}</div>
+    body=`<button class="pback" onclick="PUB.chiSel=false;pubRender()">‹ Indietro</button>`+`
       <div class="ent" style="--rc:${X.c};--rc2:${X.c2};--rcf:#fff">${hero}${grid}${k==="soc"?`<h2 class="eht">Su computer e telefono</h2>${mock}`:""}${steps}${k==="soc"?piani:""}<div class="ecta">${cta}</div></div>
       ${k==="gio"?`<p class="muted" style="font-size:14px;text-align:center;margin:12px 6px 0">La prima volta? Chiedi alla tua società di aggiungerti con la tua email, poi scegli “Primo accesso”.</p>`:""}`;
   } else {
