@@ -32,6 +32,8 @@ def titolo(line):
     """Una riga centrata tutta maiuscola = nome di una categoria."""
     if len(line) - len(line.lstrip()) < 6: return None
     t = re.sub(r"^\([A-Z0-9]{1,3}\)\s*[–-]\s*", "", line.strip()).replace("‘", "'").replace("’", "'")
+    if re.search(r"calcio a (5|cinque)", t, re.I):  # il calcio a 5 regionale è scritto in minuscolo ("Regionale Calcio a 5 serie C")
+        t = re.sub(r"^REGIONALE\s+", "", t.upper()).replace("CALCIO A CINQUE", "CALCIO A 5")
     if len(t) < 6 or len(t) > 60 or t != t.upper() or not re.match(r"^[A-Z][A-Z0-9 °’'\-.&/]+$", t): return None
     if any(t.startswith(x) or x in t for x in NON_CATEGORIE): return None
     if re.search(r"\s-\s.+\d", t): return None
@@ -155,7 +157,8 @@ def leggi_classifiche_seried(txt):
     """Serie D: righe 'SQUADRA  PT G V N P GF GS DR PE' senza posizione, sotto 'CLASSIFICA' / 'GIRONE X'."""
     out = {}; dentro = False; gir = None
     for l in txt.splitlines():
-        if re.match(r"^\s*CLASSIFICA\s*$", l): dentro = True; continue
+        if re.match(r"^\s*CLASSIFICA\s*$", l, re.I): dentro = True; gir = None; continue
+        if re.search(r"JUNIORES|COPPA ITALIA", l): dentro = False; continue  # la classifica Juniores ha gli stessi gironi: non va confusa con la Serie D
         if not dentro: continue
         g = re.match(r"^\s*GIRONE\s+([A-Z])\s*$", l)
         if g: gir = g.group(1); continue
@@ -165,7 +168,7 @@ def leggi_classifiche_seried(txt):
             rows = out.setdefault(("SERIE D", gir), [])
             rows.append({"pos": len(rows) + 1, "squadra": re.sub(r"^(A\.?S\.?D\.?C?|S\.?S\.?D\.?|U\.?S\.?D?\.?|S\.?C\.?D\.?|ACS\.?D\.?|ASDC|SSDARL|ASD|U\.S\.D\.)\s+", "", sq.strip()),
                          "pt": int(pt), "g": int(g_), "v": int(v), "n": int(n), "p": int(p), "gf": int(gf), "gs": int(gs), "dr": int(dr), "pen": int(pen)})
-        elif re.match(r"^\s*(Pag\.|PROGRAMMA|Variazioni)", l) and out: dentro = False
+        elif re.match(r"^\s*(PROGRAMMA|Variazioni)", l) and out: dentro = False
     return out
 
 def leggi_seried(nome_area, pref, gironi=("A",)):
@@ -181,7 +184,7 @@ def leggi_seried(nome_area, pref, gironi=("A",)):
         if stag and not any(f"/{stag}/" in u for u in trov): break
         pdfs += [u for u in trov if u not in pdfs and (not stag or f"/{stag}/" in u)]
     gs = [u for u in pdfs if re.search(r"Giudice_Sportivo_Serie_D", u, re.I)]
-    cl = [u for u in pdfs if re.search(r"classifica", u, re.I)][:2]
+    cl = [u for u in pdfs if re.search(r"classifica", u, re.I)][:4]
     pdfs = gs + cl
     camp = {}
     for u in reversed(pdfs):
@@ -207,7 +210,7 @@ def leggi_seried(nome_area, pref, gironi=("A",)):
     return out
 
 def leggi_area(area, nome_area, pref):
-    if area == "seried": return leggi_seried(nome_area, pref)
+    if area == "seried": return leggi_seried(nome_area, pref, tuple("ABCDEFGHI"))
     lista = tutti_i_comunicati(area)[:QUANTI]
     letti = []
     prec = None
@@ -227,7 +230,7 @@ def leggi_area(area, nome_area, pref):
     camp = {}
     def C(cat, gir):
         k = f"{pref}{cat_key(cat)}-{gir.lower()}"
-        return camp.setdefault(k, {"id": k, "categoria": cat.title().replace("U1", "U1").replace("Fase Provinciale", "fase provinciale"),
+        return camp.setdefault(k, {"id": k, "categoria": cat.title().replace("Calcio A 5", "Calcio a 5").replace("Fase Provinciale", "fase provinciale"),
                                    "girone": gir, "risultati": {}, "programma": {}, "classifica": None, "cu": None, "aggiornato": None})
     for c in reversed(letti):  # dal più vecchio al più nuovo: i più recenti vincono
         for r in c["ris"]:
