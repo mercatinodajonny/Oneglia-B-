@@ -152,6 +152,8 @@ nav.bar a:active{opacity:.6}
 .step button{width:40px;height:30px;border-radius:7px;border:0;background:transparent;cursor:pointer;font-size:20px;line-height:1}
 .step button:active{background:var(--fill2)}
 .step b{min-width:22px;text-align:center;font-size:17px;font-variant-numeric:tabular-nums}
+.dcard{display:flex;align-items:center;gap:12px;margin:12px 0}.dcard .sp{display:flex;flex-direction:column;gap:2px;min-width:0}.dcard .btn{flex:none}
+table.rst td,table.rst th{padding:9px 4px}
 table.cl{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
 table.cl th{font-size:12px;color:var(--muted);font-weight:500;text-align:center;padding:10px 4px 6px}
 table.cl td{padding:11px 4px;text-align:center;border-top:.5px solid var(--line)}
@@ -549,9 +551,9 @@ html.v2 .dvb.on{animation:pop .32s var(--ease)}
   <a href="#pubblico" id="navfc" onclick="event.preventDefault();try{sessionStorage.removeItem('fc_app')}catch(e){}PUB.vista='account';showPublic()"><img src="assets/golazo-icona.svg" alt="" width="24" height="24" style="display:block">Golazo</a>
   <a href="#home" data-v="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
   <a href="#rosa" data-v="rosa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M17.5 14c2.2.3 3.6 2 4 4.5"/></svg>Rosa</a>
+  <a href="#allenamenti" data-v="allenamenti" class="adm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M8 15l2.5 2.5L16 12"/></svg>Allenamenti</a>
   <a href="#partite" data-v="partite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/></svg>Partite</a>
-  <a href="#staff" data-v="staff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 15.6 7.1 18.2 8 12.7 4 8.8 9.5 8z"/></svg>Staff</a>
-  <a href="#admin" data-v="admin" class="adm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Admin</a>
+  <a href="#segreteria" data-v="segreteria" class="adm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>Segreteria</a>
 </nav>
 
 <button class="fab" id="fab" hidden></button>
@@ -573,7 +575,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-28-02";
+const BUILD="2026-11-28-03";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -623,7 +625,7 @@ const upcoming=(arr)=>arr.filter(x=>x.data&&daysTo(x.data)>=0).sort((a,b)=>(a.da
 const past=(arr)=>arr.filter(x=>x.data&&daysTo(x.data)<0).sort((a,b)=>(b.data+(b.ora||"")).localeCompare(a.data+(a.ora||"")));
 
 // ---------- views
-const TITLES={admin:"Admin",home:"Oneglia Sq. B",rosa:"Rosa",allenamenti:"Allenamenti",partite:"Partite",staff:"Staff",squadra:"La squadra",profilo:"Il mio profilo"};
+const TITLES={segreteria:"Segreteria",admin:"Admin",home:"Oneglia Sq. B",rosa:"Rosa",allenamenti:"Allenamenti",partite:"Partite",staff:"Staff",squadra:"La squadra",profilo:"Il mio profilo"};
 function heroHTML(){const cl=(S.info.classifica&&S.info.classifica.righe)||[];const me=cl.find(r=>r.me)||null;
   return `<div class="hero home" onclick="S.matchTab='cla';go('partite')" style="cursor:pointer"><img src="${CREST}" alt="Stemma Oneglia Calcio">
     <div class="sp"><div class="lbl">Oneglia Sq. B${me?" · Classifica":""}</div>
@@ -1111,8 +1113,9 @@ function vRosa(){
   const groups=ROLES.map(r=>({r,ps:list.filter(p=>p.ruolo===r.k)})).filter(g=>g.ps.length);
   return `<div class="view">${header(S.players.length+" giocatori in rosa")}
   <div class="chips"><button class="chip ${S.roleFilter==="ALL"?"on":""}" onclick="setRole('ALL')">Tutti</button>${ROLES.map(r=>`<button class="chip ${S.roleFilter===r.k?"on":""}" onclick="setRole('${r.k}')">${r.l}</button>`).join("")}</div>
+  <div class="seg" style="margin:10px 0"><button class="${S.rosaTab!=="sta"?"on":""}" onclick="S.rosaTab='el';render()">Giocatori</button><button class="${S.rosaTab==="sta"?"on":""}" onclick="S.rosaTab='sta';render()">Statistiche</button></div>
   <input class="search" id="q" placeholder="Cerca un giocatore" value="${esc(S.q)}" oninput="S.q=this.value;renderKeep('q')">
-  ${groups.length?groups.map(g=>`<h3>${g.r.l} · ${g.ps.length}</h3><div class="list">${g.ps.map(p=>{const st=playerStats(p.id);return `<div class="li" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${st.gol?st.gol+" gol · ":""}${st.conv} convocazioni ${p.stato&&p.stato!=="ok"?`· <span class="tag ${p.stato==="infortunato"?"a":"r"}">${esc(p.stato)}</span>`:""} ${discTag(p.id)}</span></div><div class="pct">${st.pct===null?"—":st.pct+"%"}<small>presenze</small></div></div>`}).join("")}</div>`).join(""):`<div class="empty">${S.players.length?"Nessun giocatore trovato":"La rosa è vuota. Aggiungi il primo giocatore."}</div>`}
+  ${S.rosaTab==="sta"?rosaStats(list):groups.length?groups.map(g=>`<h3>${g.r.l} · ${g.ps.length}</h3><div class="list">${g.ps.map(p=>{const st=playerStats(p.id);return `<div class="li" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${st.tot?st.pres+"/"+st.tot+" allenamenti · ":""}${st.gol?st.gol+" gol · ":""}${st.gia?"🟨"+st.gia+" ":""}${st.ros?"🟥"+st.ros+" ":""}${st.conv} conv. ${p.stato&&p.stato!=="ok"?`· <span class="tag ${p.stato==="infortunato"?"a":"r"}">${esc(p.stato)}</span>`:""} ${discTag(p.id)}</span></div><div class="pct">${st.pct===null?"—":st.pct+"%"}<small>presenze</small></div></div>`}).join("")}</div>`).join(""):`<div class="empty">${S.players.length?"Nessun giocatore trovato":"La rosa è vuota. Aggiungi il primo giocatore."}</div>`}
   </div>`;
 }
 
@@ -1120,7 +1123,7 @@ function vAllenamenti(){
   if(loading(["trainings"]))return header("Allenamenti")+`<div class="skel"></div><div class="skel"></div>`;
   const up=upcoming(S.trainings), ps=past(S.trainings);
   const row=t=>{const n=t.presenze?Object.values(t.presenze).filter(v=>v==="P").length:0;const has=t.presenze&&Object.keys(t.presenze).length;return `<div class="li" onclick="openTraining('${t.id}')"><div class="av STF" style="flex-direction:column;line-height:1;font-size:15px">${Number(t.data.split("-")[2])}<span style="font-size:10px;font-weight:600">${MM[Number(t.data.split("-")[1])-1]}</span></div><div class="nm"><b>${esc(t.tipo||"Allenamento")}</b><span>${GG[new Date(t.data).getDay()]} ${esc(t.ora||"")} ${t.luogo?"· "+esc(t.luogo):""}${t.fasi&&t.fasi.length?" · 📋 "+t.fasi.length+" fasi":""}${daysTo(t.data)>=0?(()=>{const d=Object.values(dispMap("t",t.id));return d.length?" · ✅ "+d.filter(v=>v==="si").length:""})():""}</span></div>${has?`<span class="tag g">${n}/${S.players.length}</span>`:`<span class="tag">${daysTo(t.data)<0?"appello":rel(t.data)}</span>`}</div>`};
-  return `<div class="view"><button class="back" onclick="S.adminTab='home';go('admin')">‹ Admin</button>${header("Allenamenti e presenze")}
+  return `<div class="view">${header("Allenamenti e presenze")}${ultimoAllen()}
   <h3>In programma</h3>${up.length?`<div class="list">${up.map(row).join("")}</div>`:`<div class="card muted small">Nessun allenamento in programma. Tocca “Nuovo” per aggiungerne uno o creare la settimana tipo.</div>`}
   ${S.canWrite?`<div class="row" style="margin-top:10px"><button class="btn sm" onclick="weekSheet()">+ Settimana tipo</button></div>`:""}
   <h3>Svolti</h3>${ps.length?`<div class="list">${ps.map(row).join("")}</div>`:`<div class="card muted small">Ancora nessun allenamento svolto.</div>`}
@@ -1182,7 +1185,7 @@ function vPartite(){
     let gf=0,gs=0;played.forEach(m=>{gf+=Number(m.golFatti);gs+=Number(m.golSubiti)});
     body=`<div class="stat3"><div><b>${played.length}</b><span>giocate</span></div><div><b>${gf}</b><span>gol fatti</span></div><div><b>${gs}</b><span>gol subiti</span></div></div><h3>Giocatori</h3><div class="list">${rows.map(x=>`<div class="li" onclick="openPlayer('${x.p.id}')">${avatar(x.p)}<div class="nm"><b>${esc(fullName(x.p))}</b><span>${x.s.media?"📝 "+String(x.s.media).replace(".",",")+" · ":""}${discTag(x.p.id)}${x.s.ass?x.s.ass+" assist · ":""}${x.s.min?x.s.min+"' · ":""}${x.s.gia?"🟨"+x.s.gia+" · ":""}${x.s.ros?"🟥"+x.s.ros+" · ":""}${x.s.mvp?"⭐"+x.s.mvp+" · ":""}${x.s.conv} conv.</span></div><div class="pct">${x.s.gol}<small>gol</small></div></div>`).join("")||`<div class="empty">Nessun dato</div>`}</div>`;
   }
-  return `<div class="view">${header("Partite e classifica")}
+  return `<div class="view">${header("Partite e classifica")}${distintaCard()}
   <div class="seg"><button class="${tab==="cal"?"on":""}" onclick="S.matchTab='cal';render()">Calendario</button><button class="${tab==="cla"?"on":""}" onclick="S.matchTab='cla';render()">Classifica</button><button class="${tab==="sta"?"on":""}" onclick="S.matchTab='sta';render()">Statistiche</button></div>
   ${body}</div>`;
 }
@@ -1202,13 +1205,68 @@ function vStaff(){
   </div>`;
 }
 
+// ---------- nuova navigazione società: allenamenti, statistiche rosa, distinta, segreteria
+function ultimoAllen(){const t=past(S.trainings).find(x=>x.presenze&&Object.keys(x.presenze).length);if(!t)return "";
+  const pr=S.players.filter(p=>t.presenze[p.id]==="P"),as=S.players.filter(p=>t.presenze[p.id]&&t.presenze[p.id]!=="P");
+  return `<h3>Chi c'era all'ultimo allenamento</h3><div class="card" onclick="openTraining('${t.id}')" style="cursor:pointer"><div class="row"><b class="sp">${esc(t.tipo||"Allenamento")} · ${esc(fmtD(t.data,1))}</b><span class="tag g">${pr.length} presenti</span>${as.length?`<span class="tag r">${as.length} assenti</span>`:""}</div>
+  <p class="small" style="margin:8px 0 0;line-height:1.5">${pr.length?pr.map(p=>esc(p.cognome||fullName(p))).join(", "):"Nessun presente segnato"}</p>${as.length?`<p class="muted small" style="margin:6px 0 0">Assenti: ${as.map(p=>esc(p.cognome||fullName(p))).join(", ")}</p>`:""}</div>`}
+function rosaStats(list){if(!list.length)return `<div class="empty">Nessun giocatore trovato.</div>`;
+  const rows=list.map(p=>({p,s:playerStats(p.id)})).sort((a,b)=>(b.s.pres-a.s.pres)||fullName(a.p).localeCompare(fullName(b.p),"it"));
+  return `<div class="card" style="padding:6px 8px;margin-top:12px;overflow-x:auto"><table class="cl rst"><tr><th style="text-align:left">Giocatore</th><th title="Allenamenti svolti">All.</th><th>%</th><th title="Convocazioni">Conv</th><th>Gol</th><th title="Gialli">🟨</th><th title="Rossi">🟥</th></tr>
+  ${rows.map(({p,s})=>`<tr onclick="openPlayer('${p.id}')" style="cursor:pointer"><td class="tm" style="text-align:left">${esc(p.cognome||fullName(p))}</td><td>${s.tot?s.pres+"/"+s.tot:"—"}</td><td>${s.pct===null?"—":s.pct}</td><td>${s.conv}</td><td>${s.gol}</td><td>${s.gia}</td><td>${s.ros}</td></tr>`).join("")}</table></div>
+  <p class="muted small" style="margin-top:8px">Tocca un giocatore per la scheda completa (minuti, assist, voti, certificato).</p>`}
+function distintaCard(){if(!S.canWrite)return "";const nx=upcoming(S.matches).filter(m=>!isPlayed(m))[0];if(!nx)return "";
+  return `<div class="card dcard"><div class="sp"><b>Distinta · ${nx.casa?"vs ":"@ "}${esc(nx.avversario)}</b><span class="muted small">${esc(fmtD(nx.data,1))}${nx.ora?" · "+esc(nx.ora):""} · ${(nx.convocati||[]).length} convocati</span></div><button class="btn p sm" onclick="distintaSheet('${nx.id}')">Stampa distinta</button></div>`}
+function vSegreteria(){
+  if(loading(["players","cassa","matches"]))return `<div class="view">${header("Segreteria")}<div class="skel"></div><div class="skel"></div></div>`;
+  const s=cassaSummary();const P=id=>S.players.find(p=>p.id===id);
+  const debs=Object.entries(s.deb).filter(([id])=>P(id)).sort((a,b)=>b[1]-a[1]);
+  const pagati=sortedPlayers().filter(p=>!s.deb[p.id]&&S.cassa.some(c=>c.pid===p.id&&c.pagato&&(c.tipo==="quota"||c.tipo==="multa")));
+  const scad=sortedPlayers().filter(p=>p.certScad&&daysTo(p.certScad)<=30).sort((a,b)=>a.certScad.localeCompare(b.certScad));
+  const noCert=S.players.filter(p=>!p.certScad).length,noTes=S.players.filter(p=>!p.tessera).length;
+  const tab=S.segTab||"home";
+  const certTag=p=>{if(!p.certScad)return `<span class="tag">cert. mancante</span>`;const n=daysTo(p.certScad);return `<span class="tag ${n<0?"r":n<=30?"a":"g"}">${n<0?"scaduto":"cert. "+fmtD(p.certScad)}</span>`};
+  const back=`<button class="back" onclick="S.segTab='home';render()">‹ Segreteria</button>`;
+  if(tab==="tes"){const q=tkey(S.segQ||"");const L=sortedPlayers().filter(p=>!q||tkey(fullName(p)+" "+(p.tessera||"")).includes(q));
+    return `<div class="view">${back}${header(S.players.length+" tesserati")}<input class="search" id="sq" placeholder="Cerca nome o n° tessera" value="${esc(S.segQ||"")}" oninput="S.segQ=this.value;renderKeep('sq')">
+    <div class="list">${L.map(p=>`<div class="li" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${p.tessera?"Tessera "+esc(p.tessera):"Tessera non inserita"}${p.nascita?" · "+esc(fmtD(p.nascita)):""}</span></div>${certTag(p)}${s.deb[p.id]?`<span class="tag a">${euro(s.deb[p.id])}</span>`:""}</div>`).join("")||`<div class="empty">Nessun tesserato trovato.</div>`}</div></div>`}
+  if(tab==="pag")return `<div class="view">${back}${header("Pagamenti")}
+    <div class="stat3"><div><b style="color:var(--amber)">${euro(s.daInc)}</b><span>da incassare</span></div><div><b>${debs.length}</b><span>devono pagare</span></div><div><b>${pagati.length}</b><span>in regola</span></div></div>
+    <div class="row wrap2" style="margin-top:12px"><button class="btn sm p" onclick="quotaSheet()">+ Quota a tutti</button><button class="btn sm" onclick="multaSheet()">+ Multa</button></div>
+    <h3>Devono ancora pagare</h3>${debs.length?`<div class="list">${debs.map(([id,v])=>`<div class="li" onclick="debSheet('${id}')">${avatar(P(id))}<div class="nm"><b>${esc(fullName(P(id)))}</b><span>${S.cassa.filter(c=>c.pid===id&&!c.pagato&&(c.tipo==="multa"||c.tipo==="quota")).length} da saldare</span></div><div class="pct" style="color:var(--amber)">${euro(v)}</div></div>`).join("")}</div>`:`<div class="card muted small">Tutti in regola.</div>`}
+    <h3>Hanno pagato</h3>${pagati.length?`<div class="list">${pagati.map(p=>`<div class="li" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>In regola</span></div><span class="tag g">pagato</span></div>`).join("")}</div>`:`<div class="card muted small">Nessun pagamento registrato finora.</div>`}
+    <button class="btn sm" style="margin-top:14px" onclick="S.staffTab='cassa';go('staff')">Apri la cassa completa</button></div>`;
+  if(tab==="cert"){const ok=sortedPlayers().filter(p=>p.certScad&&daysTo(p.certScad)>30),man=sortedPlayers().filter(p=>!p.certScad);
+    const li=p=>`<div class="li" onclick="openPlayer('${p.id}')">${avatar(p)}<div class="nm"><b>${esc(fullName(p))}</b><span>${p.certScad?(daysTo(p.certScad)<0?"Scaduto "+rel(p.certScad):"Scade "+rel(p.certScad)):"Data non inserita · tocca per aggiungerla"}</span></div>${certTag(p)}</div>`;
+    return `<div class="view">${back}${header("Certificati medici")}
+    <h3>Scaduti o in scadenza (30 giorni)</h3>${scad.length?`<div class="list">${scad.map(li).join("")}</div>`:`<div class="card muted small">Nessun certificato in scadenza.</div>`}
+    ${man.length?`<h3>Da inserire · ${man.length}</h3><div class="list">${man.map(li).join("")}</div>`:""}
+    ${ok.length?`<h3>Validi · ${ok.length}</h3><div class="list">${ok.map(li).join("")}</div>`:""}</div>`}
+  const row=(t,sub,on,right="")=>`<div class="li" onclick="${on}"><div class="nm"><b>${t}</b>${sub?`<span>${sub}</span>`:""}</div>${right}</div>`;
+  return `<div class="view">${header("Tesserati, pagamenti e documenti")}
+  <div class="stat3"><div><b>${S.players.length}</b><span>tesserati</span></div><div><b style="color:var(--amber)">${debs.length}</b><span>devono pagare</span></div><div><b style="color:${scad.length?"var(--red)":"inherit"}">${scad.length}</b><span>certificati</span></div></div>
+  ${distintaCard()}
+  <h3>Segreteria</h3><div class="list">
+   ${row("Tesserati",S.players.length+" giocatori"+(noTes?" · "+noTes+" senza n° tessera":""),"S.segTab='tes';render()")}
+   ${row("Pagamenti",debs.length?debs.length+" devono pagare · "+euro(s.daInc)+" da incassare":"Tutti in regola","S.segTab='pag';render()")}
+   ${row("Certificati medici",scad.length?scad.length+" scaduti o in scadenza":"Nessuno in scadenza"+(noCert?" · "+noCert+" da inserire":""),"S.segTab='cert';render()")}
+   ${row("Statistiche giocatori","Allenamenti svolti, gol, cartellini","S.rosaTab='sta';go('rosa')")}
+  </div>
+  <h3>Società</h3><div class="list">
+   ${row("Staff tecnico","Mister, dirigenti, preparatori","S.staffTab='staff';go('staff')")}
+   ${row("Infortuni","Registro infortuni e rientri","S.staffTab='inf';go('staff')")}
+   ${row("Cassa e multe","Entrate, uscite, multe","S.staffTab='cassa';go('staff')")}
+   ${S.isManager?row("Account","Chi può entrare nell'app","S.staffTab='acc';go('staff')"):""}
+   ${row("Gestione squadra","Disponibilità, cartellini, classifica, sponsor","S.adminTab='home';go('admin')")}
+  </div></div>`;
+}
 // ---------- render & routing
-const VIEWS_GEST={admin:vAdmin,home:vHome,rosa:vRosa,allenamenti:vAllenamenti,partite:vPartite,staff:vStaff};
+const VIEWS_GEST={segreteria:vSegreteria,admin:vAdmin,home:vHome,rosa:vRosa,allenamenti:vAllenamenti,partite:vPartite,staff:vStaff};
 const VIEWS_GIOC={home:vHome,partite:vPartite,allenamenti:vGAllen,squadra:vGSquadra,profilo:vGProfilo};
 const VIEWS=new Proxy({},{get:(o,k)=>(S.mode==="gioc"?VIEWS_GIOC:VIEWS_GEST)[k]});
 const FAB={rosa:["Giocatore",()=>editPlayer()],allenamenti:["Nuovo",()=>editTraining()],partite:["Partita",()=>editMatch()],staff:["Membro",()=>S.staffTab==="cassa"?multaSheet():S.staffTab==="inf"?injSheet():S.staffTab==="acc"?accSheet():editStaff()]};
 // ---------- pulsanti ordinati: due per riga, il verde sotto a tutta larghezza
-const BTN_SKIP=".actions,.seg,.chips,.li,.frow2,.vs,.mvp,#nav,#fab,.grab,.fbench";
+const BTN_SKIP=".dcard,.actions,.seg,.chips,.li,.frow2,.vs,.mvp,#nav,#fab,.grab,.fbench";
 function tidyBtns(root){
   if(!root)return;
   root.querySelectorAll(".row.wrap2").forEach(r=>{const k=[...r.children];if(k.length&&k.every(c=>c.classList.contains("btn"))){r.className="btns";r.removeAttribute("style")}});
@@ -1229,7 +1287,7 @@ new MutationObserver(()=>{if(_tidyQ)return;_tidyQ=true;requestAnimationFrame(()=
 function render(){
   _disc=null;navFor();
   $("#app").innerHTML=VIEWS[S.view]();
-  document.querySelectorAll("#nav a").forEach(a=>{a.classList.toggle("on",a.dataset.v===S.view||(S.view==="allenamenti"&&a.dataset.v==="admin"));if(a.dataset.v==="admin")a.style.display=S.canWrite?"":"none"});
+  document.querySelectorAll("#nav a").forEach(a=>{a.classList.toggle("on",a.dataset.v===S.view||(["admin","staff"].includes(S.view)&&a.dataset.v==="segreteria"));if(a.classList.contains("adm"))a.style.display=S.canWrite?"":"none"});
   const f=FAB[S.view],fab=$("#fab");
   if(f&&S.canWrite){fab.hidden=false;fab.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>${f[0]}`;fab.onclick=f[1]}else fab.hidden=true;
   bindDisp(null,$("#app"));
@@ -1238,7 +1296,7 @@ function render(){
 function renderKeep(id){const el=document.getElementById(id);const pos=el?el.selectionStart:0;render();const n=document.getElementById(id);if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(e){}}}
 function setRole(r){S.roleFilter=r;render()}
 function go(v){location.hash=v}
-function route(){let h=location.hash.slice(1);if(S.mode!=="gioc"&&(h==="allenamenti"||h==="admin")&&!S.canWrite)h="home";if(h==="admin"&&location.hash.slice(1)!==h)S.adminTab="home";S.view=VIEWS[h]?h:"home";render();window.scrollTo(0,0)}
+function route(){let h=location.hash.slice(1);if(S.mode!=="gioc"&&(h==="allenamenti"||h==="admin"||h==="segreteria")&&!S.canWrite)h="home";if(h==="admin"&&location.hash.slice(1)!==h)S.adminTab="home";S.view=VIEWS[h]?h:"home";render();window.scrollTo(0,0)}
 window.addEventListener("hashchange",route);
 
 // ---------- sheet
