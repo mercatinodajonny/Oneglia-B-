@@ -575,7 +575,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-28-03";
+const BUILD="2026-11-28-04";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -873,7 +873,7 @@ function homePreferiti(tutte){
     :`<button class="hban hbinv" onclick="pubAggiungi()"><span class="hbt"><span class="hplus">+</span><span class="hbn"><b>Scegli le tue squadre</b><small>Le loro partite e notizie arriveranno qui</small></span></span><span class="hbr"><span class="hbd">${PUB.loggato||S.session?"Le ritrovi su tutti i tuoi dispositivi":"Accedi per ritrovarle su tutti i dispositivi"}</span></span></button>`;
   const ha=sq.length||cs.length;
   const rap=ha?`<div class="hhd"><h2 class="hh">Le tue squadre</h2></div><div class="hfav">${sq.map(x=>`<button onclick="PUB.id='${esc(x.c)}';PUB.sq=${esc(JSON.stringify(x.n))};pubRender()" aria-label="${esc(x.n)}"><span>${sqBadge(x.n,38)}</span><span>${esc(x.n)}</span></button>`).join("")}${cs.map(c=>`<button onclick="PUB.id='${esc(c.id)}';PUB.tab='cl';pubRender()" aria-label="${esc(c.categoria)}"><span>${campBadge(c,38)}</span><span>${esc(c.categoria)}</span></button>`).join("")}<button onclick="pubAggiungi()" aria-label="Aggiungi squadre"><span class="hplus2">+</span><span>Aggiungi</span></button></div>`:banner;
-  return pubBrand()+rap+homeHero(sq)+strip+(ha?tue:"")+tutteHTML2}
+  return pubBrand()+rap+homeHero(sq,cs)+strip+(ha?tue:"")+tutteHTML2}
 function fmtGM(d){const x=new Date(d+"T12:00:00");return x.getDate()+" "+["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"][x.getMonth()]}
 // partita in evidenza: diretta > oggi > prossima > ultima, tra le squadre seguite
 // colore del banner preso dallo stemma della squadra di casa (colore più acceso dello stemma)
@@ -894,23 +894,30 @@ function hhTinta(btn){const im=btn.querySelector(".hht img");if(!im)return;const
 function hhTema(c){const s=((c.categoria||"")+" "+(c.id||"")).toLowerCase();
   if(/serie-a|serie a\b/.test(s))return "t-a";if(/serie-b|serie b\b/.test(s))return "t-b";if(/serie-c|serie c\b/.test(s))return "t-c";if(/serie d|serie-d/.test(s))return "t-d";
   if(/eccellenza/.test(s))return "t-e";if(/promozione/.test(s))return "t-p";if(/prima/.test(s))return "t-1";if(/seconda|terza/.test(s))return "t-2";return "t-g"}
-function homeHero(sq){const C=PUB.camp||[];const oggi=isoAdd(0);const best=[];
+function homeHero(sq,cs){cs=cs||[];const C=PUB.camp||[];const oggi=isoAdd(0);const best=[];
   // per ogni squadra preferita: la sua partita più importante (live > oggi > prossima > ultima)
   sq.forEach(x=>{const c=C.find(k=>k.id===x.c);if(!c)return;const d=c.dati||{};let b=null;
     [...(d.risultati||[]),...(d.programma||[])].forEach(m=>{if(m.casa!==x.n&&m.ospite!==x.n)return;const lv=liveDi(m);
       const pr=lv&&lv.st==="in"?0:m.data===oggi?1:m.data>oggi&&m.gc==null?2:m.gc!=null?3:9;if(pr===9)return;
       const k=[pr,pr===3?-(Date.parse(m.data)||0):(m.data+(m.ora||""))];if(!b||k[0]<b.k[0]||(k[0]===b.k[0]&&String(k[1])<String(b.k[1])))b={m,c,k,sq:x.n}});
     if(b)best.push(b)});
-  if(!best.length)return"";
-  // tutte le partite della stessa giornata di quei campionati, in ordine di orario
+  // solo le partite delle squadre preferite (una per squadra), niente giornate intere
   const L=[],vis=new Set(),mie=new Set(sq.map(x=>x.n));
-  best.forEach(b=>{const d=b.c.dati||{},g=b.m.giornata;let stesse=g?[...(d.risultati||[]),...(d.programma||[])].filter(m=>m.giornata===g):[b.m];if(!stesse.length)stesse=[b.m];
-    stesse.forEach(m=>{const id=b.c.id+"|"+m.casa+"|"+m.ospite+"|"+m.data;if(vis.has(id))return;vis.add(id);const lv=liveDi(m);
-      const tua=mie.has(m.casa)?m.casa:mie.has(m.ospite)?m.ospite:"";L.push({m,c:b.c,lv,tua,t:(m.data||"9999")+"T"+(m.ora||"23:59")})})});
-  L.sort((a,b)=>a.t.localeCompare(b.t));
-  // si parte dalla partita più importante di una squadra preferita
-  const tb=[...best].sort((a,b)=>a.k[0]-b.k[0]||String(a.k[1]).localeCompare(String(b.k[1])))[0];
-  let start=L.findIndex(x=>x.m===tb.m);if(start<0)start=0;
+  best.forEach(b=>{const m=b.m,id=b.c.id+"|"+m.casa+"|"+m.ospite+"|"+m.data;if(vis.has(id))return;vis.add(id);
+    L.push({m,c:b.c,lv:liveDi(m),tua:mie.has(m.casa)?m.casa:mie.has(m.ospite)?m.ospite:"",k:b.k})});
+  L.sort((a,b)=>a.k[0]-b.k[0]||String(a.k[1]).localeCompare(String(b.k[1])));
+  // campionati preferiti: un solo banner riassuntivo per campionato (giornata + prime 3 in classifica)
+  const campCard=c=>{const d=c.dati||{};let G=[];try{G=giornateDi(c)}catch(e){}const gi=G.length?giornataOra(G):-1,g=gi>=0?G[gi]:null;const Lg=g?g.L||[]:[];
+    const nLive=Lg.filter(m=>{const lv=liveDi(m);return lv&&lv.st==="in"}).length,nFin=Lg.filter(m=>m.gc!=null).length;
+    const cl=((d.classifica||{}).righe||[]).slice(0,3);
+    const stato=nLive?`<span class="hhl live">● ${nLive} LIVE</span>`:`<span class="hhl">${g&&g.n?"Giornata "+g.n:"Campionato"}</span>`;
+    return `<button class="hhero hhcamp ${hhTema(c)}" onclick="if(Date.now()-(this.parentElement._sw||0)<400)return;PUB.id='${esc(c.id)}';PUB.tab='${cl.length?"cl":"gio"}';pubRender()" aria-label="${esc(c.nome||c.categoria)}"><span class="hhbg" aria-hidden="true"></span>${stato}<span class="hhq">★ Campionato</span>
+      <span class="hcn">${esc(c.categoria)}${c.girone&&!/unico/i.test(c.girone)?" · Girone "+esc(c.girone):""}</span>
+      ${cl.length?`<span class="hcl">${cl.map(r=>`<span><em>${esc(r.pos)}</em>${sqBadge(r.squadra,22)}<b>${esc(r.squadra)}</b><i>${esc(r.pt)} pt</i></span>`).join("")}</span>`:""}
+      <span class="hhc">${Lg.length?(g&&g.n?"Giornata "+g.n+" · ":"")+Lg.length+" partite"+(nFin?" · "+nFin+" giocate":""):"Calendario e risultati"} · Vedi tutto ›</span></button>`};
+  const CC=cs.filter(c=>c&&c.dati);
+  if(!L.length&&!CC.length)return"";
+  const start=0;
   PUB.mm=PUB.mm||[];
   const card=({m,c,lv,tua})=>{const mi=PUB.mm.push({m,c})-1;const live=lv&&lv.st==="in";
     const gc=lv&&lv.gc!=null?lv.gc:m.gc,go=lv&&lv.go!=null?lv.go:m.go;const sc=gc!=null&&go!=null;
@@ -919,8 +926,9 @@ function homeHero(sq){const C=PUB.camp||[];const oggi=isoAdd(0);const best=[];
     return `<button class="hhero ${hhTema(c)}${tua?" tua":""}" onclick="if(Date.now()-(this.parentElement._sw||0)<400)return;PUB.match=${mi};pubRender()" aria-label="${esc(m.casa+" contro "+m.ospite)}"><span class="hhbg" aria-hidden="true"></span>${tag}${tua?`<span class="hhq">★ ${esc(tua)}</span>`:""}
       <span class="hhm"><span class="hht">${sqBadge(m.casa,58)}<b>${esc(m.casa)}</b></span><span class="hhs"><b>${sc?`${gc} - ${go}`:esc(m.ora||"–")}</b><small>${sub}</small></span><span class="hht">${sqBadge(m.ospite,58)}<b>${esc(m.ospite)}</b></span></span>
       <span class="hhc">${esc(c.categoria)}${c.girone&&!/unico/i.test(c.girone)?" · Girone "+esc(c.girone):""}${m.giornata?" · "+m.giornata+"ª giornata":""}</span></button>`};
-  if(L.length===1)return card(L[0]);
-  return `<div class="hhone" data-i="${start}" ontouchstart="gTs(event,this)" ontouchend="hhTe(event,this)">${L.map((x,j)=>card(x).replace('<button class="hhero','<button'+(j===start?"":" hidden")+' class="hhero')).join("")}</div><div class="hhnav"><button onclick="hhStep(this,-1)" aria-label="Partita precedente" ${start?"":"disabled"}>‹</button><span>${start+1} di ${L.length}</span><button onclick="hhStep(this,1)" aria-label="Partita successiva" ${start<L.length-1?"":"disabled"}>›</button></div>`}
+  const H=[...L.map(card),...CC.map(campCard)];
+  if(H.length===1)return H[0];
+  return `<div class="hhone" data-i="${start}" ontouchstart="gTs(event,this)" ontouchend="hhTe(event,this)">${H.map((h,j)=>h.replace('<button class="hhero','<button'+(j===start?"":" hidden")+' class="hhero')).join("")}</div><div class="hhnav"><button onclick="hhStep(this,-1)" aria-label="Precedente" disabled>‹</button><span>1 di ${H.length}</span><button onclick="hhStep(this,1)" aria-label="Successivo">›</button></div>`}
 function hhShow(el,j,dir){const C=[...el.children],n=C.length;j=Math.max(0,Math.min(n-1,j));const old=+el.dataset.i||0;if(j===old)return;
   C.forEach((c,k)=>{c.hidden=k!==j;c.classList.remove("gin-l","gin-r")});void C[j].offsetWidth;C[j].classList.add((dir??(j>old?1:-1))>0?"gin-r":"gin-l");el.dataset.i=j;
   const nav=el.nextElementSibling;if(nav){nav.querySelector("span").textContent=(j+1)+" di "+n;const bs=nav.querySelectorAll("button");bs[0].disabled=j===0;bs[1].disabled=j===n-1}}
@@ -2874,6 +2882,7 @@ html,body{overflow-x:hidden;max-width:100%;overscroll-behavior-x:none}#pub{overf
 #pub .hhero>*{position:relative}#pub .hhl{display:inline-block;float:left;font-size:12px;font-weight:700;letter-spacing:.03em;background:rgba(255,255,255,.16);padding:5px 10px;border-radius:999px}#pub .hhl.live{background:#1fa64a}
 #pub .hhm{clear:both;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;padding-top:12px}#pub .hht{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0}#pub .hht b{font-size:15px;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #pub .hht img,#pub .hht>span:first-child{filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}#pub .hhs b{display:block;font-size:34px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}#pub .hhs small{font-size:13px;opacity:.85}
+#pub .hcn{display:block;clear:both;padding-top:12px;font-size:19px;font-weight:700;letter-spacing:-.01em}#pub .hcl{display:flex;flex-direction:column;gap:6px;margin:12px auto 0;max-width:320px;text-align:left}#pub .hcl>span{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border-radius:12px;padding:6px 10px}#pub .hcl,#pub .hcl *{color:#fff!important}#pub .hcl em{font-style:normal;font-weight:700;width:16px;opacity:.8}#pub .hcl b{flex:1;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#pub .hcl i{font-style:normal;font-size:13px;font-weight:700}
 #pub .hhc{display:block;margin-top:10px;font-size:13px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #pub .hdays button{border-radius:18px!important;padding:8px 13px 7px!important;gap:1px!important}#pub .hdays button small{font-size:11.5px;font-weight:500;opacity:.65}#pub .hdays button.on{background:#0f1f17!important;color:#fff!important}#pub .hdays button.on small{opacity:.8}#pub .hdays i{background:#1fa64a}
 #pub .hhd{display:flex;align-items:baseline;justify-content:space-between;gap:8px}#pub .hva{border:0;background:none;color:#1c1c1e;font:600 14px inherit;font-family:inherit;cursor:pointer;padding:6px 2px}
