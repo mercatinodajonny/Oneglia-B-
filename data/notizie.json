@@ -1,7 +1,19 @@
 {
-"aggiornato": "2026-11-27T19:27+00:00",
+"aggiornato": "2026-11-28T02:39+00:00",
 "nota": "Titoli, link e immagini di anteprima pubblicati dalle testate per la condivisione. Gli articoli e le foto restano sui loro siti.",
 "notizie": [
+{
+"t": "Primo pareggio per il Venezia, al Penzo finisce 0-0 con il Bologna",
+"f": "Sanremonews",
+"z": "Imperia",
+"u": "https://www.sanremonews.it/2026/11/27/leggi-notizia/articolo/primo-pareggio-per-il-venezia-al-penzo-finisce-0-0-con-il-bologna.html",
+"d": "2026-11-27T21:56:32+00:00",
+"sq": [
+"Bologna",
+"Venezia"
+],
+"img": "https://www.sanremonews.it/"
+},
 {
 "t": "Il primo Pallone d’Oro della storia di Calcio Flash Ponente brilla in Europa: Lamin Jawo a segno in Conference League",
 "f": "Calcio Flash Ponente",
@@ -21,6 +33,27 @@
 "Modena"
 ],
 "img": "https://www.svsport.it/fileadmin/archivio/svsport/2026/11/calcio_martino_odero.jpg"
+},
+{
+"t": "Serie C, il Vado a Gubbio per non ripiombare in piena zona playout. Riolfo: “Manteniamo lucidità”",
+"f": "IVG",
+"z": "Savona",
+"u": "https://www.ivg.it/2026/11/serie-c-il-vado-a-gubbio-per-non-risalire-sulla-montagna-russa-riolfo-manteniamo-lucidita/",
+"d": "2026-11-27T18:21:58+00:00",
+"sq": [
+"Gubbio",
+"Vado"
+],
+"img": ""
+},
+{
+"t": "Calcio dilettanti: scende la temperatura e inizia a salire la pressione",
+"f": "IVG",
+"z": "Savona",
+"u": "https://www.ivg.it/2026/11/calcio-dilettanti-scende-la-temperatura-ma-inizia-a-salire-la-pressione/",
+"d": "2026-11-27T17:56:16+00:00",
+"sq": [],
+"img": ""
 },
 {
 "t": "Primo contratto da pro per il varazzino Lorenzo Damonte, arrivano le congratulazioni del sindaco Pierfederici",
@@ -92,8 +125,8 @@
 "u": "https://www.cittadellaspezia.com/2026/11/27/stillitano-vuole-esserci-spezia-allesame-pineto-a-caccia-di-unaltra-vittoria-683466/",
 "d": "2026-11-27T16:18:46+00:00",
 "sq": [
-"Spezia",
-"Pineto"
+"Pineto",
+"Spezia"
 ],
 "img": "https://cdn.cittadellaspezia.com/photogallery_new/images/2026/11/spezia-atalanta-under-23-495686.jpg"
 },
@@ -117,26 +150,6 @@
 "Livorno"
 ],
 "img": "https://calcioflashponente.it/wp-content/uploads/2026/11/foto-sintex-34.jpg"
-},
-{
-"t": "Genoa, De Rossi pre-Inter: “Dovremo fare la partita perfetta”. Ostigard assente, in dubbio Baldanzi",
-"f": "Genova24",
-"z": "Genova",
-"u": "https://www.genova24.it/2026/11/genoa-de-rossi-inter-conferenza-482193/",
-"d": "2026-11-27T12:56:51+00:00",
-"sq": [
-"Genoa"
-],
-"img": ""
-},
-{
-"t": "Il Liceo “Giuliano Della Rovere” alla 17^ edizione del Campionato Nazionale delle Lingue",
-"f": "IVG",
-"z": "Savona",
-"u": "https://www.ivg.it/2026/11/il-liceo-giuliano-della-rovere-alla-17-edizione-del-campionato-nazionale-delle-lingue/",
-"d": "2026-11-27T12:47:30+00:00",
-"sq": [],
-"img": ""
 },
 {
 "t": "COMUNICAZIONE UFFICIALE SANREMESE CALCIO: MICHEL PLATINI OSPITE AL COMUNALE PER LA SFIDA CON IL LASCARIS",
@@ -168,7 +181,7 @@
 "u": "https://www.svsport.it/2026/11/27/leggi-notizia/argomenti/calcio-1/articolo/calcio-eccellenza-le-designazioni-per-la-dodicesima-giornata-righetti-per-lanticipo-pietra-ca.html",
 "d": "2026-11-27T07:42:03+00:00",
 "sq": [
-"Carcarese"
+"Carcarese Sq.b"
 ],
 "img": "https://www.svsport.it/fileadmin/archivio/svsport/2025/04/arbitro_luca_savino_2025.jpg"
 },
@@ -370,8 +383,8 @@
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/serie-a-venezia-bologna-in-campo-venerdi-alle-20.45-diretta_207eb2a3-514f-4b61-ab45-2cdfd5a3fffe.html",
 "d": "2026-11-26T16:07:26+00:00",
 "sq": [
-"Venezia",
-"Bologna"
+"Bologna",
+"Venezia"
 ],
 "img": "https://www.ansa.it/webimages/img_1280x720/2026/11/22/e5a67c35a2481bf43aac1c0178398d62.jpg"
 },
@@ -428,8 +441,8 @@
 "u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/26/bologna-palladino-a-venezia-mi-aspetto-passi-avanti_ce57865d-cf0b-4d94-b90f-a77398f0e706.html",
 "d": "2026-11-26T15:32:15+00:00",
 "sq": [
-"Venezia",
-"Bologna"
+"Bologna",
+"Venezia"
 ],
 "img": "https://www.ansa.it/webimages/img_1280x720/2026/11/7/eddcae5d5121d468a79693818bb9a058.jpg"
 },
@@ -610,15 +623,6 @@
 "Vicenza"
 ],
 "img": "https://www.ansa.it/webimages/img_1280x720/2012/12/13/502bc3ad206d72f773f63bb56a68df09.jpg"
-},
-{
-"t": "Europa League: allenatore Olympiacos, 'contro il Milan è vita o morte'",
-"f": "ANSA",
-"z": "Italia",
-"u": "https://www.ansa.it/sito/notizie/sport/calcio/2026/11/25/europa-league-allenatore-olympiacos-contro-il-milan-e-vita-o-morte_1daf2565-eeeb-4506-a540-f4010760f228.html",
-"d": "2026-11-25T15:29:44+00:00",
-"sq": [],
-"img": "https://www.ansa.it/webimages/img_1280x720/2026/8/4/e0c2516b08e6fd370c8c920486d762ce.jpg"
 }
 ]
 }
