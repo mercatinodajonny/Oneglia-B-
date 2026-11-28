@@ -573,7 +573,7 @@ const ROLE = Object.fromEntries(ROLES.map(r=>[r.k,r]));
 const STAFF_ROLES = ["Allenatore","Vice allenatore","Collaboratore tecnico","Preparatore portieri","Preparatore atletico","Team manager","Accompagnatore","Dirigente","Presidente","Vice presidente","Social media manager","Altro"];
 const TEAM = "Oneglia Sq. B";
 // ---------- aggiornamento automatico: se esce una versione nuova, l'app si ricarica da sola
-const BUILD="2026-11-28-01";
+const BUILD="2026-11-28-02";
 async function checkUpdate(){try{const r=await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"});if(!r.ok)return;const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);
   if(m&&m[1]!==BUILD){const k="og_upd_"+m[1];if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,"1");location.replace(location.pathname+"?v="+m[1])}}catch(e){}}
 setTimeout(checkUpdate,1500);
@@ -3019,7 +3019,11 @@ async function pubDoLogin(){const E=$("#plE"),P=$("#plP"),M=t=>{const m=$("#plMs
   if(r.error){M(/invalid login/i.test(r.error.message)?"Email o password sbagliate":/already registered|already been registered/i.test(r.error.message)?"Hai già un account: usa Accedi":/rate/i.test(r.error.message)?"Troppi tentativi, riprova tra poco":/not confirmed/i.test(r.error.message)?"Account non ancora attivo: chiedi alla tua società di sbloccarlo":"Errore: "+r.error.message);return}
   if(!r.data.session){M("Controlla la tua email per confermare, poi accedi.");return}
   PUB.loggato=true;PUB.email=email;PUB.acc=null;PUB.mr=undefined;try{const x=await SB.rpc("my_access");PUB.acc=x.data||[];const a=await SB.rpc("is_platform_admin");PUB.admin=a.data===true}catch(e){PUB.acc=[]}
-  const dopo=PUB.dopo;PUB.dopo=null;pubGo(dopo||"account")}
+  const dopo=PUB.dopo;PUB.dopo=null;
+  // chi entra come società va dritto nella schermata della sua società
+  if(!dopo&&PUB.acc&&PUB.acc.length){const staff=PUB.acc.map((x,i)=>({x,i})).filter(o=>!GIOC_RUOLI.includes(o.x.ruolo));const soloStaff=staff.length===PUB.acc.length;
+    if(staff.length&&(PUB.chi==="soc"||(soloStaff&&!PUB.admin))){let k=null;try{k=localStorage.getItem("og_acc")}catch(e){}const s=staff.find(o=>accKey(o.x)===k)||staff[0];entraCome(s.i);return}}
+  pubGo(dopo||"account")}
 async function pubRichiesta(){const v=id=>(($("#"+id)||{}).value||"").trim();const M=t=>{const m=$("#plMsg");if(m)m.textContent=t};
   const d={societa:v("rsS"),citta:v("rsC"),referente:v("rsN"),ruolo:v("rsR"),email:v("plE").toLowerCase(),telefono:v("rsT")};
   if(d.societa.length<2||!/^\S+@\S+\.\S+$/.test(d.email)){M("Scrivi almeno il nome della società e un'email valida");return}
